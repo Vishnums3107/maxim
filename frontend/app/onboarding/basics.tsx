@@ -27,11 +27,20 @@ const LEVELS = [
   { id: 'advanced', label: 'Advanced', desc: 'Experienced high-performer' },
 ];
 
+const SEX_OPTIONS = [
+  { id: 'male', label: 'Male' },
+  { id: 'female', label: 'Female' },
+  { id: 'other', label: 'Other' },
+];
+
 export default function OnboardingBasics() {
   const router = useRouter();
   const { setProfile } = useUserStore();
-  
+
   const [age, setAge] = useState('');
+  const [sex, setSex] = useState<'male' | 'female' | 'other' | undefined>(undefined);
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
   const [activityLevel, setActivityLevel] = useState('moderate');
   const [level, setLevel] = useState('beginner');
   const [dailyTime, setDailyTime] = useState('60');
@@ -43,6 +52,9 @@ export default function OnboardingBasics() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       age: age ? parseInt(age) : undefined,
+      sex: sex,
+      height: height ? parseFloat(height) : undefined,
+      weight: weight ? parseFloat(weight) : undefined,
       sleepQuality: 5,
       energyLevel: 5,
       attentionStability: 5,
@@ -54,7 +66,7 @@ export default function OnboardingBasics() {
       level: level as any,
       onboardingComplete: false,
     });
-    
+
     router.push('/onboarding/metrics');
   };
 
@@ -96,6 +108,58 @@ export default function OnboardingBasics() {
             />
           </View>
 
+          {/* Sex */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Sex (optional)</Text>
+            <View style={styles.sexOptions}>
+              {SEX_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.id}
+                  style={[
+                    styles.sexButton,
+                    sex === option.id && styles.sexButtonActive,
+                  ]}
+                  onPress={() => setSex(option.id as 'male' | 'female' | 'other')}
+                >
+                  <Text
+                    style={[
+                      styles.sexText,
+                      sex === option.id && styles.sexTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Height & Weight */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Body Metrics (optional)</Text>
+            <View style={styles.metricsRow}>
+              <View style={styles.metricInput}>
+                <TextInput
+                  style={styles.input}
+                  value={height}
+                  onChangeText={setHeight}
+                  placeholder="Height (cm)"
+                  placeholderTextColor="#6B7280"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View style={styles.metricInput}>
+                <TextInput
+                  style={styles.input}
+                  value={weight}
+                  onChangeText={setWeight}
+                  placeholder="Weight (kg)"
+                  placeholderTextColor="#6B7280"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+          </View>
           {/* Experience Level */}
           <View style={styles.section}>
             <Text style={styles.label}>Experience Level</Text>
@@ -293,6 +357,38 @@ const styles = StyleSheet.create({
   },
   timeTextActive: {
     color: '#FFF',
+  },
+  sexOptions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  sexButton: {
+    flex: 1,
+    backgroundColor: '#1F2937',
+    borderRadius: 10,
+    padding: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#374151',
+  },
+  sexButtonActive: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  },
+  sexText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  sexTextActive: {
+    color: '#FFF',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  metricInput: {
+    flex: 1,
   },
   footer: {
     paddingHorizontal: 20,

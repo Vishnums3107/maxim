@@ -8,12 +8,15 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import google.generativeai as genai
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+# Configure Gemini API - uses GOOGLE_API_KEY or GEMINI_API_KEY
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') or os.environ.get('GEMINI_API_KEY')
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -115,21 +118,23 @@ Principles:
 Provide systematic approaches to consistency. Be analytical and strategic."""
 }
 
-# Helper function to generate AI response
+# Helper function to generate AI response using Gemini
 async def generate_ai_response(prompt: str, module: str, session_id: str) -> str:
     try:
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message=SYSTEM_PROMPTS.get(module, SYSTEM_PROMPTS["systems"])
-        ).with_model("gemini", "gemini-2.5-flash")
+        if not GOOGLE_API_KEY:
+            return "AI features require a GOOGLE_API_KEY. Please add it to your .env file."
         
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
-        return response
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            system_instruction=SYSTEM_PROMPTS.get(module, SYSTEM_PROMPTS["systems"])
+        )
+        
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         logging.error(f"AI generation error: {e}")
-        return f"I'm currently unable to generate a personalized response. Please try again later."
+        return f"AI Error ({type(e).__name__}): {str(e)}"\
+
 
 @api_router.get("/")
 async def root():
@@ -137,7 +142,7 @@ async def root():
 
 @api_router.get("/health")
 async def health_check():
-    return {"status": "healthy", "ai_enabled": bool(EMERGENT_LLM_KEY)}
+    return {"status": "healthy", "ai_enabled": bool(GOOGLE_API_KEY)}
 
 @api_router.post("/generate-protocol")
 async def generate_protocol(request: ProtocolRequest):
@@ -224,24 +229,13 @@ Provide ONE action item for each domain:
 Format as a clean checklist. Be specific and realistic for their time/energy."""
     
     session_id = f"briefing-{uuid.uuid4().hex[:8]}"
+    response = await generate_ai_response(prompt, "systems", session_id)
     
-    chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=session_id,
-        system_message="You are MAXIM, a calm elite performance coach. You provide clear, minimal daily protocols. No fluff. No hype. Just effective action items."
-    ).with_model("gemini", "gemini-2.5-flash")
-    
-    try:
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
-        return {
-            "briefing": response,
-            "date": datetime.utcnow().strftime("%Y-%m-%d"),
-            "generated_at": datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        logging.error(f"Briefing generation error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate briefing")
+    return {
+        "briefing": response,
+        "date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "generated_at": datetime.utcnow().isoformat()
+    }
 
 @api_router.post("/weekly-review")
 async def generate_weekly_review(profile: UserProfile, week_data: Dict[str, Any] = None):
@@ -273,8 +267,6 @@ Be analytical, not emotional. Focus on systems, not motivation."""
         "generated_at": datetime.utcnow().isoformat()
     }
 
-app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -282,6 +274,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router)
 
 logging.basicConfig(
     level=logging.INFO,

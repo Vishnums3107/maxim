@@ -15,9 +15,9 @@ import { generateProtocol } from '../../src/utils/api';
 
 const COGNITIVE_TOOLS = [
   { id: 'focus', name: 'Focus Block', desc: 'Deep work session', icon: 'timer-outline', route: '/modules/focus' },
-  { id: 'learning', name: 'Learning Session', desc: 'Active recall & synthesis', icon: 'book-outline' },
-  { id: 'planning', name: 'Work Planning', desc: 'Prioritize & schedule', icon: 'calendar-outline' },
-  { id: 'review', name: 'Knowledge Review', desc: 'Spaced repetition', icon: 'refresh-outline' },
+  { id: 'learning', name: 'Learning Tools', desc: 'Goal decomposition & Feynman', icon: 'book-outline', route: '/modules/learning' },
+  { id: 'distractions', name: 'Distraction Diagnostics', desc: 'Pattern analysis', icon: 'alert-circle-outline', route: '/modules/distractions' },
+  { id: 'insights', name: 'Intelligence Insights', desc: 'Trends & overload detection', icon: 'analytics-outline', route: '/modules/insights' },
 ];
 
 const MENTAL_MODELS = [

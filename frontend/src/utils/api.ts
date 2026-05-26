@@ -1,72 +1,36 @@
-import axios from 'axios';
+/**
+ * MAXIM API Client
+ * REFACTORED: Now uses on-device AI via aiService.ts
+ * No longer requires backend server.
+ */
+
 import { UserProfile } from '../types';
+import {
+  generateProtocol as localGenerateProtocol,
+  generateDailyBriefing as localGenerateDailyBriefing,
+  generateWeeklyReview as localGenerateWeeklyReview,
+  chatWithCoach as localChatWithCoach,
+  checkHealth as localCheckHealth
+} from '../services/aiService';
+import { ModuleType } from '../constants/prompts';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-
-const api = axios.create({
-  baseURL: `${API_URL}/api`,
-  timeout: 60000, // AI responses can take time
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-export interface ProfileForAPI {
-  age?: number;
-  sex?: string;
-  height?: number;
-  weight?: number;
-  sleep_quality: number;
-  energy_level: number;
-  attention_stability: number;
-  anxiety_tendency: number;
-  physical_activity: string;
-  learning_goals: string[];
-  social_confidence: number;
-  daily_time_available: number;
-  level: string;
-}
-
-export const convertProfileForAPI = (profile: UserProfile): ProfileForAPI => ({
-  age: profile.age,
-  sex: profile.sex,
-  height: profile.height,
-  weight: profile.weight,
-  sleep_quality: profile.sleepQuality,
-  energy_level: profile.energyLevel,
-  attention_stability: profile.attentionStability,
-  anxiety_tendency: profile.anxietyTendency,
-  physical_activity: profile.physicalActivity,
-  learning_goals: profile.learningGoals,
-  social_confidence: profile.socialConfidence,
-  daily_time_available: profile.dailyTimeAvailable,
-  level: profile.level,
-});
-
+// We no longer need to convert profile for API since we are using local types
+// But we keep the function signature if needed for future compatibility
+// diff_block_start
 export const generateProtocol = async (
   profile: UserProfile,
   module: string,
   context?: string
 ) => {
-  const response = await api.post('/generate-protocol', {
-    profile: convertProfileForAPI(profile),
-    module,
-    context,
-  });
-  return response.data;
+  return localGenerateProtocol(profile, module as ModuleType, context);
 };
 
 export const generateDailyBriefing = async (profile: UserProfile) => {
-  const response = await api.post('/daily-briefing', convertProfileForAPI(profile));
-  return response.data;
+  return localGenerateDailyBriefing(profile);
 };
 
 export const generateWeeklyReview = async (profile: UserProfile, weekData?: any) => {
-  const response = await api.post('/weekly-review', {
-    profile: convertProfileForAPI(profile),
-    week_data: weekData,
-  });
-  return response.data;
+  return localGenerateWeeklyReview(profile, weekData);
 };
 
 export const chatWithCoach = async (
@@ -75,18 +39,11 @@ export const chatWithCoach = async (
   module: string,
   sessionId: string
 ) => {
-  const response = await api.post('/chat', {
-    message,
-    profile: convertProfileForAPI(profile),
-    module,
-    session_id: sessionId,
-  });
-  return response.data;
+  return localChatWithCoach(message, profile, module as ModuleType, sessionId);
 };
 
 export const checkHealth = async () => {
-  const response = await api.get('/health');
-  return response.data;
+  return localCheckHealth();
 };
 
-export default api;
+export default { generateProtocol, generateDailyBriefing, generateWeeklyReview, chatWithCoach, checkHealth };

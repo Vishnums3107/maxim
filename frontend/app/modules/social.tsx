@@ -99,8 +99,8 @@ export default function SocialModule() {
                 {profile?.socialConfidence && profile.socialConfidence >= 7
                   ? 'Strong foundation. Focus on refinement.'
                   : profile?.socialConfidence && profile.socialConfidence >= 4
-                  ? 'Room for growth. Consistent practice helps.'
-                  : 'Start with small exposures. Build gradually.'}
+                    ? 'Room for growth. Consistent practice helps.'
+                    : 'Start with small exposures. Build gradually.'}
               </Text>
             </View>
           </View>
@@ -138,7 +138,33 @@ export default function SocialModule() {
         {/* Tools */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Training Tools</Text>
-          {SOCIAL_TOOLS.map((tool) => (
+          <TouchableOpacity
+            style={styles.toolCard}
+            onPress={() => router.push('/modules/exposure')}
+          >
+            <View style={styles.toolIcon}>
+              <Ionicons name="trending-up" size={24} color="#F59E0B" />
+            </View>
+            <View style={styles.toolContent}>
+              <Text style={styles.toolName}>Social Exposure</Text>
+              <Text style={styles.toolDesc}>Gradual confidence building</Text>
+            </View>
+            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.toolCard}
+            onPress={() => router.push('/modules/conversation')}
+          >
+            <View style={styles.toolIcon}>
+              <Ionicons name="chatbubbles" size={24} color="#F59E0B" />
+            </View>
+            <View style={styles.toolContent}>
+              <Text style={styles.toolName}>Conversation Reflection</Text>
+              <Text style={styles.toolDesc}>Learn from every interaction</Text>
+            </View>
+            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+          </TouchableOpacity>
+          {SOCIAL_TOOLS.slice(0, 2).map((tool) => (
             <TouchableOpacity key={tool.id} style={styles.toolCard}>
               <View style={styles.toolIcon}>
                 <Ionicons name={tool.icon as any} size={24} color="#F59E0B" />

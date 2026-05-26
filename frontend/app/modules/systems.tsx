@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,17 +14,89 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { generateProtocol, generateWeeklyReview } from '../../src/utils/api';
-import { format } from 'date-fns';
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 export default function SystemsModule() {
   const router = useRouter();
-  const { profile, habits, addHabit, completeHabit, addProtocol, addWeeklyReview } = useUserStore();
+  const { profile, habits, dailyEntries, addHabit, completeHabit, addProtocol, addWeeklyReview } = useUserStore();
   const [protocol, setProtocol] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAddHabit, setShowAddHabit] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
 
   const today = format(new Date(), 'yyyy-MM-dd');
+
+  // Calculate System Health Score (1-10)
+  const systemHealth = useMemo(() => {
+    const last7Days = eachDayOfInterval({
+      start: subDays(new Date(), 6),
+      end: new Date(),
+    }).map(d => format(d, 'yyyy-MM-dd'));
+
+    // Habit consistency (40%)
+    let habitScore = 0;
+    if (habits.length > 0) {
+      const totalPossible = habits.length * 7;
+      const totalCompleted = habits.reduce((acc, habit) => {
+        return acc + last7Days.filter(d => habit.completions.includes(d)).length;
+      }, 0);
+      habitScore = (totalCompleted / totalPossible) * 4;
+    } else {
+      habitScore = 2; // Neutral if no habits
+    }
+
+    // Daily protocol completion (40%)
+    let protocolScore = 0;
+    const recentEntries = dailyEntries.filter(e => last7Days.includes(e.date));
+    if (recentEntries.length > 0) {
+      const totalActions = recentEntries.reduce((acc, entry) => {
+        let completed = 0;
+        if (entry.physicalAction?.completed) completed++;
+        if (entry.cognitiveAction?.completed) completed++;
+        if (entry.regulationAction?.completed) completed++;
+        if (entry.socialAction?.completed) completed++;
+        if (entry.systemAction?.completed) completed++;
+        return acc + completed;
+      }, 0);
+      protocolScore = (totalActions / (recentEntries.length * 5)) * 4;
+    } else {
+      protocolScore = 0;
+    }
+
+    // Profile completeness (20%)
+    let profileScore = 1;
+    if (profile) {
+      if (profile.age) profileScore += 0.2;
+      if (profile.learningGoals.length > 0) profileScore += 0.4;
+      if (profile.dailyTimeAvailable) profileScore += 0.2;
+      if (profile.level !== 'beginner') profileScore += 0.2;
+    }
+
+    const total = Math.min(10, Math.round((habitScore + protocolScore + profileScore) * 10) / 10);
+    return total;
+  }, [habits, dailyEntries, profile]);
+
+  // Calculate individual habit consistency rates
+  const getHabitStats = (habit: typeof habits[0]) => {
+    const last7Days = eachDayOfInterval({
+      start: subDays(new Date(), 6),
+      end: new Date(),
+    }).map(d => format(d, 'yyyy-MM-dd'));
+
+    const last30Days = eachDayOfInterval({
+      start: subDays(new Date(), 29),
+      end: new Date(),
+    }).map(d => format(d, 'yyyy-MM-dd'));
+
+    const weeklyRate = last7Days.filter(d => habit.completions.includes(d)).length;
+    const monthlyRate = last30Days.filter(d => habit.completions.includes(d)).length;
+
+    return {
+      weeklyRate,
+      monthlyRate,
+      totalCompletions: habit.completions.length,
+    };
+  };
 
   const generateSystemsProtocol = async () => {
     if (!profile) return;
@@ -104,6 +176,38 @@ export default function SystemsModule() {
           </Text>
         </View>
 
+        {/* System Health Score */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>System Health</Text>
+          <View style={styles.healthCard}>
+            <View style={styles.healthScoreContainer}>
+              <View style={[
+                styles.healthScoreRing,
+                { borderColor: systemHealth >= 7 ? '#10B981' : systemHealth >= 4 ? '#F59E0B' : '#EF4444' }
+              ]}>
+                <Text style={styles.healthScoreText}>{systemHealth.toFixed(1)}</Text>
+                <Text style={styles.healthScoreLabel}>/10</Text>
+              </View>
+            </View>
+            <View style={styles.healthDetails}>
+              <View style={styles.healthRow}>
+                <Ionicons name="repeat" size={16} color="#9CA3AF" />
+                <Text style={styles.healthRowText}>Habit consistency</Text>
+                <View style={[styles.healthDot, { backgroundColor: habits.length > 0 ? '#10B981' : '#374151' }]} />
+              </View>
+              <View style={styles.healthRow}>
+                <Ionicons name="checkmark-circle" size={16} color="#9CA3AF" />
+                <Text style={styles.healthRowText}>Daily protocols</Text>
+                <View style={[styles.healthDot, { backgroundColor: dailyEntries.length > 0 ? '#10B981' : '#374151' }]} />
+              </View>
+              <View style={styles.healthRow}>
+                <Ionicons name="person" size={16} color="#9CA3AF" />
+                <Text style={styles.healthRowText}>Profile complete</Text>
+                <View style={[styles.healthDot, { backgroundColor: profile?.learningGoals?.length ? '#10B981' : '#F59E0B' }]} />
+              </View>
+            </View>
+          </View>
+        </View>
         {/* Habits Tracker */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -159,9 +263,16 @@ export default function SystemsModule() {
                   </View>
                   <View style={styles.habitContent}>
                     <Text style={styles.habitName}>{habit.name}</Text>
-                    <Text style={styles.habitStreak}>
-                      {habit.completions.length} total completions
-                    </Text>
+                    <View style={styles.habitStats}>
+                      <View style={styles.habitStatItem}>
+                        <Text style={styles.habitStatValue}>{getHabitStats(habit).weeklyRate}</Text>
+                        <Text style={styles.habitStatLabel}>/7 this week</Text>
+                      </View>
+                      <View style={styles.habitStatItem}>
+                        <Text style={styles.habitStatValue}>{getHabitStats(habit).monthlyRate}</Text>
+                        <Text style={styles.habitStatLabel}>/30 this month</Text>
+                      </View>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -394,11 +505,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#F9FAFB',
+    marginBottom: 6,
   },
-  habitStreak: {
-    fontSize: 13,
+  habitStats: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  habitStatItem: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  habitStatValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#3B82F6',
+  },
+  habitStatLabel: {
+    fontSize: 12,
     color: '#9CA3AF',
-    marginTop: 2,
+    marginLeft: 2,
   },
   emptyState: {
     backgroundColor: '#1F2937',
@@ -507,5 +632,51 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  healthCard: {
+    backgroundColor: '#1F2937',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  healthScoreContainer: {
+    marginRight: 20,
+  },
+  healthScoreRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  healthScoreText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#F9FAFB',
+  },
+  healthScoreLabel: {
+    fontSize: 12,
+    color: '#9CA3AF',
+  },
+  healthDetails: {
+    flex: 1,
+  },
+  healthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  healthRowText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#D1D5DB',
+  },
+  healthDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 });

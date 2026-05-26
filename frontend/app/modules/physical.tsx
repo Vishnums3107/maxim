@@ -71,6 +71,26 @@ export default function PhysicalModule() {
           </Text>
         </View>
 
+        {/* Quick Tools */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Tools</Text>
+          <View style={styles.toolsRow}>
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => router.push('/modules/workouts')}
+            >
+              <Ionicons name="barbell" size={24} color="#EF4444" />
+              <Text style={styles.toolLabel}>Workouts</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => router.push('/modules/sleep')}
+            >
+              <Ionicons name="moon" size={24} color="#6366F1" />
+              <Text style={styles.toolLabel}>Sleep Log</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         {/* Workout Types */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Training Options</Text>
@@ -297,5 +317,22 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#D1D5DB',
     fontSize: 14,
+  },
+  toolsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  toolCard: {
+    flex: 1,
+    backgroundColor: '#1F2937',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    gap: 8,
+  },
+  toolLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#F9FAFB',
   },
 });
