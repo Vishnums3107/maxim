@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { format, subDays, eachDayOfInterval, differenceInDays } from 'date-fns';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function InsightsScreen() {
     const router = useRouter();
@@ -186,20 +187,14 @@ export default function InsightsScreen() {
     }, [focusBlocks, breathingSessions, dailyEntries]);
 
     const getTrendIcon = (trend: string) => {
-        if (trend === 'up') return { name: 'trending-up', color: '#10B981' };
-        if (trend === 'down') return { name: 'trending-down', color: '#EF4444' };
-        return { name: 'remove', color: '#6B7280' };
+        if (trend === 'up') return { name: 'trending-up', color: '#34D399' };
+        if (trend === 'down') return { name: 'trending-down', color: '#F87171' };
+        return { name: 'remove', color: '#5E5E6A' };
     };
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Intelligence Insights</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Intelligence Insights" />
 
             <ScrollView style={styles.content}>
                 {/* Overload Detection */}
@@ -208,16 +203,16 @@ export default function InsightsScreen() {
                     <View style={[
                         styles.statusCard,
                         {
-                            borderLeftColor: overloadAnalysis.level === 'high' ? '#EF4444' :
-                                overloadAnalysis.level === 'moderate' ? '#F59E0B' : '#10B981'
+                            borderLeftColor: overloadAnalysis.level === 'high' ? '#F87171' :
+                                overloadAnalysis.level === 'moderate' ? '#FBBF24' : '#34D399'
                         }
                     ]}>
                         <View style={styles.statusHeader}>
                             <Text style={[
                                 styles.statusLevel,
                                 {
-                                    color: overloadAnalysis.level === 'high' ? '#EF4444' :
-                                        overloadAnalysis.level === 'moderate' ? '#F59E0B' : '#10B981'
+                                    color: overloadAnalysis.level === 'high' ? '#F87171' :
+                                        overloadAnalysis.level === 'moderate' ? '#FBBF24' : '#34D399'
                                 }
                             ]}>
                                 {overloadAnalysis.level.toUpperCase()} LOAD
@@ -226,7 +221,7 @@ export default function InsightsScreen() {
                         {overloadAnalysis.warnings.length > 0 ? (
                             overloadAnalysis.warnings.map((w, i) => (
                                 <View key={i} style={styles.warningRow}>
-                                    <Ionicons name="alert-circle" size={14} color="#F59E0B" />
+                                    <Ionicons name="alert-circle" size={14} color="#FBBF24" />
                                     <Text style={styles.warningText}>{w}</Text>
                                 </View>
                             ))
@@ -242,15 +237,15 @@ export default function InsightsScreen() {
                     <View style={[
                         styles.statusCard,
                         {
-                            borderLeftColor: stagnationAnalysis.level === 'stagnant' ? '#EF4444' :
-                                stagnationAnalysis.level === 'slowing' ? '#F59E0B' : '#10B981'
+                            borderLeftColor: stagnationAnalysis.level === 'stagnant' ? '#F87171' :
+                                stagnationAnalysis.level === 'slowing' ? '#FBBF24' : '#34D399'
                         }
                     ]}>
                         <Text style={[
                             styles.statusLevel,
                             {
-                                color: stagnationAnalysis.level === 'stagnant' ? '#EF4444' :
-                                    stagnationAnalysis.level === 'slowing' ? '#F59E0B' : '#10B981'
+                                color: stagnationAnalysis.level === 'stagnant' ? '#F87171' :
+                                    stagnationAnalysis.level === 'slowing' ? '#FBBF24' : '#34D399'
                             }
                         ]}>
                             {stagnationAnalysis.level.toUpperCase()}
@@ -311,7 +306,7 @@ export default function InsightsScreen() {
                     <View style={styles.recommendCard}>
                         {overloadAnalysis.level === 'high' ? (
                             <>
-                                <Ionicons name="heart" size={24} color="#EF4444" />
+                                <Ionicons name="heart" size={24} color="#F87171" />
                                 <Text style={styles.recommendText}>
                                     Focus on recovery today. Skip non-essential tasks. Prioritize sleep and one regulation session.
                                 </Text>
@@ -325,7 +320,7 @@ export default function InsightsScreen() {
                             </>
                         ) : (
                             <>
-                                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                                <Ionicons name="checkmark-circle" size={24} color="#34D399" />
                                 <Text style={styles.recommendText}>
                                     Systems healthy. Maintain consistency with current protocols. Consider deepening one area.
                                 </Text>
@@ -341,23 +336,23 @@ export default function InsightsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     content: { flex: 1, paddingHorizontal: 20 },
     section: { marginBottom: 28 },
-    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB', marginBottom: 12 },
-    statusCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 16, borderLeftWidth: 4 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7', marginBottom: 12 },
+    statusCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 16, borderLeftWidth: 4 },
     statusHeader: { marginBottom: 8 },
     statusLevel: { fontSize: 13, fontWeight: '700' },
     warningRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 8 },
-    warningText: { flex: 1, fontSize: 13, color: '#D1D5DB', lineHeight: 18 },
-    allClearText: { fontSize: 14, color: '#10B981', marginTop: 4 },
+    warningText: { flex: 1, fontSize: 13, color: '#C4C4CC', lineHeight: 18 },
+    allClearText: { fontSize: 14, color: '#34D399', marginTop: 4 },
     trendsGrid: { flexDirection: 'row', gap: 10 },
-    trendCard: { flex: 1, backgroundColor: '#1F2937', borderRadius: 12, padding: 14, alignItems: 'center' },
-    trendLabel: { fontSize: 11, color: '#9CA3AF', marginTop: 8 },
-    trendValue: { fontSize: 16, fontWeight: '700', color: '#F9FAFB', marginTop: 4 },
-    trendCompare: { fontSize: 10, color: '#6B7280', marginTop: 4 },
-    recommendCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#1F2937', borderRadius: 12, padding: 16, gap: 14 },
-    recommendText: { flex: 1, fontSize: 14, color: '#D1D5DB', lineHeight: 22 },
+    trendCard: { flex: 1, backgroundColor: '#11111C', borderRadius: 12, padding: 14, alignItems: 'center' },
+    trendLabel: { fontSize: 11, color: '#9494A0', marginTop: 8 },
+    trendValue: { fontSize: 16, fontWeight: '700', color: '#F5F5F7', marginTop: 4 },
+    trendCompare: { fontSize: 10, color: '#5E5E6A', marginTop: 4 },
+    recommendCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#11111C', borderRadius: 12, padding: 16, gap: 14 },
+    recommendText: { flex: 1, fontSize: 14, color: '#C4C4CC', lineHeight: 22 },
 });

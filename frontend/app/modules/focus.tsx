@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import { useUserStore } from '../../src/store/userStore';
 
 const DURATION_PRESETS = [15, 25, 45, 60, 90];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function FocusScreen() {
     const router = useRouter();
@@ -142,7 +143,7 @@ export default function FocusScreen() {
             <SafeAreaView style={styles.container} edges={['top']}>
                 <View style={styles.activeHeader}>
                     <TouchableOpacity onPress={() => endSession(false)}>
-                        <Ionicons name="close" size={28} color="#F9FAFB" />
+                        <Ionicons name="close" size={28} color="#F5F5F7" />
                     </TouchableOpacity>
                     <Text style={styles.activeTitle}>{taskTitle || 'Focus Session'}</Text>
                     <View style={{ width: 28 }} />
@@ -178,19 +179,19 @@ export default function FocusScreen() {
                     <View style={styles.controlsRow}>
                         {isPaused ? (
                             <TouchableOpacity style={styles.controlButton} onPress={resumeSession}>
-                                <Ionicons name="play" size={32} color="#8B5CF6" />
+                                <Ionicons name="play" size={32} color="#A78BFA" />
                                 <Text style={styles.controlLabel}>Resume</Text>
                             </TouchableOpacity>
                         ) : (
                             <TouchableOpacity style={styles.controlButton} onPress={pauseSession}>
-                                <Ionicons name="pause" size={32} color="#F59E0B" />
+                                <Ionicons name="pause" size={32} color="#FBBF24" />
                                 <Text style={styles.controlLabel}>Pause</Text>
                             </TouchableOpacity>
                         )}
 
                         <TouchableOpacity style={styles.controlButton} onPress={recordDistraction}>
                             <View style={styles.distractionBadge}>
-                                <Ionicons name="alert-circle" size={32} color="#EF4444" />
+                                <Ionicons name="alert-circle" size={32} color="#F87171" />
                                 {distractions > 0 && (
                                     <View style={styles.distractionCount}>
                                         <Text style={styles.distractionCountText}>{distractions}</Text>
@@ -223,18 +224,12 @@ export default function FocusScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Focus Block</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Focus Block" />
 
             <View style={styles.content}>
                 <View style={styles.heroSection}>
                     <View style={styles.heroIcon}>
-                        <Ionicons name="timer" size={40} color="#8B5CF6" />
+                        <Ionicons name="timer" size={40} color="#A78BFA" />
                     </View>
                     <Text style={styles.heroTitle}>Deep Work Session</Text>
                     <Text style={styles.heroSubtitle}>
@@ -249,7 +244,7 @@ export default function FocusScreen() {
                         value={taskTitle}
                         onChangeText={setTaskTitle}
                         placeholder="e.g., Writing report, Learning React..."
-                        placeholderTextColor="#6B7280"
+                        placeholderTextColor="#5E5E6A"
                     />
                 </View>
 
@@ -279,7 +274,7 @@ export default function FocusScreen() {
                 </View>
 
                 <View style={styles.infoCard}>
-                    <Ionicons name="information-circle" size={20} color="#8B5CF6" />
+                    <Ionicons name="information-circle" size={20} color="#A78BFA" />
                     <Text style={styles.infoText}>
                         Track distractions during your session to understand your focus patterns.
                     </Text>
@@ -299,7 +294,7 @@ export default function FocusScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -311,7 +306,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -325,7 +320,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#8B5CF620',
+        backgroundColor: '#A78BFA20',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
@@ -333,12 +328,12 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 22,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
         lineHeight: 20,
     },
@@ -348,17 +343,17 @@ const styles = StyleSheet.create({
     sectionLabel: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     taskInput: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         fontSize: 16,
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         borderWidth: 1,
-        borderColor: '#374151',
+        borderColor: '#1F1F2C',
     },
     durationRow: {
         flexDirection: 'row',
@@ -366,28 +361,28 @@ const styles = StyleSheet.create({
     },
     durationButton: {
         flex: 1,
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 10,
         padding: 14,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#374151',
+        borderColor: '#1F1F2C',
     },
     durationButtonActive: {
-        backgroundColor: '#8B5CF6',
-        borderColor: '#8B5CF6',
+        backgroundColor: '#A78BFA',
+        borderColor: '#A78BFA',
     },
     durationText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     durationTextActive: {
         color: '#FFF',
     },
     infoCard: {
         flexDirection: 'row',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         gap: 12,
@@ -396,7 +391,7 @@ const styles = StyleSheet.create({
     infoText: {
         flex: 1,
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         lineHeight: 20,
     },
     footer: {
@@ -405,7 +400,7 @@ const styles = StyleSheet.create({
     },
     startButton: {
         flexDirection: 'row',
-        backgroundColor: '#8B5CF6',
+        backgroundColor: '#A78BFA',
         borderRadius: 12,
         padding: 18,
         alignItems: 'center',
@@ -428,7 +423,7 @@ const styles = StyleSheet.create({
     activeTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     activeContent: {
         flex: 1,
@@ -444,7 +439,7 @@ const styles = StyleSheet.create({
         height: 220,
         borderRadius: 110,
         borderWidth: 6,
-        borderColor: '#374151',
+        borderColor: '#1F1F2C',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -454,7 +449,7 @@ const styles = StyleSheet.create({
         height: 220,
         borderRadius: 110,
         borderWidth: 6,
-        borderColor: '#8B5CF6',
+        borderColor: '#A78BFA',
         borderLeftColor: 'transparent',
         borderBottomColor: 'transparent',
     },
@@ -464,11 +459,11 @@ const styles = StyleSheet.create({
     timerText: {
         fontSize: 48,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     timerLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginTop: 4,
     },
     controlsRow: {
@@ -482,7 +477,7 @@ const styles = StyleSheet.create({
     },
     controlLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginTop: 8,
     },
     distractionBadge: {
@@ -492,7 +487,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -6,
         right: -10,
-        backgroundColor: '#EF4444',
+        backgroundColor: '#F87171',
         borderRadius: 10,
         minWidth: 20,
         height: 20,
@@ -505,7 +500,7 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     tipsCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         width: '100%',
@@ -513,18 +508,18 @@ const styles = StyleSheet.create({
     tipsTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     tipsText: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         lineHeight: 22,
     },
     endButton: {
         marginHorizontal: 20,
         marginBottom: 20,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 12,
         padding: 16,
         alignItems: 'center',
@@ -532,6 +527,6 @@ const styles = StyleSheet.create({
     endButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
 });

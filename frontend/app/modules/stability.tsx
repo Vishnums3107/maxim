@@ -42,6 +42,7 @@ const CALM_ROUTINES = [
         steps: ['Cold water on face/wrists', 'Activates dive reflex', 'Lowers heart rate quickly'],
     },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function StabilityScreen() {
     const router = useRouter();
@@ -109,13 +110,7 @@ export default function StabilityScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Stability & Calm</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Stability & Calm" />
 
             <ScrollView style={styles.content}>
                 {/* Stability Score */}
@@ -128,8 +123,8 @@ export default function StabilityScreen() {
                         <Text style={[
                             styles.scoreTrend,
                             {
-                                color: stability.trend === 'stable' ? '#10B981' :
-                                    stability.trend === 'fluctuating' ? '#F59E0B' : '#EF4444'
+                                color: stability.trend === 'stable' ? '#34D399' :
+                                    stability.trend === 'fluctuating' ? '#FBBF24' : '#F87171'
                             }
                         ]}>
                             {stability.trend.toUpperCase()}
@@ -143,7 +138,7 @@ export default function StabilityScreen() {
                 {/* Stress Warning */}
                 {stability.stressWarning && (
                     <View style={styles.warningCard}>
-                        <Ionicons name="warning" size={20} color="#EF4444" />
+                        <Ionicons name="warning" size={20} color="#F87171" />
                         <View style={styles.warningContent}>
                             <Text style={styles.warningTitle}>Elevated Stress Detected</Text>
                             <Text style={styles.warningText}>
@@ -192,7 +187,7 @@ export default function StabilityScreen() {
                         </View>
                     ) : (
                         <View style={styles.loggedCard}>
-                            <Ionicons name="checkmark-circle" size={32} color="#10B981" />
+                            <Ionicons name="checkmark-circle" size={32} color="#34D399" />
                             <Text style={styles.loggedText}>Today's check-in complete</Text>
                         </View>
                     )}
@@ -204,7 +199,7 @@ export default function StabilityScreen() {
                     {CALM_ROUTINES.map((routine) => (
                         <View key={routine.id} style={styles.routineCard}>
                             <View style={styles.routineIcon}>
-                                <Ionicons name={routine.icon as any} size={22} color="#10B981" />
+                                <Ionicons name={routine.icon as any} size={22} color="#34D399" />
                             </View>
                             <View style={styles.routineContent}>
                                 <View style={styles.routineHeader}>
@@ -228,42 +223,42 @@ export default function StabilityScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     content: { flex: 1, paddingHorizontal: 20 },
-    scoreCard: { flexDirection: 'row', backgroundColor: '#1F2937', borderRadius: 16, padding: 20, marginBottom: 16, alignItems: 'center' },
-    scoreRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#10B981', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
-    scoreValue: { fontSize: 28, fontWeight: '700', color: '#10B981' },
+    scoreCard: { flexDirection: 'row', backgroundColor: '#11111C', borderRadius: 16, padding: 20, marginBottom: 16, alignItems: 'center' },
+    scoreRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#34D399', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+    scoreValue: { fontSize: 28, fontWeight: '700', color: '#34D399' },
     scoreInfo: { flex: 1 },
-    scoreLabel: { fontSize: 16, fontWeight: '600', color: '#F9FAFB' },
+    scoreLabel: { fontSize: 16, fontWeight: '600', color: '#F5F5F7' },
     scoreTrend: { fontSize: 13, fontWeight: '700', marginTop: 4 },
-    scoreMeta: { fontSize: 12, color: '#9CA3AF', marginTop: 4 },
-    warningCard: { flexDirection: 'row', backgroundColor: '#EF444420', borderRadius: 12, padding: 14, marginBottom: 20, gap: 12 },
+    scoreMeta: { fontSize: 12, color: '#9494A0', marginTop: 4 },
+    warningCard: { flexDirection: 'row', backgroundColor: '#F8717120', borderRadius: 12, padding: 14, marginBottom: 20, gap: 12 },
     warningContent: { flex: 1 },
-    warningTitle: { fontSize: 14, fontWeight: '600', color: '#EF4444' },
-    warningText: { fontSize: 13, color: '#D1D5DB', marginTop: 4 },
+    warningTitle: { fontSize: 14, fontWeight: '600', color: '#F87171' },
+    warningText: { fontSize: 13, color: '#C4C4CC', marginTop: 4 },
     section: { marginBottom: 24 },
-    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB', marginBottom: 12 },
-    moodCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 16 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7', marginBottom: 12 },
+    moodCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 16 },
     sliderRow: { marginBottom: 16 },
-    sliderLabel: { fontSize: 14, color: '#9CA3AF', marginBottom: 8 },
+    sliderLabel: { fontSize: 14, color: '#9494A0', marginBottom: 8 },
     sliderButtons: { flexDirection: 'row', gap: 4 },
-    sliderBtn: { flex: 1, backgroundColor: '#374151', borderRadius: 6, paddingVertical: 8, alignItems: 'center' },
-    sliderBtnActive: { backgroundColor: '#10B981' },
-    sliderBtnActiveRed: { backgroundColor: '#EF4444' },
-    sliderNum: { fontSize: 12, color: '#9CA3AF', fontWeight: '600' },
+    sliderBtn: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 6, paddingVertical: 8, alignItems: 'center' },
+    sliderBtnActive: { backgroundColor: '#34D399' },
+    sliderBtnActiveRed: { backgroundColor: '#F87171' },
+    sliderNum: { fontSize: 12, color: '#9494A0', fontWeight: '600' },
     sliderNumActive: { color: '#FFF' },
-    logButton: { backgroundColor: '#10B981', borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 8 },
+    logButton: { backgroundColor: '#34D399', borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 8 },
     logButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
-    loggedCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 24, alignItems: 'center', gap: 12 },
-    loggedText: { fontSize: 15, color: '#10B981', fontWeight: '500' },
-    routineCard: { flexDirection: 'row', backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 8 },
-    routineIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#10B98120', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+    loggedCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 24, alignItems: 'center', gap: 12 },
+    loggedText: { fontSize: 15, color: '#34D399', fontWeight: '500' },
+    routineCard: { flexDirection: 'row', backgroundColor: '#11111C', borderRadius: 12, padding: 14, marginBottom: 8 },
+    routineIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#34D39920', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     routineContent: { flex: 1 },
     routineHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-    routineName: { fontSize: 15, fontWeight: '600', color: '#F9FAFB' },
-    routineDuration: { fontSize: 12, color: '#9CA3AF' },
+    routineName: { fontSize: 15, fontWeight: '600', color: '#F5F5F7' },
+    routineDuration: { fontSize: 12, color: '#9494A0' },
     routineSteps: {},
-    routineStep: { fontSize: 13, color: '#D1D5DB', marginBottom: 2 },
+    routineStep: { fontSize: 13, color: '#C4C4CC', marginBottom: 2 },
 });

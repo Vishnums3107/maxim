@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 interface ExposureItem {
     id: string;
@@ -43,7 +44,7 @@ const EXPOSURE_LADDER: ExposureItem[] = [
     { id: '5c', title: 'Initiate plans', description: 'Invite someone to hang out or do something', difficulty: 5, category: 'Advanced', completed: false },
 ];
 
-const DIFFICULTY_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
+const DIFFICULTY_COLORS = ['#34D399', '#60A5FA', '#FBBF24', '#F87171', '#A78BFA'];
 const DIFFICULTY_LABELS = ['Minimal', 'Light', 'Moderate', 'Challenging', 'Growth Zone'];
 
 export default function ExposureScreen() {
@@ -66,13 +67,7 @@ export default function ExposureScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Social Exposure</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Social Exposure" />
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
@@ -125,7 +120,7 @@ export default function ExposureScreen() {
                                 <Ionicons
                                     name={expandedLevel === level ? 'chevron-up' : 'chevron-down'}
                                     size={20}
-                                    color="#6B7280"
+                                    color="#5E5E6A"
                                 />
                             </TouchableOpacity>
 
@@ -194,7 +189,7 @@ export default function ExposureScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -206,7 +201,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -228,16 +223,16 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
     },
     progressCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         marginBottom: 24,
@@ -249,16 +244,16 @@ const styles = StyleSheet.create({
     },
     progressLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     progressValue: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     progressBar: {
         height: 8,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 4,
         overflow: 'hidden',
     },
@@ -273,11 +268,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     levelCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         marginBottom: 8,
         overflow: 'hidden',
@@ -306,32 +301,32 @@ const styles = StyleSheet.create({
     levelTitle: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     levelProgress: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#5E5E6A',
         marginTop: 2,
     },
     levelContent: {
         paddingHorizontal: 16,
         paddingBottom: 12,
         borderTopWidth: 1,
-        borderTopColor: '#374151',
+        borderTopColor: '#1F1F2C',
     },
     exposureItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#374151',
+        borderBottomColor: '#1F1F2C',
     },
     checkbox: {
         width: 22,
         height: 22,
         borderRadius: 6,
         borderWidth: 2,
-        borderColor: '#4B5563',
+        borderColor: '#37373F',
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
@@ -347,19 +342,19 @@ const styles = StyleSheet.create({
     itemTitle: {
         fontSize: 14,
         fontWeight: '500',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 4,
     },
     itemTitleDone: {
         textDecorationLine: 'line-through',
-        color: '#6B7280',
+        color: '#5E5E6A',
     },
     itemDesc: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     tipsCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
     },
@@ -372,6 +367,6 @@ const styles = StyleSheet.create({
     tipText: {
         flex: 1,
         fontSize: 14,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
     },
 });

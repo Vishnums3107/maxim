@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { useUserStore } from '../../src/store/userStore';
 
 type BreathingType = 'box' | 'physiological-sigh' | '4-7-8' | 'coherent';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 interface BreathingPattern {
     id: BreathingType;
@@ -181,7 +182,7 @@ export default function BreathingScreen() {
             <SafeAreaView style={styles.container} edges={['top']}>
                 <View style={styles.activeHeader}>
                     <TouchableOpacity onPress={stopSession}>
-                        <Ionicons name="close" size={28} color="#F9FAFB" />
+                        <Ionicons name="close" size={28} color="#F5F5F7" />
                     </TouchableOpacity>
                     <Text style={styles.patternName}>{selectedPattern.name}</Text>
                     <View style={{ width: 28 }} />
@@ -226,17 +227,11 @@ export default function BreathingScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Breathing Exercises</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Breathing Exercises" />
 
             <View style={styles.heroSection}>
                 <View style={styles.heroIcon}>
-                    <Ionicons name="fitness" size={40} color="#10B981" />
+                    <Ionicons name="fitness" size={40} color="#34D399" />
                 </View>
                 <Text style={styles.heroTitle}>Regulate Your Nervous System</Text>
                 <Text style={styles.heroSubtitle}>
@@ -282,7 +277,7 @@ export default function BreathingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -294,7 +289,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     heroSection: {
         alignItems: 'center',
@@ -305,7 +300,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#10B98120',
+        backgroundColor: '#34D39920',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
@@ -313,13 +308,13 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 22,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
         textAlign: 'center',
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
     },
     patternsContainer: {
@@ -327,12 +322,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     patternCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: '#374151',
+        borderColor: '#1F1F2C',
     },
     patternHeader: {
         flexDirection: 'row',
@@ -343,22 +338,22 @@ const styles = StyleSheet.create({
     patternTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     patternDuration: {
-        backgroundColor: '#10B98120',
+        backgroundColor: '#34D39920',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 12,
     },
     durationText: {
         fontSize: 12,
-        color: '#10B981',
+        color: '#34D399',
         fontWeight: '500',
     },
     patternDesc: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 12,
     },
     patternPhases: {
@@ -367,14 +362,14 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     phaseChip: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 8,
     },
     phaseChipText: {
         fontSize: 12,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
     },
     // Active session styles
     activeHeader: {
@@ -387,7 +382,7 @@ const styles = StyleSheet.create({
     patternName: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     activeContent: {
         flex: 1,
@@ -396,14 +391,14 @@ const styles = StyleSheet.create({
     },
     cycleText: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 40,
     },
     breathingCircle: {
         width: 180,
         height: 180,
         borderRadius: 90,
-        backgroundColor: '#10B981',
+        backgroundColor: '#34D399',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 40,
@@ -416,7 +411,7 @@ const styles = StyleSheet.create({
     actionText: {
         fontSize: 28,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 40,
     },
     phaseIndicators: {
@@ -427,19 +422,19 @@ const styles = StyleSheet.create({
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
     },
     phaseIndicatorActive: {
-        backgroundColor: '#10B981',
+        backgroundColor: '#34D399',
         transform: [{ scale: 1.2 }],
     },
     phaseIndicatorComplete: {
-        backgroundColor: '#10B98180',
+        backgroundColor: '#34D39980',
     },
     stopButton: {
         marginHorizontal: 20,
         marginBottom: 40,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 12,
         padding: 18,
         alignItems: 'center',
@@ -447,6 +442,6 @@ const styles = StyleSheet.create({
     stopButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
 });

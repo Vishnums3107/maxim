@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 
 type WorkoutLocation = 'home' | 'gym';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 type WorkoutCategory = 'strength' | 'mobility' | 'cardio' | 'recovery';
 
 interface Workout {
@@ -123,10 +124,10 @@ const WORKOUTS: Workout[] = [
 ];
 
 const CATEGORY_CONFIG: Record<WorkoutCategory, { label: string; color: string; icon: string }> = {
-    strength: { label: 'Strength', color: '#EF4444', icon: 'barbell' },
-    mobility: { label: 'Mobility', color: '#8B5CF6', icon: 'body' },
-    cardio: { label: 'Cardio', color: '#F59E0B', icon: 'heart' },
-    recovery: { label: 'Recovery', color: '#10B981', icon: 'leaf' },
+    strength: { label: 'Strength', color: '#F87171', icon: 'barbell' },
+    mobility: { label: 'Mobility', color: '#A78BFA', icon: 'body' },
+    cardio: { label: 'Cardio', color: '#FBBF24', icon: 'heart' },
+    recovery: { label: 'Recovery', color: '#34D399', icon: 'leaf' },
 };
 
 export default function WorkoutsScreen() {
@@ -147,13 +148,7 @@ export default function WorkoutsScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Workouts</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Workouts" />
 
             <ScrollView style={styles.content}>
                 {/* Location Toggle */}
@@ -162,7 +157,7 @@ export default function WorkoutsScreen() {
                         style={[styles.toggleButton, location === 'home' && styles.toggleActive]}
                         onPress={() => setLocation('home')}
                     >
-                        <Ionicons name="home" size={18} color={location === 'home' ? '#FFF' : '#9CA3AF'} />
+                        <Ionicons name="home" size={18} color={location === 'home' ? '#FFF' : '#9494A0'} />
                         <Text style={[styles.toggleText, location === 'home' && styles.toggleTextActive]}>
                             Home
                         </Text>
@@ -171,7 +166,7 @@ export default function WorkoutsScreen() {
                         style={[styles.toggleButton, location === 'gym' && styles.toggleActive]}
                         onPress={() => setLocation('gym')}
                     >
-                        <Ionicons name="fitness" size={18} color={location === 'gym' ? '#FFF' : '#9CA3AF'} />
+                        <Ionicons name="fitness" size={18} color={location === 'gym' ? '#FFF' : '#9494A0'} />
                         <Text style={[styles.toggleText, location === 'gym' && styles.toggleTextActive]}>
                             Gym
                         </Text>
@@ -253,7 +248,7 @@ export default function WorkoutsScreen() {
 
                 {filteredWorkouts.length === 0 && (
                     <View style={styles.emptyState}>
-                        <Ionicons name="barbell-outline" size={48} color="#4B5563" />
+                        <Ionicons name="barbell-outline" size={48} color="#37373F" />
                         <Text style={styles.emptyText}>No workouts match your filters</Text>
                     </View>
                 )}
@@ -267,7 +262,7 @@ export default function WorkoutsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -279,7 +274,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -287,7 +282,7 @@ const styles = StyleSheet.create({
     },
     toggleContainer: {
         flexDirection: 'row',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 4,
         marginBottom: 16,
@@ -302,12 +297,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     toggleActive: {
-        backgroundColor: '#EF4444',
+        backgroundColor: '#F87171',
     },
     toggleText: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     toggleTextActive: {
         color: '#FFF',
@@ -321,19 +316,19 @@ const styles = StyleSheet.create({
     categoryChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 20,
         gap: 6,
     },
     categoryChipActive: {
-        backgroundColor: '#3B82F6',
+        backgroundColor: '#60A5FA',
     },
     categoryChipText: {
         fontSize: 13,
         fontWeight: '500',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     categoryChipTextActive: {
         color: '#FFF',
@@ -342,7 +337,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     workoutCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 16,
     },
@@ -361,8 +356,8 @@ const styles = StyleSheet.create({
     },
     durationBadge: {
         fontSize: 12,
-        color: '#9CA3AF',
-        backgroundColor: '#374151',
+        color: '#9494A0',
+        backgroundColor: '#1F1F2C',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8,
@@ -370,17 +365,17 @@ const styles = StyleSheet.create({
     workoutName: {
         fontSize: 17,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 4,
     },
     workoutDesc: {
         fontSize: 13,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 12,
     },
     exerciseList: {
         borderTopWidth: 1,
-        borderTopColor: '#374151',
+        borderTopColor: '#1F1F2C',
         paddingTop: 12,
     },
     exerciseItem: {
@@ -393,16 +388,16 @@ const styles = StyleSheet.create({
         width: 4,
         height: 4,
         borderRadius: 2,
-        backgroundColor: '#6B7280',
+        backgroundColor: '#5E5E6A',
     },
     exerciseText: {
         flex: 1,
         fontSize: 13,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
     },
     moreExercises: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#5E5E6A',
         fontStyle: 'italic',
         marginTop: 4,
     },
@@ -412,7 +407,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#5E5E6A',
         marginTop: 12,
     },
 });

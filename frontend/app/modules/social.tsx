@@ -19,6 +19,9 @@ const SOCIAL_TOOLS = [
   { id: 'boundaries', name: 'Boundaries', desc: 'Assertiveness practice', icon: 'shield-outline' },
   { id: 'exposure', name: 'Social Exposure', desc: 'Gradual confidence building', icon: 'people-outline' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const MICRO_TASKS = [
   'Make eye contact with 3 strangers today',
@@ -64,23 +67,17 @@ export default function SocialModule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Social Intelligence</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenChrome title="Social Intelligence" />
 
         {/* Hero */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, { backgroundColor: '#F59E0B20' }]}>
-            <Ionicons name="people" size={32} color="#F59E0B" />
-          </View>
-          <Text style={styles.heroTitle}>Build Social Confidence</Text>
-          <Text style={styles.heroSubtitle}>
-            Develop calm confidence, clear communication, and authentic connection.
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <ModuleHero
+          icon="people"
+          title="Build Social Confidence"
+          subtitle="Develop calm confidence, clear communication, and authentic connection."
+          gradient={moduleGradients.social}
+          accent={colors.modules.social}
+        />
         </View>
 
         {/* Confidence Score */}
@@ -141,26 +138,26 @@ export default function SocialModule() {
             onPress={() => router.push('/modules/exposure')}
           >
             <View style={styles.toolIcon}>
-              <Ionicons name="trending-up" size={24} color="#F59E0B" />
+              <Ionicons name="trending-up" size={24} color="#FBBF24" />
             </View>
             <View style={styles.toolContent}>
               <Text style={styles.toolName}>Social Exposure</Text>
               <Text style={styles.toolDesc}>Gradual confidence building</Text>
             </View>
-            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+            <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.toolCard}
             onPress={() => router.push('/modules/conversation')}
           >
             <View style={styles.toolIcon}>
-              <Ionicons name="chatbubbles" size={24} color="#F59E0B" />
+              <Ionicons name="chatbubbles" size={24} color="#FBBF24" />
             </View>
             <View style={styles.toolContent}>
               <Text style={styles.toolName}>Conversation Reflection</Text>
               <Text style={styles.toolDesc}>Learn from every interaction</Text>
             </View>
-            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+            <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
           </TouchableOpacity>
           {SOCIAL_TOOLS.slice(0, 2).map((tool) => (
             <TouchableOpacity
@@ -169,13 +166,13 @@ export default function SocialModule() {
               onPress={() => router.push('/modules/social-skills')}
             >
               <View style={styles.toolIcon}>
-                <Ionicons name={tool.icon as any} size={24} color="#F59E0B" />
+                <Ionicons name={tool.icon as any} size={24} color="#FBBF24" />
               </View>
               <View style={styles.toolContent}>
                 <Text style={styles.toolName}>{tool.name}</Text>
                 <Text style={styles.toolDesc}>{tool.desc}</Text>
               </View>
-              <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+              <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
             </TouchableOpacity>
           ))}
         </View>
@@ -185,7 +182,7 @@ export default function SocialModule() {
           <Text style={styles.sectionTitle}>AI Social Coach</Text>
           {loading ? (
             <View style={styles.loadingCard}>
-              <ActivityIndicator color="#F59E0B" />
+              <ActivityIndicator color="#FBBF24" />
               <Text style={styles.loadingText}>Generating social protocol...</Text>
             </View>
           ) : protocol ? (
@@ -195,13 +192,13 @@ export default function SocialModule() {
                 style={styles.regenerateButton}
                 onPress={generateSocialProtocol}
               >
-                <Ionicons name="refresh" size={16} color="#F59E0B" />
-                <Text style={[styles.regenerateText, { color: '#F59E0B' }]}>Generate New</Text>
+                <Ionicons name="refresh" size={16} color="#FBBF24" />
+                <Text style={[styles.regenerateText, { color: '#FBBF24' }]}>Generate New</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#F59E0B' }]}
+              style={[styles.generateButton, { backgroundColor: '#FBBF24' }]}
               onPress={generateSocialProtocol}
             >
               <Ionicons name="sparkles" size={20} color="#FFF" />
@@ -219,7 +216,7 @@ export default function SocialModule() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#06060B',
   },
   scrollView: {
     flex: 1,
@@ -234,10 +231,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   heroCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 24,
@@ -255,12 +252,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -271,13 +268,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 16,
   },
   confidenceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -285,9 +282,9 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#F59E0B20',
+    backgroundColor: '#FBBF2420',
     borderWidth: 3,
-    borderColor: '#F59E0B',
+    borderColor: '#FBBF24',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -296,11 +293,11 @@ const styles = StyleSheet.create({
   confidenceValue: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#F59E0B',
+    color: '#FBBF24',
   },
   confidenceLabel: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
   },
   confidenceInfo: {
     flex: 1,
@@ -308,16 +305,16 @@ const styles = StyleSheet.create({
   confidenceTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   confidenceDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 4,
     lineHeight: 18,
   },
   tasksCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -331,28 +328,28 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#4B5563',
+    borderColor: '#37373F',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   taskChecked: {
-    backgroundColor: '#F59E0B',
-    borderColor: '#F59E0B',
+    backgroundColor: '#FBBF24',
+    borderColor: '#FBBF24',
   },
   taskText: {
     flex: 1,
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
   },
   taskTextCompleted: {
     textDecorationLine: 'line-through',
-    color: '#6B7280',
+    color: '#5E5E6A',
   },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -361,7 +358,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: '#F59E0B20',
+    backgroundColor: '#FBBF2420',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -372,30 +369,30 @@ const styles = StyleSheet.create({
   toolName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   toolDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
   },
   loadingCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   protocolCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
   protocolText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -406,7 +403,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: '#1F1F2C',
     gap: 8,
   },
   regenerateText: {

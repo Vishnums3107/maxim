@@ -18,6 +18,7 @@ const FEYNMAN_STEPS = [
     { step: 3, title: 'Identify gaps', desc: 'Notice where your explanation breaks down' },
     { step: 4, title: 'Review & simplify', desc: 'Go back to source, fill gaps, simplify further' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 const SYNTHESIS_PROMPTS = [
     'What was the most important thing I learned this week?',
@@ -75,13 +76,7 @@ export default function LearningScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Learning Tools</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Learning Tools" />
 
             {/* Tabs */}
             <View style={styles.tabs}>
@@ -123,7 +118,7 @@ export default function LearningScreen() {
                                     value={newGoalTitle}
                                     onChangeText={setNewGoalTitle}
                                     placeholder="e.g., Master React Native"
-                                    placeholderTextColor="#6B7280"
+                                    placeholderTextColor="#5E5E6A"
                                 />
 
                                 <Text style={styles.formLabel}>Break it down (one per line)</Text>
@@ -132,7 +127,7 @@ export default function LearningScreen() {
                                     value={newSubgoals}
                                     onChangeText={setNewSubgoals}
                                     placeholder="e.g.,&#10;Learn navigation&#10;State management&#10;API integration"
-                                    placeholderTextColor="#6B7280"
+                                    placeholderTextColor="#5E5E6A"
                                     multiline
                                     numberOfLines={5}
                                 />
@@ -154,7 +149,7 @@ export default function LearningScreen() {
                                 style={styles.addButton}
                                 onPress={() => setShowAddGoal(true)}
                             >
-                                <Ionicons name="add-circle" size={24} color="#8B5CF6" />
+                                <Ionicons name="add-circle" size={24} color="#A78BFA" />
                                 <Text style={styles.addButtonText}>Decompose a Learning Goal</Text>
                             </TouchableOpacity>
                         )}
@@ -218,7 +213,7 @@ export default function LearningScreen() {
                         </Text>
                         {SYNTHESIS_PROMPTS.map((prompt, i) => (
                             <View key={i} style={styles.promptCard}>
-                                <Ionicons name="help-circle" size={20} color="#8B5CF6" />
+                                <Ionicons name="help-circle" size={20} color="#A78BFA" />
                                 <Text style={styles.promptText}>{prompt}</Text>
                             </View>
                         ))}
@@ -232,47 +227,47 @@ export default function LearningScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     tabs: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 16, gap: 8 },
-    tab: { flex: 1, backgroundColor: '#1F2937', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
-    tabActive: { backgroundColor: '#8B5CF6' },
-    tabText: { fontSize: 13, fontWeight: '600', color: '#9CA3AF' },
+    tab: { flex: 1, backgroundColor: '#11111C', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
+    tabActive: { backgroundColor: '#A78BFA' },
+    tabText: { fontSize: 13, fontWeight: '600', color: '#9494A0' },
     tabTextActive: { color: '#FFF' },
     content: { flex: 1, paddingHorizontal: 20 },
-    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', borderRadius: 12, padding: 20, gap: 12, marginBottom: 20, borderWidth: 2, borderColor: '#8B5CF640', borderStyle: 'dashed' },
-    addButtonText: { fontSize: 16, fontWeight: '600', color: '#8B5CF6' },
-    addForm: { backgroundColor: '#1F2937', borderRadius: 12, padding: 20, marginBottom: 20 },
-    formLabel: { fontSize: 14, color: '#9CA3AF', marginBottom: 8 },
-    input: { backgroundColor: '#374151', borderRadius: 8, padding: 14, fontSize: 15, color: '#F9FAFB', marginBottom: 16 },
+    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#11111C', borderRadius: 12, padding: 20, gap: 12, marginBottom: 20, borderWidth: 2, borderColor: '#A78BFA40', borderStyle: 'dashed' },
+    addButtonText: { fontSize: 16, fontWeight: '600', color: '#A78BFA' },
+    addForm: { backgroundColor: '#11111C', borderRadius: 12, padding: 20, marginBottom: 20 },
+    formLabel: { fontSize: 14, color: '#9494A0', marginBottom: 8 },
+    input: { backgroundColor: '#1F1F2C', borderRadius: 8, padding: 14, fontSize: 15, color: '#F5F5F7', marginBottom: 16 },
     multilineInput: { minHeight: 100, textAlignVertical: 'top' },
     formButtons: { flexDirection: 'row', gap: 12 },
-    cancelBtn: { flex: 1, backgroundColor: '#374151', borderRadius: 8, padding: 14, alignItems: 'center' },
-    cancelText: { color: '#9CA3AF', fontWeight: '500' },
-    saveBtn: { flex: 2, backgroundColor: '#8B5CF6', borderRadius: 8, padding: 14, alignItems: 'center' },
+    cancelBtn: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 8, padding: 14, alignItems: 'center' },
+    cancelText: { color: '#9494A0', fontWeight: '500' },
+    saveBtn: { flex: 2, backgroundColor: '#A78BFA', borderRadius: 8, padding: 14, alignItems: 'center' },
     saveText: { color: '#FFF', fontWeight: '600' },
-    goalCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 16, marginBottom: 12 },
+    goalCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 16, marginBottom: 12 },
     goalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-    goalTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB' },
-    goalProgress: { fontSize: 14, color: '#8B5CF6', fontWeight: '600' },
-    progressBar: { height: 4, backgroundColor: '#374151', borderRadius: 2, marginBottom: 12 },
-    progressFill: { height: '100%', backgroundColor: '#8B5CF6', borderRadius: 2 },
+    goalTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7' },
+    goalProgress: { fontSize: 14, color: '#A78BFA', fontWeight: '600' },
+    progressBar: { height: 4, backgroundColor: '#1F1F2C', borderRadius: 2, marginBottom: 12 },
+    progressFill: { height: '100%', backgroundColor: '#A78BFA', borderRadius: 2 },
     subgoalItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 10 },
-    checkbox: { width: 20, height: 20, borderRadius: 5, borderWidth: 2, borderColor: '#4B5563', alignItems: 'center', justifyContent: 'center' },
-    checkboxDone: { backgroundColor: '#8B5CF6', borderColor: '#8B5CF6' },
-    subgoalText: { flex: 1, fontSize: 14, color: '#D1D5DB' },
-    subgoalDone: { textDecorationLine: 'line-through', color: '#6B7280' },
+    checkbox: { width: 20, height: 20, borderRadius: 5, borderWidth: 2, borderColor: '#37373F', alignItems: 'center', justifyContent: 'center' },
+    checkboxDone: { backgroundColor: '#A78BFA', borderColor: '#A78BFA' },
+    subgoalText: { flex: 1, fontSize: 14, color: '#C4C4CC' },
+    subgoalDone: { textDecorationLine: 'line-through', color: '#5E5E6A' },
     feynmanSection: {},
-    feynmanIntro: { fontSize: 15, color: '#D1D5DB', marginBottom: 20, lineHeight: 22 },
-    feynmanStep: { flexDirection: 'row', marginBottom: 16, backgroundColor: '#1F2937', borderRadius: 12, padding: 16 },
-    stepNumber: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#8B5CF6', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+    feynmanIntro: { fontSize: 15, color: '#C4C4CC', marginBottom: 20, lineHeight: 22 },
+    feynmanStep: { flexDirection: 'row', marginBottom: 16, backgroundColor: '#11111C', borderRadius: 12, padding: 16 },
+    stepNumber: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#A78BFA', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     stepNumberText: { fontSize: 16, fontWeight: '700', color: '#FFF' },
     stepContent: { flex: 1 },
-    stepTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB' },
-    stepDesc: { fontSize: 13, color: '#9CA3AF', marginTop: 4 },
+    stepTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7' },
+    stepDesc: { fontSize: 13, color: '#9494A0', marginTop: 4 },
     synthesisSection: {},
-    synthesisIntro: { fontSize: 15, color: '#D1D5DB', marginBottom: 16 },
-    promptCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#1F2937', borderRadius: 10, padding: 14, marginBottom: 8, gap: 12 },
-    promptText: { flex: 1, fontSize: 14, color: '#D1D5DB', lineHeight: 20 },
+    synthesisIntro: { fontSize: 15, color: '#C4C4CC', marginBottom: 16 },
+    promptCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#11111C', borderRadius: 10, padding: 14, marginBottom: 8, gap: 12 },
+    promptText: { flex: 1, fontSize: 14, color: '#C4C4CC', lineHeight: 20 },
 });

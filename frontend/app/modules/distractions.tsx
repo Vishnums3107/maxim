@@ -20,6 +20,7 @@ const DISTRACTION_TYPES = [
     { id: 'environment', label: 'Environment', icon: 'volume-high' },
     { id: 'fatigue', label: 'Fatigue', icon: 'battery-dead' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function DistractionScreen() {
     const router = useRouter();
@@ -68,13 +69,7 @@ export default function DistractionScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Distraction Diagnostics</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Distraction Diagnostics" />
 
             <ScrollView style={styles.content}>
                 {/* Stats */}
@@ -96,7 +91,7 @@ export default function DistractionScreen() {
                 {/* Top Pattern */}
                 {analytics.topType && (
                     <View style={styles.patternCard}>
-                        <Ionicons name="analytics" size={20} color="#F59E0B" />
+                        <Ionicons name="analytics" size={20} color="#FBBF24" />
                         <Text style={styles.patternText}>
                             Top distraction: <Text style={styles.patternHighlight}>{analytics.topType}</Text> ({analytics.topCount} times)
                         </Text>
@@ -117,7 +112,7 @@ export default function DistractionScreen() {
                                     <Ionicons
                                         name={type.icon as any}
                                         size={20}
-                                        color={selectedType === type.id ? '#FFF' : '#9CA3AF'}
+                                        color={selectedType === type.id ? '#FFF' : '#9494A0'}
                                     />
                                     <Text style={[styles.typeLabel, selectedType === type.id && styles.typeLabelActive]}>
                                         {type.label}
@@ -132,7 +127,7 @@ export default function DistractionScreen() {
                             value={trigger}
                             onChangeText={setTrigger}
                             placeholder="e.g., notification, boredom, habit..."
-                            placeholderTextColor="#6B7280"
+                            placeholderTextColor="#5E5E6A"
                         />
 
                         <Text style={styles.formLabel}>Severity</Text>
@@ -165,7 +160,7 @@ export default function DistractionScreen() {
                     </View>
                 ) : (
                     <TouchableOpacity style={styles.addButton} onPress={() => setShowAdd(true)}>
-                        <Ionicons name="add-circle" size={24} color="#F59E0B" />
+                        <Ionicons name="add-circle" size={24} color="#FBBF24" />
                         <Text style={styles.addButtonText}>Log a Distraction</Text>
                     </TouchableOpacity>
                 )}
@@ -179,7 +174,7 @@ export default function DistractionScreen() {
                             return (
                                 <View key={entry.id} style={styles.entryCard}>
                                     <View style={styles.entryIcon}>
-                                        <Ionicons name={typeInfo?.icon as any || 'alert'} size={18} color="#F59E0B" />
+                                        <Ionicons name={typeInfo?.icon as any || 'alert'} size={18} color="#FBBF24" />
                                     </View>
                                     <View style={styles.entryContent}>
                                         <Text style={styles.entryType}>{typeInfo?.label || entry.type}</Text>
@@ -188,10 +183,10 @@ export default function DistractionScreen() {
                                         )}
                                     </View>
                                     <View style={[styles.severityBadge, {
-                                        backgroundColor: entry.severity === 3 ? '#EF444420' : entry.severity === 2 ? '#F59E0B20' : '#10B98120'
+                                        backgroundColor: entry.severity === 3 ? '#F8717120' : entry.severity === 2 ? '#FBBF2420' : '#34D39920'
                                     }]}>
                                         <Text style={[styles.severityBadgeText, {
-                                            color: entry.severity === 3 ? '#EF4444' : entry.severity === 2 ? '#F59E0B' : '#10B981'
+                                            color: entry.severity === 3 ? '#F87171' : entry.severity === 2 ? '#FBBF24' : '#34D399'
                                         }]}>
                                             {entry.severity === 3 ? 'Major' : entry.severity === 2 ? 'Mod' : 'Minor'}
                                         </Text>
@@ -207,19 +202,19 @@ export default function DistractionScreen() {
                     <Text style={styles.sectionTitle}>Reduction Strategies</Text>
                     <View style={styles.strategyCard}>
                         <View style={styles.strategyItem}>
-                            <Ionicons name="phone-portrait-outline" size={18} color="#8B5CF6" />
+                            <Ionicons name="phone-portrait-outline" size={18} color="#A78BFA" />
                             <Text style={styles.strategyText}>Phone in another room during focus blocks</Text>
                         </View>
                         <View style={styles.strategyItem}>
-                            <Ionicons name="notifications-off" size={18} color="#8B5CF6" />
+                            <Ionicons name="notifications-off" size={18} color="#A78BFA" />
                             <Text style={styles.strategyText}>Disable notifications during deep work</Text>
                         </View>
                         <View style={styles.strategyItem}>
-                            <Ionicons name="time" size={18} color="#8B5CF6" />
+                            <Ionicons name="time" size={18} color="#A78BFA" />
                             <Text style={styles.strategyText}>Use the 2-minute rule: note it, continue</Text>
                         </View>
                         <View style={styles.strategyItem}>
-                            <Ionicons name="cafe" size={18} color="#8B5CF6" />
+                            <Ionicons name="cafe" size={18} color="#A78BFA" />
                             <Text style={styles.strategyText}>Scheduled breaks prevent fatigue-based distractions</Text>
                         </View>
                     </View>
@@ -232,48 +227,48 @@ export default function DistractionScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     content: { flex: 1, paddingHorizontal: 20 },
     statsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-    statCard: { flex: 1, backgroundColor: '#1F2937', borderRadius: 12, padding: 16, alignItems: 'center' },
-    statValue: { fontSize: 24, fontWeight: '700', color: '#F9FAFB' },
-    statLabel: { fontSize: 11, color: '#9CA3AF', marginTop: 4 },
-    patternCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F59E0B20', borderRadius: 10, padding: 14, gap: 12, marginBottom: 20 },
-    patternText: { flex: 1, fontSize: 14, color: '#D1D5DB' },
-    patternHighlight: { color: '#F59E0B', fontWeight: '600' },
-    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', borderRadius: 12, padding: 18, gap: 12, marginBottom: 20, borderWidth: 2, borderColor: '#F59E0B40', borderStyle: 'dashed' },
-    addButtonText: { fontSize: 16, fontWeight: '600', color: '#F59E0B' },
-    addForm: { backgroundColor: '#1F2937', borderRadius: 12, padding: 18, marginBottom: 20 },
-    formLabel: { fontSize: 14, color: '#9CA3AF', marginBottom: 10 },
+    statCard: { flex: 1, backgroundColor: '#11111C', borderRadius: 12, padding: 16, alignItems: 'center' },
+    statValue: { fontSize: 24, fontWeight: '700', color: '#F5F5F7' },
+    statLabel: { fontSize: 11, color: '#9494A0', marginTop: 4 },
+    patternCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FBBF2420', borderRadius: 10, padding: 14, gap: 12, marginBottom: 20 },
+    patternText: { flex: 1, fontSize: 14, color: '#C4C4CC' },
+    patternHighlight: { color: '#FBBF24', fontWeight: '600' },
+    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#11111C', borderRadius: 12, padding: 18, gap: 12, marginBottom: 20, borderWidth: 2, borderColor: '#FBBF2440', borderStyle: 'dashed' },
+    addButtonText: { fontSize: 16, fontWeight: '600', color: '#FBBF24' },
+    addForm: { backgroundColor: '#11111C', borderRadius: 12, padding: 18, marginBottom: 20 },
+    formLabel: { fontSize: 14, color: '#9494A0', marginBottom: 10 },
     typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-    typeBtn: { width: '31%', backgroundColor: '#374151', borderRadius: 10, padding: 12, alignItems: 'center', gap: 6 },
-    typeBtnActive: { backgroundColor: '#F59E0B' },
-    typeLabel: { fontSize: 11, color: '#9CA3AF' },
+    typeBtn: { width: '31%', backgroundColor: '#1F1F2C', borderRadius: 10, padding: 12, alignItems: 'center', gap: 6 },
+    typeBtnActive: { backgroundColor: '#FBBF24' },
+    typeLabel: { fontSize: 11, color: '#9494A0' },
     typeLabelActive: { color: '#FFF' },
-    input: { backgroundColor: '#374151', borderRadius: 8, padding: 14, fontSize: 15, color: '#F9FAFB', marginBottom: 16 },
+    input: { backgroundColor: '#1F1F2C', borderRadius: 8, padding: 14, fontSize: 15, color: '#F5F5F7', marginBottom: 16 },
     severityRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-    severityBtn: { flex: 1, backgroundColor: '#374151', borderRadius: 8, padding: 12, alignItems: 'center' },
-    severityBtnActive: { backgroundColor: '#F59E0B' },
-    severityText: { fontSize: 13, fontWeight: '500', color: '#9CA3AF' },
+    severityBtn: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 8, padding: 12, alignItems: 'center' },
+    severityBtnActive: { backgroundColor: '#FBBF24' },
+    severityText: { fontSize: 13, fontWeight: '500', color: '#9494A0' },
     severityTextActive: { color: '#FFF' },
     formButtons: { flexDirection: 'row', gap: 12 },
-    cancelBtn: { flex: 1, backgroundColor: '#374151', borderRadius: 8, padding: 14, alignItems: 'center' },
-    cancelText: { color: '#9CA3AF', fontWeight: '500' },
-    saveBtn: { flex: 2, backgroundColor: '#F59E0B', borderRadius: 8, padding: 14, alignItems: 'center' },
-    saveBtnDisabled: { backgroundColor: '#374151' },
+    cancelBtn: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 8, padding: 14, alignItems: 'center' },
+    cancelText: { color: '#9494A0', fontWeight: '500' },
+    saveBtn: { flex: 2, backgroundColor: '#FBBF24', borderRadius: 8, padding: 14, alignItems: 'center' },
+    saveBtnDisabled: { backgroundColor: '#1F1F2C' },
     saveText: { color: '#FFF', fontWeight: '600' },
     section: { marginBottom: 24 },
-    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB', marginBottom: 12 },
-    entryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1F2937', borderRadius: 10, padding: 14, marginBottom: 8 },
-    entryIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#F59E0B20', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7', marginBottom: 12 },
+    entryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#11111C', borderRadius: 10, padding: 14, marginBottom: 8 },
+    entryIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#FBBF2420', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     entryContent: { flex: 1 },
-    entryType: { fontSize: 15, fontWeight: '500', color: '#F9FAFB' },
-    entryTrigger: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
+    entryType: { fontSize: 15, fontWeight: '500', color: '#F5F5F7' },
+    entryTrigger: { fontSize: 12, color: '#9494A0', marginTop: 2 },
     severityBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
     severityBadgeText: { fontSize: 11, fontWeight: '600' },
-    strategyCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 16 },
+    strategyCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 16 },
     strategyItem: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-    strategyText: { flex: 1, fontSize: 14, color: '#D1D5DB' },
+    strategyText: { flex: 1, fontSize: 14, color: '#C4C4CC' },
 });

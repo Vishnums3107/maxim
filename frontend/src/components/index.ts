@@ -2,7 +2,7 @@
  * MAXIM Luxe — Components Index
  */
 
-// New luxury primitives
+// Luxury primitives
 export { GlassCard } from './GlassCard';
 export { VoltageButton } from './VoltageButton';
 export { Sparkline } from './Sparkline';
@@ -10,7 +10,13 @@ export { Eyebrow } from './Eyebrow';
 export { AuroraBackground } from './AuroraBackground';
 export { Gradient } from './Gradient';
 
-// Existing (will be upgraded in next step but APIs preserved)
+// Page chrome
+export { ScreenChrome } from './ScreenChrome';
+export { ModuleHero } from './ModuleHero';
+export { ProtocolPanel } from './ProtocolPanel';
+export { StepDots } from './StepDots';
+
+// Existing (APIs preserved)
 export { AnimatedButton } from './AnimatedButton';
 export { AnimatedCard } from './AnimatedCard';
 export { ProgressRing } from './ProgressRing';

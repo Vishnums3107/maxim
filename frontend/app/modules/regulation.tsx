@@ -19,6 +19,9 @@ const REGULATION_TOOLS = [
   { id: 'grounding', name: 'Grounding Techniques', desc: '5-4-3-2-1 method', icon: 'hand-left-outline', route: '/modules/stability' },
   { id: 'reframe', name: 'Cognitive Reframe', desc: 'Challenge negative patterns', icon: 'swap-horizontal-outline', route: '/modules/stability' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function RegulationModule() {
   const router = useRouter();
@@ -51,23 +54,17 @@ export default function RegulationModule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Internal Regulation</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenChrome title="Internal Regulation" />
 
         {/* Hero */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, { backgroundColor: '#10B98120' }]}>
-            <Ionicons name="leaf" size={32} color="#10B981" />
-          </View>
-          <Text style={styles.heroTitle}>Mental Control & Calm</Text>
-          <Text style={styles.heroSubtitle}>
-            Master your internal state. Control anxiety, overthinking, and emotional reactivity.
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <ModuleHero
+          icon="leaf"
+          title="Mental Control & Calm"
+          subtitle="Master your internal state. Control anxiety, overthinking, and emotional reactivity."
+          gradient={moduleGradients.regulation}
+          accent={colors.modules.regulation}
+        />
         </View>
 
         {/* Current State */}
@@ -77,14 +74,14 @@ export default function RegulationModule() {
             <View style={styles.stateRow}>
               <Text style={styles.stateLabel}>Anxiety Tendency</Text>
               <View style={styles.stateBar}>
-                <View style={[styles.stateFill, { width: `${(profile?.anxietyTendency || 5) * 10}%`, backgroundColor: '#EF4444' }]} />
+                <View style={[styles.stateFill, { width: `${(profile?.anxietyTendency || 5) * 10}%`, backgroundColor: '#F87171' }]} />
               </View>
               <Text style={styles.stateValue}>{profile?.anxietyTendency || 5}/10</Text>
             </View>
             <View style={styles.stateRow}>
               <Text style={styles.stateLabel}>Energy Level</Text>
               <View style={styles.stateBar}>
-                <View style={[styles.stateFill, { width: `${(profile?.energyLevel || 5) * 10}%`, backgroundColor: '#F59E0B' }]} />
+                <View style={[styles.stateFill, { width: `${(profile?.energyLevel || 5) * 10}%`, backgroundColor: '#FBBF24' }]} />
               </View>
               <Text style={styles.stateValue}>{profile?.energyLevel || 5}/10</Text>
             </View>
@@ -101,13 +98,13 @@ export default function RegulationModule() {
               onPress={() => tool.route ? router.push(tool.route as any) : null}
             >
               <View style={styles.toolIcon}>
-                <Ionicons name={tool.icon as any} size={24} color="#10B981" />
+                <Ionicons name={tool.icon as any} size={24} color="#34D399" />
               </View>
               <View style={styles.toolContent}>
                 <Text style={styles.toolName}>{tool.name}</Text>
                 <Text style={styles.toolDesc}>{tool.desc}</Text>
               </View>
-              <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+              <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
             </TouchableOpacity>
           ))}
         </View>
@@ -118,7 +115,7 @@ export default function RegulationModule() {
             style={styles.quickAction}
             onPress={() => router.push('/modules/breathing')}
           >
-            <Ionicons name="play-circle" size={48} color="#10B981" />
+            <Ionicons name="play-circle" size={48} color="#34D399" />
             <Text style={styles.quickActionText}>Start Breathing Exercise</Text>
             <Text style={styles.quickActionSubtext}>2 minute calming protocol</Text>
           </TouchableOpacity>
@@ -129,7 +126,7 @@ export default function RegulationModule() {
           <Text style={styles.sectionTitle}>AI Regulation Coach</Text>
           {loading ? (
             <View style={styles.loadingCard}>
-              <ActivityIndicator color="#10B981" />
+              <ActivityIndicator color="#34D399" />
               <Text style={styles.loadingText}>Generating regulation protocol...</Text>
             </View>
           ) : protocol ? (
@@ -139,13 +136,13 @@ export default function RegulationModule() {
                 style={styles.regenerateButton}
                 onPress={generateRegulationProtocol}
               >
-                <Ionicons name="refresh" size={16} color="#10B981" />
-                <Text style={[styles.regenerateText, { color: '#10B981' }]}>Generate New</Text>
+                <Ionicons name="refresh" size={16} color="#34D399" />
+                <Text style={[styles.regenerateText, { color: '#34D399' }]}>Generate New</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#10B981' }]}
+              style={[styles.generateButton, { backgroundColor: '#34D399' }]}
               onPress={generateRegulationProtocol}
             >
               <Ionicons name="sparkles" size={20} color="#FFF" />
@@ -163,7 +160,7 @@ export default function RegulationModule() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#06060B',
   },
   scrollView: {
     flex: 1,
@@ -178,10 +175,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   heroCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 24,
@@ -199,12 +196,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -215,11 +212,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 16,
   },
   stateCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -230,13 +227,13 @@ const styles = StyleSheet.create({
   },
   stateLabel: {
     width: 120,
-    color: '#9CA3AF',
+    color: '#9494A0',
     fontSize: 14,
   },
   stateBar: {
     flex: 1,
     height: 8,
-    backgroundColor: '#374151',
+    backgroundColor: '#1F1F2C',
     borderRadius: 4,
     marginHorizontal: 12,
   },
@@ -245,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   stateValue: {
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     fontWeight: '600',
     width: 40,
     textAlign: 'right',
@@ -253,7 +250,7 @@ const styles = StyleSheet.create({
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -262,7 +259,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: '#10B98120',
+    backgroundColor: '#34D39920',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -273,49 +270,49 @@ const styles = StyleSheet.create({
   toolName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   toolDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
   },
   quickAction: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#10B981',
+    borderColor: '#34D399',
   },
   quickActionText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginTop: 12,
   },
   quickActionSubtext: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 4,
   },
   loadingCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   protocolCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
   protocolText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -326,7 +323,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: '#1F1F2C',
     gap: 8,
   },
   regenerateText: {

@@ -18,6 +18,7 @@ const SPEAKING_DRILLS = [
     { id: 'clarity', name: 'Articulation', desc: 'Over-pronounce consonants', icon: 'text-outline', duration: '2 min' },
     { id: 'volume', name: 'Projection', desc: 'Practice speaking to fill the room', icon: 'volume-high-outline', duration: '2 min' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 const RESPONSE_DELAYS = [
     { level: 1, delay: '1 second', desc: 'Brief acknowledgment pause' },
@@ -57,13 +58,7 @@ export default function SocialSkillsScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Social Skills</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Social Skills" />
 
             {/* Confidence Trend */}
             <View style={styles.trendCard}>
@@ -151,7 +146,7 @@ export default function SocialSkillsScreen() {
                             </TouchableOpacity>
                         ))}
                         <View style={styles.tipCard}>
-                            <Ionicons name="bulb" size={18} color="#F59E0B" />
+                            <Ionicons name="bulb" size={18} color="#FBBF24" />
                             <Text style={styles.tipText}>
                                 Practice: In your next conversation, count to {socialResponseDelay} before responding.
                             </Text>
@@ -169,7 +164,7 @@ export default function SocialSkillsScreen() {
                             <View key={i} style={styles.scriptCard}>
                                 <Text style={styles.scriptSituation}>{script.situation}</Text>
                                 <View style={styles.scriptResponse}>
-                                    <Ionicons name="chatbubble-outline" size={16} color="#10B981" />
+                                    <Ionicons name="chatbubble-outline" size={16} color="#34D399" />
                                     <Text style={styles.scriptText}>{script.response}</Text>
                                 </View>
                             </View>
@@ -184,44 +179,44 @@ export default function SocialSkillsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
-    trendCard: { flexDirection: 'row', backgroundColor: '#1F2937', marginHorizontal: 20, borderRadius: 14, padding: 16, marginBottom: 16, alignItems: 'center' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
+    trendCard: { flexDirection: 'row', backgroundColor: '#11111C', marginHorizontal: 20, borderRadius: 14, padding: 16, marginBottom: 16, alignItems: 'center' },
     trendRing: { width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#EC4899', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
     trendValue: { fontSize: 22, fontWeight: '700', color: '#EC4899' },
     trendInfo: { flex: 1 },
-    trendLabel: { fontSize: 15, fontWeight: '600', color: '#F9FAFB' },
-    trendDelta: { fontSize: 13, color: '#10B981', marginTop: 2 },
-    trendMeta: { fontSize: 11, color: '#9CA3AF', marginTop: 2 },
+    trendLabel: { fontSize: 15, fontWeight: '600', color: '#F5F5F7' },
+    trendDelta: { fontSize: 13, color: '#34D399', marginTop: 2 },
+    trendMeta: { fontSize: 11, color: '#9494A0', marginTop: 2 },
     tabs: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 16, gap: 8 },
-    tab: { flex: 1, backgroundColor: '#1F2937', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
+    tab: { flex: 1, backgroundColor: '#11111C', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
     tabActive: { backgroundColor: '#EC4899' },
-    tabText: { fontSize: 13, fontWeight: '600', color: '#9CA3AF' },
+    tabText: { fontSize: 13, fontWeight: '600', color: '#9494A0' },
     tabTextActive: { color: '#FFF' },
     content: { flex: 1, paddingHorizontal: 20 },
     section: { marginBottom: 24 },
-    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB', marginBottom: 8 },
-    sectionSubtitle: { fontSize: 13, color: '#9CA3AF', marginBottom: 16 },
-    drillCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 8 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7', marginBottom: 8 },
+    sectionSubtitle: { fontSize: 13, color: '#9494A0', marginBottom: 16 },
+    drillCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#11111C', borderRadius: 12, padding: 14, marginBottom: 8 },
     drillIcon: { width: 42, height: 42, borderRadius: 12, backgroundColor: '#EC489920', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     drillContent: { flex: 1 },
-    drillName: { fontSize: 15, fontWeight: '600', color: '#F9FAFB' },
-    drillDesc: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-    drillDuration: { fontSize: 12, color: '#6B7280' },
-    delayCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 8 },
+    drillName: { fontSize: 15, fontWeight: '600', color: '#F5F5F7' },
+    drillDesc: { fontSize: 12, color: '#9494A0', marginTop: 2 },
+    drillDuration: { fontSize: 12, color: '#5E5E6A' },
+    delayCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#11111C', borderRadius: 12, padding: 14, marginBottom: 8 },
     delayCardActive: { borderWidth: 2, borderColor: '#EC4899' },
-    delayLevel: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#374151', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+    delayLevel: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#1F1F2C', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
     delayLevelActive: { backgroundColor: '#EC4899' },
-    delayNum: { fontSize: 16, fontWeight: '700', color: '#9CA3AF' },
+    delayNum: { fontSize: 16, fontWeight: '700', color: '#9494A0' },
     delayNumActive: { color: '#FFF' },
     delayContent: { flex: 1 },
-    delayTime: { fontSize: 15, fontWeight: '600', color: '#F9FAFB' },
-    delayDesc: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-    tipCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#F59E0B20', borderRadius: 10, padding: 14, marginTop: 8, gap: 10 },
-    tipText: { flex: 1, fontSize: 14, color: '#D1D5DB' },
-    scriptCard: { backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 10 },
-    scriptSituation: { fontSize: 14, fontWeight: '600', color: '#F9FAFB', marginBottom: 10 },
-    scriptResponse: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#10B98110', borderRadius: 8, padding: 12 },
-    scriptText: { flex: 1, fontSize: 13, color: '#D1D5DB', fontStyle: 'italic', lineHeight: 20 },
+    delayTime: { fontSize: 15, fontWeight: '600', color: '#F5F5F7' },
+    delayDesc: { fontSize: 12, color: '#9494A0', marginTop: 2 },
+    tipCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FBBF2420', borderRadius: 10, padding: 14, marginTop: 8, gap: 10 },
+    tipText: { flex: 1, fontSize: 14, color: '#C4C4CC' },
+    scriptCard: { backgroundColor: '#11111C', borderRadius: 12, padding: 14, marginBottom: 10 },
+    scriptSituation: { fontSize: 14, fontWeight: '600', color: '#F5F5F7', marginBottom: 10 },
+    scriptResponse: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#34D39910', borderRadius: 8, padding: 12 },
+    scriptText: { flex: 1, fontSize: 13, color: '#C4C4CC', fontStyle: 'italic', lineHeight: 20 },
 });

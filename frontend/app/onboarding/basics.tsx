@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { StepDots } from '../../src/components/StepDots';
+import { VoltageButton } from '../../src/components/VoltageButton';
 import { useUserStore } from '../../src/store/userStore';
+import {
+  borderRadius,
+  colors,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
 
 const ACTIVITY_LEVELS = [
   { id: 'sedentary', label: 'Sedentary', desc: 'Little to no exercise' },
-  { id: 'light', label: 'Light', desc: '1-2 days/week' },
-  { id: 'moderate', label: 'Moderate', desc: '3-4 days/week' },
-  { id: 'active', label: 'Active', desc: '5+ days/week' },
+  { id: 'light', label: 'Light', desc: '1-2 days per week' },
+  { id: 'moderate', label: 'Moderate', desc: '3-4 days per week' },
+  { id: 'active', label: 'Active', desc: '5+ days per week' },
 ];
 
 const LEVELS = [
@@ -33,6 +44,8 @@ const SEX_OPTIONS = [
   { id: 'other', label: 'Other' },
 ];
 
+const TIME_OPTIONS = ['30', '45', '60', '90', '120'];
+
 export default function OnboardingBasics() {
   const router = useRouter();
   const { setProfile } = useUserStore();
@@ -46,13 +59,12 @@ export default function OnboardingBasics() {
   const [dailyTime, setDailyTime] = useState('60');
 
   const handleNext = async () => {
-    // Create initial profile
     await setProfile({
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       age: age ? parseInt(age) : undefined,
-      sex: sex,
+      sex,
       height: height ? parseFloat(height) : undefined,
       weight: weight ? parseFloat(weight) : undefined,
       sleepQuality: 5,
@@ -71,342 +83,408 @@ export default function OnboardingBasics() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView style={styles.scrollView}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-            </TouchableOpacity>
-            <View style={styles.progress}>
-              <View style={[styles.progressDot, styles.progressActive]} />
-              <View style={styles.progressDot} />
-              <View style={styles.progressDot} />
+    <View style={styles.root}>
+      <AuroraBackground tint={colors.voltage.soft} intensity={0.4} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
+        >
+          <ScreenChrome
+            title="Step 1 of 3"
+            eyebrow="Onboarding"
+            right={<StepDots total={3} current={0} />}
+          />
+
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: spacing['3xl'] }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.intro}>
+              <Eyebrow>The Foundation</Eyebrow>
+              <Text style={styles.title}>Tell us a bit about yourself.</Text>
+              <Text style={styles.lede}>
+                These calibrate your protocols. Skip what you don&apos;t want to share.
+              </Text>
             </View>
-            <View style={{ width: 24 }} />
-          </View>
 
-          <Text style={styles.title}>Basic Information</Text>
-          <Text style={styles.subtitle}>
-            Help us personalize your experience
-          </Text>
+            {/* Age + Sex row */}
+            <View style={styles.section}>
+              <SectionLabel>Identity</SectionLabel>
 
-          {/* Age */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Age (optional)</Text>
-            <TextInput
-              style={styles.input}
-              value={age}
-              onChangeText={setAge}
-              placeholder="Enter your age"
-              placeholderTextColor="#6B7280"
-              keyboardType="number-pad"
+              <View style={styles.row}>
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>Age</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={age}
+                    onChangeText={setAge}
+                    placeholder="—"
+                    placeholderTextColor={colors.text.muted}
+                    keyboardType="number-pad"
+                  />
+                </View>
+
+                <View style={[styles.field, { flex: 2 }]}>
+                  <Text style={styles.fieldLabel}>Sex</Text>
+                  <View style={styles.segmented}>
+                    {SEX_OPTIONS.map((option) => (
+                      <Pressable
+                        key={option.id}
+                        onPress={() =>
+                          setSex(option.id as 'male' | 'female' | 'other')
+                        }
+                        style={({ pressed }) => [
+                          styles.segment,
+                          sex === option.id && styles.segmentActive,
+                          pressed && { opacity: 0.85 },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.segmentText,
+                            sex === option.id && styles.segmentTextActive,
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Body metrics */}
+            <View style={styles.section}>
+              <SectionLabel>Body</SectionLabel>
+              <View style={styles.row}>
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>Height (cm)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={height}
+                    onChangeText={setHeight}
+                    placeholder="—"
+                    placeholderTextColor={colors.text.muted}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+                <View style={styles.field}>
+                  <Text style={styles.fieldLabel}>Weight (kg)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={weight}
+                    onChangeText={setWeight}
+                    placeholder="—"
+                    placeholderTextColor={colors.text.muted}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Experience */}
+            <View style={styles.section}>
+              <SectionLabel>Experience Level</SectionLabel>
+              {LEVELS.map((item) => (
+                <OptionRow
+                  key={item.id}
+                  active={level === item.id}
+                  label={item.label}
+                  desc={item.desc}
+                  onPress={() => setLevel(item.id)}
+                />
+              ))}
+            </View>
+
+            {/* Activity */}
+            <View style={styles.section}>
+              <SectionLabel>Current Activity</SectionLabel>
+              {ACTIVITY_LEVELS.map((item) => (
+                <OptionRow
+                  key={item.id}
+                  active={activityLevel === item.id}
+                  label={item.label}
+                  desc={item.desc}
+                  onPress={() => setActivityLevel(item.id)}
+                />
+              ))}
+            </View>
+
+            {/* Daily time */}
+            <View style={styles.section}>
+              <SectionLabel>Daily Time Available</SectionLabel>
+              <View style={styles.timeRow}>
+                {TIME_OPTIONS.map((time) => (
+                  <Pressable
+                    key={time}
+                    onPress={() => setDailyTime(time)}
+                    style={({ pressed }) => [
+                      styles.timeBtn,
+                      dailyTime === time && styles.timeBtnActive,
+                      pressed && { opacity: 0.85 },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.timeBtnText,
+                        dailyTime === time && styles.timeBtnTextActive,
+                      ]}
+                    >
+                      {time}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.timeBtnUnit,
+                        dailyTime === time && styles.timeBtnUnitActive,
+                      ]}
+                    >
+                      min
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={styles.footer}>
+            <VoltageButton
+              title="Continue"
+              onPress={handleNext}
+              icon="arrow-forward"
+              iconPosition="right"
+              fullWidth
+              size="lg"
             />
           </View>
-
-          {/* Sex */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Sex (optional)</Text>
-            <View style={styles.sexOptions}>
-              {SEX_OPTIONS.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
-                  style={[
-                    styles.sexButton,
-                    sex === option.id && styles.sexButtonActive,
-                  ]}
-                  onPress={() => setSex(option.id as 'male' | 'female' | 'other')}
-                >
-                  <Text
-                    style={[
-                      styles.sexText,
-                      sex === option.id && styles.sexTextActive,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Height & Weight */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Body Metrics (optional)</Text>
-            <View style={styles.metricsRow}>
-              <View style={styles.metricInput}>
-                <TextInput
-                  style={styles.input}
-                  value={height}
-                  onChangeText={setHeight}
-                  placeholder="Height (cm)"
-                  placeholderTextColor="#6B7280"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-              <View style={styles.metricInput}>
-                <TextInput
-                  style={styles.input}
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="Weight (kg)"
-                  placeholderTextColor="#6B7280"
-                  keyboardType="decimal-pad"
-                />
-              </View>
-            </View>
-          </View>
-          {/* Experience Level */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Experience Level</Text>
-            {LEVELS.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.optionCard,
-                  level === item.id && styles.optionCardActive,
-                ]}
-                onPress={() => setLevel(item.id)}
-              >
-                <View style={styles.optionContent}>
-                  <Text style={styles.optionLabel}>{item.label}</Text>
-                  <Text style={styles.optionDesc}>{item.desc}</Text>
-                </View>
-                {level === item.id && (
-                  <Ionicons name="checkmark-circle" size={24} color="#3B82F6" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Activity Level */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Current Activity Level</Text>
-            {ACTIVITY_LEVELS.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.optionCard,
-                  activityLevel === item.id && styles.optionCardActive,
-                ]}
-                onPress={() => setActivityLevel(item.id)}
-              >
-                <View style={styles.optionContent}>
-                  <Text style={styles.optionLabel}>{item.label}</Text>
-                  <Text style={styles.optionDesc}>{item.desc}</Text>
-                </View>
-                {activityLevel === item.id && (
-                  <Ionicons name="checkmark-circle" size={24} color="#3B82F6" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Daily Time */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Daily Time Available (minutes)</Text>
-            <View style={styles.timeOptions}>
-              {['30', '45', '60', '90', '120'].map((time) => (
-                <TouchableOpacity
-                  key={time}
-                  style={[
-                    styles.timeButton,
-                    dailyTime === time && styles.timeButtonActive,
-                  ]}
-                  onPress={() => setDailyTime(time)}
-                >
-                  <Text
-                    style={[
-                      styles.timeText,
-                      dailyTime === time && styles.timeTextActive,
-                    ]}
-                  >
-                    {time}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={{ height: 100 }} />
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-            <Text style={styles.nextButtonText}>Continue</Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0F172A',
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  header: {
+// ── Sub-components ─────────────────────────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Eyebrow style={{ marginBottom: spacing.md }}>{children as any}</Eyebrow>
+  );
+}
+
+function OptionRow({
+  active,
+  label,
+  desc,
+  onPress,
+}: {
+  active: boolean;
+  label: string;
+  desc: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        optStyles.row,
+        active && optStyles.rowActive,
+        pressed && { opacity: 0.92 },
+      ]}
+    >
+      <View style={{ flex: 1 }}>
+        <Text style={optStyles.label}>{label}</Text>
+        <Text style={optStyles.desc}>{desc}</Text>
+      </View>
+      <View
+        style={[optStyles.indicator, active && optStyles.indicatorActive]}
+      >
+        {active ? (
+          <Ionicons name="checkmark" size={12} color={colors.bg.void} />
+        ) : null}
+      </View>
+      {active ? <View pointerEvents="none" style={optStyles.tab} /> : null}
+    </Pressable>
+  );
+}
+
+const optStyles = StyleSheet.create({
+  row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 16,
-    marginBottom: 32,
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.base,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+    overflow: 'hidden',
+    gap: spacing.md,
   },
-  progress: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#374151',
-  },
-  progressActive: {
-    backgroundColor: '#3B82F6',
-    width: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#F9FAFB',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#9CA3AF',
-    marginBottom: 32,
-  },
-  section: {
-    marginBottom: 28,
+  rowActive: {
+    borderColor: 'rgba(224, 231, 255, 0.42)',
+    backgroundColor: 'rgba(224, 231, 255, 0.04)',
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F9FAFB',
-    marginBottom: 12,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.primary,
+    letterSpacing: -0.2,
   },
-  input: {
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  optionCardActive: {
-    borderColor: '#3B82F6',
-    backgroundColor: '#1E3A5F',
-  },
-  optionContent: {
-    flex: 1,
-  },
-  optionLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F9FAFB',
-  },
-  optionDesc: {
-    fontSize: 13,
-    color: '#9CA3AF',
+  desc: {
+    fontSize: 12,
+    color: colors.text.tertiary,
     marginTop: 2,
   },
-  timeOptions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  timeButton: {
-    flex: 1,
-    backgroundColor: '#1F2937',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  timeButtonActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-  },
-  timeText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  timeTextActive: {
-    color: '#FFF',
-  },
-  sexOptions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  sexButton: {
-    flex: 1,
-    backgroundColor: '#1F2937',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  sexButtonActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
-  },
-  sexText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  sexTextActive: {
-    color: '#FFF',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  metricInput: {
-    flex: 1,
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#0F172A',
-  },
-  nextButton: {
-    flexDirection: 'row',
-    backgroundColor: '#3B82F6',
-    borderRadius: 12,
-    padding: 18,
+  indicator: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    borderColor: colors.border.medium,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
   },
-  nextButtonText: {
-    fontSize: 18,
+  indicatorActive: {
+    backgroundColor: colors.voltage.core,
+    borderColor: colors.voltage.core,
+  },
+  tab: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+    backgroundColor: colors.voltage.core,
+  },
+});
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.bg.void,
+  },
+  intro: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1,
+    marginTop: 6,
+  },
+  lede: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    marginTop: 8,
+    lineHeight: 21,
+    maxWidth: 320,
+  },
+  section: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  field: {
+    flex: 1,
+  },
+  fieldLabel: {
+    fontSize: 11,
     fontWeight: '600',
-    color: '#FFF',
+    color: colors.text.tertiary,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  input: {
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.base,
+    paddingVertical: 14,
+    fontSize: typography.size.lg,
+    fontWeight: '600',
+    color: colors.text.primary,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  segmented: {
+    flexDirection: 'row',
+    gap: 4,
+    backgroundColor: colors.bg.raised,
+    padding: 3,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: borderRadius.sm,
+  },
+  segmentActive: {
+    backgroundColor: colors.voltage.core,
+  },
+  segmentText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+  },
+  segmentTextActive: {
+    color: colors.bg.void,
+    fontWeight: '700',
+  },
+  timeRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  timeBtn: {
+    flex: 1,
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  timeBtnActive: {
+    backgroundColor: colors.voltage.core,
+    borderColor: colors.voltage.core,
+  },
+  timeBtnText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -0.6,
+  },
+  timeBtnTextActive: {
+    color: colors.bg.void,
+  },
+  timeBtnUnit: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.text.muted,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  timeBtnUnitActive: {
+    color: 'rgba(6,6,11,0.65)',
+  },
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.bg.void,
+    borderTopWidth: 1,
+    borderTopColor: colors.border.hairline,
   },
 });
