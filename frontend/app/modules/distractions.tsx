@@ -11,15 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
-import { format, subDays } from 'date-fns';
-
-interface DistractionEntry {
-    id: string;
-    type: string;
-    trigger: string;
-    time: string;
-    severity: 1 | 2 | 3;
-}
 
 const DISTRACTION_TYPES = [
     { id: 'phone', label: 'Phone', icon: 'phone-portrait' },
@@ -32,21 +23,18 @@ const DISTRACTION_TYPES = [
 
 export default function DistractionScreen() {
     const router = useRouter();
-    const { focusBlocks } = useUserStore();
-    const [entries, setEntries] = useState<DistractionEntry[]>([]);
+    const { focusBlocks, distractionEntries, addDistractionEntry } = useUserStore();
     const [showAdd, setShowAdd] = useState(false);
     const [selectedType, setSelectedType] = useState('');
     const [trigger, setTrigger] = useState('');
     const [severity, setSeverity] = useState<1 | 2 | 3>(2);
 
-    // Analyze focus blocks for distraction patterns
     const analytics = useMemo(() => {
         const totalDistractions = focusBlocks.reduce((acc, fb) => acc + fb.distractions, 0);
         const totalSessions = focusBlocks.length;
         const avgDistractions = totalSessions > 0 ? (totalDistractions / totalSessions).toFixed(1) : '0';
 
-        // Count by type
-        const typeCounts = entries.reduce((acc, e) => {
+        const typeCounts = distractionEntries.reduce((acc, e) => {
             acc[e.type] = (acc[e.type] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
@@ -60,20 +48,18 @@ export default function DistractionScreen() {
             topType: topDistraction?.[0] || null,
             topCount: topDistraction?.[1] || 0,
         };
-    }, [focusBlocks, entries]);
+    }, [focusBlocks, distractionEntries]);
 
-    const handleAddEntry = () => {
+    const handleAddEntry = async () => {
         if (!selectedType) return;
 
-        const newEntry: DistractionEntry = {
+        await addDistractionEntry({
             id: Date.now().toString(),
             type: selectedType,
             trigger: trigger.trim(),
             time: new Date().toISOString(),
             severity,
-        };
-
-        setEntries([newEntry, ...entries]);
+        });
         setSelectedType('');
         setTrigger('');
         setSeverity(2);
@@ -102,7 +88,7 @@ export default function DistractionScreen() {
                         <Text style={styles.statLabel}>Total Logged</Text>
                     </View>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>{entries.length}</Text>
+                        <Text style={styles.statValue}>{distractionEntries.length}</Text>
                         <Text style={styles.statLabel}>Analyzed</Text>
                     </View>
                 </View>
@@ -185,10 +171,10 @@ export default function DistractionScreen() {
                 )}
 
                 {/* Recent Entries */}
-                {entries.length > 0 && (
+                {distractionEntries.length > 0 && (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Recent Entries</Text>
-                        {entries.slice(0, 10).map((entry) => {
+                        {distractionEntries.slice(0, 10).map((entry) => {
                             const typeInfo = DISTRACTION_TYPES.find(t => t.id === entry.type);
                             return (
                                 <View key={entry.id} style={styles.entryCard}>

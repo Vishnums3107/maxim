@@ -166,13 +166,13 @@ export default function ProfileScreen() {
 
         {/* Actions */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/progress')}>
             <Ionicons name="analytics" size={20} color="#3B82F6" />
             <Text style={styles.actionText}>View Full History</Text>
             <Ionicons name="chevron-forward" size={20} color="#6B7280" />
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton}>
+
+          <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/modules/systems')}>
             <Ionicons name="document-text" size={20} color="#8B5CF6" />
             <Text style={styles.actionText}>Weekly Reviews</Text>
             <Ionicons name="chevron-forward" size={20} color="#6B7280" />

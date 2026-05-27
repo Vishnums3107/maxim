@@ -46,7 +46,7 @@ export default function SleepScreen() {
         const sleepHours = parseFloat(hours) || 7;
 
         if (todayEntry) {
-            await updateDailyEntry(today, {
+            await updateDailyEntry(todayEntry.id, {
                 sleepHours,
                 sleepQuality: quality,
             });

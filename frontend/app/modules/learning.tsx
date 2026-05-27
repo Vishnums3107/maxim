@@ -10,19 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
-interface LearningGoal {
-    id: string;
-    title: string;
-    subgoals: SubGoal[];
-    createdAt: string;
-}
-
-interface SubGoal {
-    id: string;
-    title: string;
-    completed: boolean;
-}
+import { useUserStore } from '../../src/store/userStore';
 
 const FEYNMAN_STEPS = [
     { step: 1, title: 'Choose a concept', desc: 'Pick something you want to understand deeply' },
@@ -41,13 +29,13 @@ const SYNTHESIS_PROMPTS = [
 
 export default function LearningScreen() {
     const router = useRouter();
-    const [goals, setGoals] = useState<LearningGoal[]>([]);
+    const { learningGoals, addLearningGoal, updateLearningGoals } = useUserStore();
     const [showAddGoal, setShowAddGoal] = useState(false);
     const [newGoalTitle, setNewGoalTitle] = useState('');
     const [newSubgoals, setNewSubgoals] = useState('');
     const [activeTab, setActiveTab] = useState<'decompose' | 'feynman' | 'synthesis'>('decompose');
 
-    const handleAddGoal = () => {
+    const handleAddGoal = async () => {
         if (!newGoalTitle.trim()) return;
 
         const subgoalList = newSubgoals
@@ -59,21 +47,19 @@ export default function LearningScreen() {
                 completed: false,
             }));
 
-        const newGoal: LearningGoal = {
+        await addLearningGoal({
             id: Date.now().toString(),
             title: newGoalTitle.trim(),
             subgoals: subgoalList,
             createdAt: new Date().toISOString(),
-        };
-
-        setGoals([newGoal, ...goals]);
+        });
         setNewGoalTitle('');
         setNewSubgoals('');
         setShowAddGoal(false);
     };
 
     const toggleSubgoal = (goalId: string, subgoalId: string) => {
-        setGoals(goals.map(goal => {
+        const updated = learningGoals.map(goal => {
             if (goal.id === goalId) {
                 return {
                     ...goal,
@@ -83,7 +69,8 @@ export default function LearningScreen() {
                 };
             }
             return goal;
-        }));
+        });
+        updateLearningGoals(updated);
     };
 
     return (
@@ -173,7 +160,7 @@ export default function LearningScreen() {
                         )}
 
                         {/* Goals List */}
-                        {goals.map((goal) => {
+                        {learningGoals.map((goal) => {
                             const completed = goal.subgoals.filter(s => s.completed).length;
                             const total = goal.subgoals.length;
                             return (

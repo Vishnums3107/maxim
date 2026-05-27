@@ -1,3 +1,6 @@
+import type { ModuleType } from '../constants/prompts';
+export type { ModuleType };
+
 export interface UserProfile {
   id: string;
   createdAt: string;
@@ -66,8 +69,6 @@ export interface Protocol {
   sessionId: string;
 }
 
-export type ModuleType = 'physical' | 'cognitive' | 'regulation' | 'social' | 'systems';
-
 export interface WeeklyReview {
   id: string;
   weekEnding: string;
@@ -99,4 +100,56 @@ export interface FocusBlock {
   startedAt?: string;
   completedAt?: string;
   distractions: number;
+}
+
+export interface ThoughtEntry {
+  id: string;
+  thought: string;
+  action: string;
+  createdAt: string;
+}
+
+export interface LearningGoal {
+  id: string;
+  title: string;
+  subgoals: SubGoal[];
+  createdAt: string;
+}
+
+export interface SubGoal {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface DistractionEntry {
+  id: string;
+  type: string;
+  trigger: string;
+  time: string;
+  severity: 1 | 2 | 3;
+}
+
+export interface ConversationReflection {
+  id: string;
+  context: string;
+  wentWell: string;
+  improve: string;
+  rating: number;
+  createdAt: string;
+}
+
+export interface FrictionPoint {
+  id: string;
+  habit: string;
+  friction: string;
+  solution: string;
+  resolved: boolean;
+}
+
+export interface MoodEntry {
+  date: string;
+  mood: number;
+  anxiety: number;
+  energy: number;
 }

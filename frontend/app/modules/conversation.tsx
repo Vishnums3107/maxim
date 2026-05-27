@@ -10,15 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
-interface ConversationReflection {
-    id: string;
-    context: string;
-    wentWell: string;
-    improve: string;
-    rating: number;
-    createdAt: string;
-}
+import { useUserStore } from '../../src/store/userStore';
 
 const PROMPTS = {
     context: 'What was the situation?',
@@ -28,26 +20,24 @@ const PROMPTS = {
 
 export default function ConversationScreen() {
     const router = useRouter();
+    const { conversationReflections, addConversationReflection } = useUserStore();
     const [context, setContext] = useState('');
     const [wentWell, setWentWell] = useState('');
     const [improve, setImprove] = useState('');
     const [rating, setRating] = useState(3);
-    const [reflections, setReflections] = useState<ConversationReflection[]>([]);
     const [showForm, setShowForm] = useState(false);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!context.trim()) return;
 
-        const newReflection: ConversationReflection = {
+        await addConversationReflection({
             id: Date.now().toString(),
             context: context.trim(),
             wentWell: wentWell.trim(),
             improve: improve.trim(),
             rating,
             createdAt: new Date().toISOString(),
-        };
-
-        setReflections([newReflection, ...reflections]);
+        });
         setContext('');
         setWentWell('');
         setImprove('');
@@ -55,8 +45,8 @@ export default function ConversationScreen() {
         setShowForm(false);
     };
 
-    const avgRating = reflections.length > 0
-        ? (reflections.reduce((acc, r) => acc + r.rating, 0) / reflections.length).toFixed(1)
+    const avgRating = conversationReflections.length > 0
+        ? (conversationReflections.reduce((acc, r) => acc + r.rating, 0) / conversationReflections.length).toFixed(1)
         : null;
 
     return (
@@ -82,10 +72,10 @@ export default function ConversationScreen() {
                 </View>
 
                 {/* Stats */}
-                {reflections.length > 0 && (
+                {conversationReflections.length > 0 && (
                     <View style={styles.statsRow}>
                         <View style={styles.statCard}>
-                            <Text style={styles.statValue}>{reflections.length}</Text>
+                            <Text style={styles.statValue}>{conversationReflections.length}</Text>
                             <Text style={styles.statLabel}>Reflections</Text>
                         </View>
                         <View style={styles.statCard}>
@@ -189,10 +179,10 @@ export default function ConversationScreen() {
                 )}
 
                 {/* Previous Reflections */}
-                {reflections.length > 0 && (
+                {conversationReflections.length > 0 && (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Recent Reflections</Text>
-                        {reflections.map((reflection) => (
+                        {conversationReflections.map((reflection) => (
                             <View key={reflection.id} style={styles.reflectionCard}>
                                 <View style={styles.reflectionHeader}>
                                     <View style={styles.ratingBadge}>

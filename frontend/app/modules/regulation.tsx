@@ -16,8 +16,8 @@ import { generateProtocol } from '../../src/utils/api';
 const REGULATION_TOOLS = [
   { id: 'breathing', name: 'Breathing Exercises', desc: 'Nervous system regulation', icon: 'fitness-outline', route: '/modules/breathing' },
   { id: 'thoughts', name: 'Thought Externalization', desc: 'Dump racing thoughts', icon: 'cloud-outline', route: '/modules/thoughts' },
-  { id: 'grounding', name: 'Grounding Techniques', desc: '5-4-3-2-1 method', icon: 'hand-left-outline' },
-  { id: 'reframe', name: 'Cognitive Reframe', desc: 'Challenge negative patterns', icon: 'swap-horizontal-outline' },
+  { id: 'grounding', name: 'Grounding Techniques', desc: '5-4-3-2-1 method', icon: 'hand-left-outline', route: '/modules/stability' },
+  { id: 'reframe', name: 'Cognitive Reframe', desc: 'Challenge negative patterns', icon: 'swap-horizontal-outline', route: '/modules/stability' },
 ];
 
 export default function RegulationModule() {

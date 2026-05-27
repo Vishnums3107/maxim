@@ -33,7 +33,7 @@ export default function SocialModule() {
   const { profile, addProtocol } = useUserStore();
   const [protocol, setProtocol] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
+  const { socialTasksCompleted, toggleSocialTask } = useUserStore();
 
   const generateSocialProtocol = async () => {
     if (!profile) return;
@@ -57,9 +57,7 @@ export default function SocialModule() {
   };
 
   const toggleTask = (index: number) => {
-    setCompletedTasks((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
+    toggleSocialTask(index);
   };
 
   return (
@@ -118,15 +116,15 @@ export default function SocialModule() {
               >
                 <View style={[
                   styles.taskCheckbox,
-                  completedTasks.includes(index) && styles.taskChecked,
+                  socialTasksCompleted.includes(index) && styles.taskChecked,
                 ]}>
-                  {completedTasks.includes(index) && (
+                  {socialTasksCompleted.includes(index) && (
                     <Ionicons name="checkmark" size={14} color="#FFF" />
                   )}
                 </View>
                 <Text style={[
                   styles.taskText,
-                  completedTasks.includes(index) && styles.taskTextCompleted,
+                  socialTasksCompleted.includes(index) && styles.taskTextCompleted,
                 ]}>
                   {task}
                 </Text>
@@ -165,7 +163,11 @@ export default function SocialModule() {
             <Ionicons name="arrow-forward" size={20} color="#6B7280" />
           </TouchableOpacity>
           {SOCIAL_TOOLS.slice(0, 2).map((tool) => (
-            <TouchableOpacity key={tool.id} style={styles.toolCard}>
+            <TouchableOpacity
+              key={tool.id}
+              style={styles.toolCard}
+              onPress={() => router.push('/modules/social-skills')}
+            >
               <View style={styles.toolIcon}>
                 <Ionicons name={tool.icon as any} size={24} color="#F59E0B" />
               </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     View,
     Text,
@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useUserStore } from '../../src/store/userStore';
 
 interface ExposureItem {
     id: string;
@@ -47,13 +48,11 @@ const DIFFICULTY_LABELS = ['Minimal', 'Light', 'Moderate', 'Challenging', 'Growt
 
 export default function ExposureScreen() {
     const router = useRouter();
-    const [completedItems, setCompletedItems] = useState<string[]>([]);
-    const [expandedLevel, setExpandedLevel] = useState<number | null>(1);
+    const { exposureCompleted, toggleExposureItem } = useUserStore();
+    const [expandedLevel, setExpandedLevel] = React.useState<number | null>(1);
 
     const toggleComplete = (id: string) => {
-        setCompletedItems((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-        );
+        toggleExposureItem(id);
     };
 
     const groupedItems = EXPOSURE_LADDER.reduce((acc, item) => {
@@ -62,7 +61,7 @@ export default function ExposureScreen() {
         return acc;
     }, {} as Record<number, ExposureItem[]>);
 
-    const completedCount = completedItems.length;
+    const completedCount = exposureCompleted.length;
     const totalItems = EXPOSURE_LADDER.length;
 
     return (
@@ -119,7 +118,7 @@ export default function ExposureScreen() {
                                 <View style={styles.levelInfo}>
                                     <Text style={styles.levelTitle}>{DIFFICULTY_LABELS[level - 1]}</Text>
                                     <Text style={styles.levelProgress}>
-                                        {groupedItems[level]?.filter((i) => completedItems.includes(i.id)).length || 0}/
+                                        {groupedItems[level]?.filter((i) => exposureCompleted.includes(i.id)).length || 0}/
                                         {groupedItems[level]?.length || 0} completed
                                     </Text>
                                 </View>
@@ -141,10 +140,10 @@ export default function ExposureScreen() {
                                             <View
                                                 style={[
                                                     styles.checkbox,
-                                                    completedItems.includes(item.id) && styles.checkboxChecked,
+                                                    exposureCompleted.includes(item.id) && styles.checkboxChecked,
                                                 ]}
                                             >
-                                                {completedItems.includes(item.id) && (
+                                                {exposureCompleted.includes(item.id) && (
                                                     <Ionicons name="checkmark" size={14} color="#FFF" />
                                                 )}
                                             </View>
@@ -152,7 +151,7 @@ export default function ExposureScreen() {
                                                 <Text
                                                     style={[
                                                         styles.itemTitle,
-                                                        completedItems.includes(item.id) && styles.itemTitleDone,
+                                                        exposureCompleted.includes(item.id) && styles.itemTitleDone,
                                                     ]}
                                                 >
                                                     {item.title}

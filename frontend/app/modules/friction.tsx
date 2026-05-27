@@ -12,14 +12,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 
-interface FrictionPoint {
-    id: string;
-    habit: string;
-    friction: string;
-    solution: string;
-    resolved: boolean;
-}
-
 const IDENTITY_PROMPTS = [
     { identity: 'I am someone who...', examples: ['shows up consistently', 'prioritizes recovery', 'learns every day'] },
     { identity: 'I don\'t...', examples: ['skip workouts', 'make excuses', 'negotiate with my commitments'] },
@@ -36,13 +28,11 @@ const SIMPLIFICATION_RULES = [
 
 export default function FrictionScreen() {
     const router = useRouter();
-    const { habits } = useUserStore();
-    const [frictionPoints, setFrictionPoints] = useState<FrictionPoint[]>([]);
+    const { habits, frictionPoints, addFrictionPoint, identityStatements, addIdentityStatement } = useUserStore();
     const [showAdd, setShowAdd] = useState(false);
     const [selectedHabit, setSelectedHabit] = useState('');
     const [friction, setFriction] = useState('');
     const [solution, setSolution] = useState('');
-    const [identities, setIdentities] = useState<string[]>([]);
     const [newIdentity, setNewIdentity] = useState('');
 
     // Auto-detect potential friction based on habit completion
@@ -71,25 +61,24 @@ export default function FrictionScreen() {
         });
     }, [habits]);
 
-    const handleAddFriction = () => {
+    const handleAddFriction = async () => {
         if (!selectedHabit || !friction) return;
-        const point: FrictionPoint = {
+        await addFrictionPoint({
             id: Date.now().toString(),
             habit: selectedHabit,
             friction: friction.trim(),
             solution: solution.trim(),
             resolved: false,
-        };
-        setFrictionPoints([point, ...frictionPoints]);
+        });
         setSelectedHabit('');
         setFriction('');
         setSolution('');
         setShowAdd(false);
     };
 
-    const addIdentity = () => {
+    const handleAddIdentity = async () => {
         if (newIdentity.trim()) {
-            setIdentities([...identities, newIdentity.trim()]);
+            await addIdentityStatement(newIdentity.trim());
             setNewIdentity('');
         }
     };
@@ -231,12 +220,12 @@ export default function FrictionScreen() {
                             placeholder="I am someone who..."
                             placeholderTextColor="#6B7280"
                         />
-                        <TouchableOpacity style={styles.addIdentityBtn} onPress={addIdentity}>
+                        <TouchableOpacity style={styles.addIdentityBtn} onPress={handleAddIdentity}>
                             <Ionicons name="add" size={22} color="#FFF" />
                         </TouchableOpacity>
                     </View>
 
-                    {identities.map((id, i) => (
+                    {identityStatements.map((id, i) => (
                         <View key={i} style={styles.identityCard}>
                             <Ionicons name="person" size={16} color="#6366F1" />
                             <Text style={styles.identityText}>{id}</Text>

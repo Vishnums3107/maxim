@@ -299,6 +299,22 @@ export default function SystemsModule() {
           </TouchableOpacity>
         </View>
 
+        {/* System Tools */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>System Tools</Text>
+          <TouchableOpacity
+            style={styles.reviewCard}
+            onPress={() => router.push('/modules/friction')}
+          >
+            <Ionicons name="construct" size={24} color="#F59E0B" />
+            <View style={styles.reviewContent}>
+              <Text style={styles.reviewTitle}>Friction Audit</Text>
+              <Text style={styles.reviewDesc}>Find and remove friction from your systems</Text>
+            </View>
+            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+
         {/* System Principles */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>System Principles</Text>

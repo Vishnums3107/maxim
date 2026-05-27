@@ -89,6 +89,13 @@ export default function PhysicalModule() {
               <Ionicons name="moon" size={24} color="#6366F1" />
               <Text style={styles.toolLabel}>Sleep Log</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => router.push('/modules/recovery')}
+            >
+              <Ionicons name="leaf" size={24} color="#10B981" />
+              <Text style={styles.toolLabel}>Recovery</Text>
+            </TouchableOpacity>
           </View>
         </View>
         {/* Workout Types */}

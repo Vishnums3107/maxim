@@ -12,13 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 
-interface MoodEntry {
-    date: string;
-    mood: number; // 1-10
-    anxiety: number; // 1-10
-    energy: number; // 1-10
-}
-
 const CALM_ROUTINES = [
     {
         id: 'micro',
@@ -52,11 +45,12 @@ const CALM_ROUTINES = [
 
 export default function StabilityScreen() {
     const router = useRouter();
-    const { profile, dailyEntries, breathingSessions } = useUserStore();
-    const [moodLog, setMoodLog] = useState<MoodEntry[]>([]);
+    const { profile, dailyEntries, breathingSessions, moodEntries, addMoodEntry } = useUserStore();
     const [todayMood, setTodayMood] = useState(5);
     const [todayAnxiety, setTodayAnxiety] = useState(5);
-    const [logged, setLogged] = useState(false);
+
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const logged = moodEntries.some(m => m.date === today);
 
     // Calculate stability score
     const stability = useMemo(() => {
@@ -104,13 +98,13 @@ export default function StabilityScreen() {
         };
     }, [profile, dailyEntries, breathingSessions]);
 
-    const handleLogMood = () => {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        setMoodLog([
-            { date: today, mood: todayMood, anxiety: todayAnxiety, energy: profile?.energyLevel || 5 },
-            ...moodLog.filter(m => m.date !== today)
-        ]);
-        setLogged(true);
+    const handleLogMood = async () => {
+        await addMoodEntry({
+            date: today,
+            mood: todayMood,
+            anxiety: todayAnxiety,
+            energy: profile?.energyLevel || 5,
+        });
     };
 
     return (

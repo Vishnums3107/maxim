@@ -14,9 +14,6 @@ import {
 } from '../services/aiService';
 import { ModuleType } from '../constants/prompts';
 
-// We no longer need to convert profile for API since we are using local types
-// But we keep the function signature if needed for future compatibility
-// diff_block_start
 export const generateProtocol = async (
   profile: UserProfile,
   module: string,

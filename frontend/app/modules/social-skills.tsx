@@ -36,15 +36,12 @@ const BOUNDARY_SCRIPTS = [
 
 export default function SocialSkillsScreen() {
     const router = useRouter();
-    const { profile } = useUserStore();
+    const { profile, socialPracticeLog, addSocialPractice, socialResponseDelay, setSocialResponseDelay } = useUserStore();
     const [activeTab, setActiveTab] = useState<'speaking' | 'response' | 'boundaries'>('speaking');
-    const [practiceLog, setPracticeLog] = useState<string[]>([]);
-    const [currentDelay, setCurrentDelay] = useState(1);
 
-    // Confidence trend (mocked for now, would track over time)
     const confidenceTrend = useMemo(() => {
         const baseline = profile?.socialConfidence || 5;
-        const practiced = practiceLog.length;
+        const practiced = socialPracticeLog.length;
         const improvement = Math.min(practiced * 0.2, 2);
         return {
             current: Math.min(10, baseline + improvement).toFixed(1),
@@ -52,10 +49,10 @@ export default function SocialSkillsScreen() {
             delta: improvement > 0 ? `+${improvement.toFixed(1)}` : '0',
             sessions: practiced,
         };
-    }, [profile, practiceLog]);
+    }, [profile, socialPracticeLog]);
 
     const logPractice = (drillId: string) => {
-        setPracticeLog([...practiceLog, drillId]);
+        addSocialPractice(drillId);
     };
 
     return (
@@ -136,11 +133,11 @@ export default function SocialSkillsScreen() {
                         {RESPONSE_DELAYS.map((item) => (
                             <TouchableOpacity
                                 key={item.level}
-                                style={[styles.delayCard, currentDelay === item.level && styles.delayCardActive]}
-                                onPress={() => setCurrentDelay(item.level)}
+                                style={[styles.delayCard, socialResponseDelay === item.level && styles.delayCardActive]}
+                                onPress={() => setSocialResponseDelay(item.level)}
                             >
-                                <View style={[styles.delayLevel, currentDelay === item.level && styles.delayLevelActive]}>
-                                    <Text style={[styles.delayNum, currentDelay === item.level && styles.delayNumActive]}>
+                                <View style={[styles.delayLevel, socialResponseDelay === item.level && styles.delayLevelActive]}>
+                                    <Text style={[styles.delayNum, socialResponseDelay === item.level && styles.delayNumActive]}>
                                         {item.level}
                                     </Text>
                                 </View>
@@ -148,7 +145,7 @@ export default function SocialSkillsScreen() {
                                     <Text style={styles.delayTime}>{item.delay}</Text>
                                     <Text style={styles.delayDesc}>{item.desc}</Text>
                                 </View>
-                                {currentDelay === item.level && (
+                                {socialResponseDelay === item.level && (
                                     <Ionicons name="checkmark-circle" size={22} color="#EC4899" />
                                 )}
                             </TouchableOpacity>
@@ -156,7 +153,7 @@ export default function SocialSkillsScreen() {
                         <View style={styles.tipCard}>
                             <Ionicons name="bulb" size={18} color="#F59E0B" />
                             <Text style={styles.tipText}>
-                                Practice: In your next conversation, count to {currentDelay} before responding.
+                                Practice: In your next conversation, count to {socialResponseDelay} before responding.
                             </Text>
                         </View>
                     </View>

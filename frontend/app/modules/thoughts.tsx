@@ -14,13 +14,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 
-interface ThoughtEntry {
-    id: string;
-    thought: string;
-    action: string;
-    createdAt: string;
-}
-
 const THOUGHT_PROMPTS = [
     "What's occupying your mind right now?",
     "What worry keeps returning?",
@@ -30,25 +23,23 @@ const THOUGHT_PROMPTS = [
 
 export default function ThoughtsScreen() {
     const router = useRouter();
+    const { thoughtEntries, addThoughtEntry } = useUserStore();
     const [thought, setThought] = useState('');
     const [action, setAction] = useState('');
-    const [entries, setEntries] = useState<ThoughtEntry[]>([]);
     const [showEntry, setShowEntry] = useState(false);
     const [currentPrompt] = useState(
         THOUGHT_PROMPTS[Math.floor(Math.random() * THOUGHT_PROMPTS.length)]
     );
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!thought.trim()) return;
 
-        const newEntry: ThoughtEntry = {
+        await addThoughtEntry({
             id: Date.now().toString(),
             thought: thought.trim(),
             action: action.trim(),
             createdAt: new Date().toISOString(),
-        };
-
-        setEntries([newEntry, ...entries]);
+        });
         setThought('');
         setAction('');
         setShowEntry(false);
@@ -180,10 +171,10 @@ export default function ThoughtsScreen() {
                     </View>
 
                     {/* Previous Entries */}
-                    {entries.length > 0 && (
+                    {thoughtEntries.length > 0 && (
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Recent Entries</Text>
-                            {entries.slice(0, 5).map((entry) => (
+                            {thoughtEntries.slice(0, 10).map((entry) => (
                                 <View key={entry.id} style={styles.entryItem}>
                                     <Text style={styles.entryThought} numberOfLines={2}>
                                         {entry.thought}
