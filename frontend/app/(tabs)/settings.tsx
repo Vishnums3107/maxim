@@ -1,436 +1,597 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    Alert,
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { GlassCard } from '../../src/components/GlassCard';
+import { VoltageButton } from '../../src/components/VoltageButton';
 import { useUserStore } from '../../src/store/userStore';
 import { testApiKey } from '../../src/services/aiService';
+import {
+  borderRadius,
+  colors,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
+
+const TAB_BAR_OFFSET = 110;
 
 export default function SettingsScreen() {
-    const { customApiKey, setCustomApiKey } = useUserStore();
-    const [apiKeyInput, setApiKeyInput] = useState(customApiKey || '');
-    const [isValidating, setIsValidating] = useState(false);
-    const [validationStatus, setValidationStatus] = useState<'none' | 'valid' | 'invalid'>('none');
-    const [validationMessage, setValidationMessage] = useState('');
-    const [showKey, setShowKey] = useState(false);
+  const { customApiKey, setCustomApiKey } = useUserStore();
+  const [apiKeyInput, setApiKeyInput] = useState(customApiKey || '');
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationStatus, setValidationStatus] = useState<
+    'none' | 'valid' | 'invalid'
+  >('none');
+  const [validationMessage, setValidationMessage] = useState('');
+  const [showKey, setShowKey] = useState(false);
 
-    useEffect(() => {
-        setApiKeyInput(customApiKey || '');
-        setValidationStatus(customApiKey ? 'valid' : 'none');
-    }, [customApiKey]);
+  useEffect(() => {
+    setApiKeyInput(customApiKey || '');
+    setValidationStatus(customApiKey ? 'valid' : 'none');
+  }, [customApiKey]);
 
-    const handleTestKey = async () => {
-        if (!apiKeyInput.trim()) {
-            setValidationStatus('invalid');
-            setValidationMessage('Please enter an API key');
-            return;
-        }
+  const handleTestKey = async () => {
+    if (!apiKeyInput.trim()) {
+      setValidationStatus('invalid');
+      setValidationMessage('Please enter an API key');
+      return;
+    }
+    setIsValidating(true);
+    setValidationStatus('none');
+    setValidationMessage('');
+    try {
+      const result = await testApiKey(apiKeyInput.trim());
+      setValidationStatus(result.valid ? 'valid' : 'invalid');
+      setValidationMessage(result.message);
+    } catch (error: any) {
+      setValidationStatus('invalid');
+      setValidationMessage(error.message || 'Failed to test key');
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
-        setIsValidating(true);
-        setValidationStatus('none');
-        setValidationMessage('');
+  const handleSaveKey = async () => {
+    if (!apiKeyInput.trim()) {
+      Alert.alert('Error', 'Please enter an API key');
+      return;
+    }
+    if (validationStatus !== 'valid') {
+      Alert.alert(
+        'Key not validated',
+        'Your API key has not been validated. Save it anyway?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Save anyway',
+            onPress: async () => {
+              await setCustomApiKey(apiKeyInput.trim());
+              Alert.alert('Saved', 'API key saved successfully');
+            },
+          },
+        ]
+      );
+      return;
+    }
+    await setCustomApiKey(apiKeyInput.trim());
+    Alert.alert('Saved', 'API key saved successfully.');
+  };
 
-        try {
-            const result = await testApiKey(apiKeyInput.trim());
-            setValidationStatus(result.valid ? 'valid' : 'invalid');
-            setValidationMessage(result.message);
-        } catch (error: any) {
-            setValidationStatus('invalid');
-            setValidationMessage(error.message || 'Failed to test key');
-        } finally {
-            setIsValidating(false);
-        }
-    };
-
-    const handleSaveKey = async () => {
-        if (!apiKeyInput.trim()) {
-            Alert.alert('Error', 'Please enter an API key');
-            return;
-        }
-
-        if (validationStatus !== 'valid') {
-            Alert.alert(
-                'Key Not Validated',
-                'Your API key has not been validated. Do you want to save it anyway?',
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                        text: 'Save Anyway',
-                        onPress: async () => {
-                            await setCustomApiKey(apiKeyInput.trim());
-                            Alert.alert('Saved', 'API key saved successfully');
-                        },
-                    },
-                ]
-            );
-            return;
-        }
-
-        await setCustomApiKey(apiKeyInput.trim());
-        Alert.alert('Saved', 'API key saved successfully!');
-    };
-
-    const handleRemoveKey = () => {
-        Alert.alert(
-            'Remove API Key',
-            'Are you sure you want to remove your custom API key? The app will fall back to the default key.',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Remove',
-                    style: 'destructive',
-                    onPress: async () => {
-                        await setCustomApiKey(null);
-                        setApiKeyInput('');
-                        setValidationStatus('none');
-                        setValidationMessage('');
-                        Alert.alert('Removed', 'Custom API key removed');
-                    },
-                },
-            ]
-        );
-    };
-
-    const getStatusColor = () => {
-        switch (validationStatus) {
-            case 'valid':
-                return '#22C55E';
-            case 'invalid':
-                return '#EF4444';
-            default:
-                return '#6B7280';
-        }
-    };
-
-    const getStatusIcon = () => {
-        switch (validationStatus) {
-            case 'valid':
-                return 'checkmark-circle';
-            case 'invalid':
-                return 'close-circle';
-            default:
-                return 'help-circle-outline';
-        }
-    };
-
-    return (
-        <SafeAreaView style={styles.container}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.flex}
-            >
-                <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>Settings</Text>
-                        <Text style={styles.subtitle}>Configure your MAXIM experience</Text>
-                    </View>
-
-                    {/* API Key Section */}
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <Ionicons name="key-outline" size={24} color="#3B82F6" />
-                            <Text style={styles.sectionTitle}>Google API Key</Text>
-                        </View>
-
-                        <Text style={styles.description}>
-                            Add your own Google AI API key to avoid rate limits. Get one free at{' '}
-                            <Text style={styles.link}>aistudio.google.com</Text>
-                        </Text>
-
-                        {/* Current Status */}
-                        <View style={styles.statusContainer}>
-                            <Ionicons name={getStatusIcon()} size={20} color={getStatusColor()} />
-                            <Text style={[styles.statusText, { color: getStatusColor() }]}>
-                                {customApiKey
-                                    ? 'Using your custom API key'
-                                    : 'Using default key (shared quota)'}
-                            </Text>
-                        </View>
-
-                        {/* API Key Input */}
-                        <View style={styles.inputContainer}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your Google API key"
-                                placeholderTextColor="#6B7280"
-                                value={apiKeyInput}
-                                onChangeText={(text) => {
-                                    setApiKeyInput(text);
-                                    setValidationStatus('none');
-                                    setValidationMessage('');
-                                }}
-                                secureTextEntry={!showKey}
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-                            <TouchableOpacity
-                                style={styles.eyeButton}
-                                onPress={() => setShowKey(!showKey)}
-                            >
-                                <Ionicons
-                                    name={showKey ? 'eye-off-outline' : 'eye-outline'}
-                                    size={20}
-                                    color="#6B7280"
-                                />
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Validation Message */}
-                        {validationMessage ? (
-                            <View style={styles.messageContainer}>
-                                <Ionicons
-                                    name={validationStatus === 'valid' ? 'checkmark-circle' : 'alert-circle'}
-                                    size={16}
-                                    color={getStatusColor()}
-                                />
-                                <Text style={[styles.messageText, { color: getStatusColor() }]}>
-                                    {validationMessage}
-                                </Text>
-                            </View>
-                        ) : null}
-
-                        {/* Action Buttons */}
-                        <View style={styles.buttonRow}>
-                            <TouchableOpacity
-                                style={[styles.button, styles.testButton]}
-                                onPress={handleTestKey}
-                                disabled={isValidating || !apiKeyInput.trim()}
-                            >
-                                {isValidating ? (
-                                    <ActivityIndicator size="small" color="#3B82F6" />
-                                ) : (
-                                    <>
-                                        <Ionicons name="flask-outline" size={18} color="#3B82F6" />
-                                        <Text style={styles.testButtonText}>Test Key</Text>
-                                    </>
-                                )}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.button, styles.saveButton]}
-                                onPress={handleSaveKey}
-                                disabled={isValidating || !apiKeyInput.trim()}
-                            >
-                                <Ionicons name="save-outline" size={18} color="#FFFFFF" />
-                                <Text style={styles.saveButtonText}>Save Key</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Remove Key Button */}
-                        {customApiKey && (
-                            <TouchableOpacity style={styles.removeButton} onPress={handleRemoveKey}>
-                                <Ionicons name="trash-outline" size={18} color="#EF4444" />
-                                <Text style={styles.removeButtonText}>Remove Custom Key</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-
-                    {/* Info Section */}
-                    <View style={styles.infoSection}>
-                        <View style={styles.infoCard}>
-                            <Ionicons name="information-circle-outline" size={24} color="#3B82F6" />
-                            <View style={styles.infoContent}>
-                                <Text style={styles.infoTitle}>Why use your own key?</Text>
-                                <Text style={styles.infoText}>
-                                    • Avoid shared rate limits{'\n'}
-                                    • No quota exhaustion from other users{'\n'}
-                                    • Full control over your API usage
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.infoCard}>
-                            <Ionicons name="shield-checkmark-outline" size={24} color="#22C55E" />
-                            <View style={styles.infoContent}>
-                                <Text style={styles.infoTitle}>Your key is secure</Text>
-                                <Text style={styles.infoText}>
-                                    Your API key is stored locally on your device only. It never leaves your
-                                    phone and is not shared with any server.
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+  const handleRemoveKey = () => {
+    Alert.alert(
+      'Remove API key',
+      'Remove your custom API key? The app will fall back to the default key.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            await setCustomApiKey(null);
+            setApiKeyInput('');
+            setValidationStatus('none');
+            setValidationMessage('');
+          },
+        },
+      ]
     );
+  };
+
+  const statusTint =
+    validationStatus === 'valid'
+      ? colors.success
+      : validationStatus === 'invalid'
+        ? colors.error
+        : colors.text.muted;
+
+  const statusIcon =
+    validationStatus === 'valid'
+      ? 'checkmark-circle'
+      : validationStatus === 'invalid'
+        ? 'close-circle'
+        : 'help-circle-outline';
+
+  return (
+    <View style={styles.root}>
+      <AuroraBackground tint={colors.voltage.soft} intensity={0.35} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{
+              paddingBottom: TAB_BAR_OFFSET + spacing.xl,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header */}
+            <View style={styles.header}>
+              <Eyebrow>Configuration</Eyebrow>
+              <Text style={styles.title}>Settings</Text>
+              <Text style={styles.subtitle}>
+                Tune your MAXIM experience and bring your own AI capacity.
+              </Text>
+            </View>
+
+            {/* ── API key panel ─────────────────────────────────────── */}
+            <View style={styles.section}>
+              <View style={styles.sectionHead}>
+                <Eyebrow>AI Engine</Eyebrow>
+              </View>
+
+              <GlassCard immediate padding={spacing.xl}>
+                <View style={styles.panelHeader}>
+                  <View style={styles.keyIconCell}>
+                    <Ionicons
+                      name="key"
+                      size={16}
+                      color={colors.voltage.core}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.panelTitle}>Google AI API key</Text>
+                    <Text style={styles.panelDesc}>
+                      Add your own key to skip shared rate limits.
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Current status */}
+                <View style={[styles.statusRow, { borderColor: 'rgba(255,255,255,0.06)' }]}>
+                  <Ionicons name={statusIcon as any} size={16} color={statusTint} />
+                  <Text style={[styles.statusText, { color: statusTint }]}>
+                    {customApiKey
+                      ? 'Using your custom API key'
+                      : 'Using default key (shared quota)'}
+                  </Text>
+                </View>
+
+                {/* Input */}
+                <View style={styles.inputWrap}>
+                  <Ionicons
+                    name="lock-closed"
+                    size={14}
+                    color={colors.text.muted}
+                    style={{ marginRight: 8 }}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Paste your API key"
+                    placeholderTextColor={colors.text.muted}
+                    value={apiKeyInput}
+                    onChangeText={(text) => {
+                      setApiKeyInput(text);
+                      setValidationStatus('none');
+                      setValidationMessage('');
+                    }}
+                    secureTextEntry={!showKey}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  <Pressable
+                    hitSlop={6}
+                    onPress={() => setShowKey((v) => !v)}
+                  >
+                    <Ionicons
+                      name={showKey ? 'eye-off' : 'eye'}
+                      size={16}
+                      color={colors.text.tertiary}
+                    />
+                  </Pressable>
+                </View>
+
+                {/* Validation message */}
+                {validationMessage ? (
+                  <View style={styles.validationRow}>
+                    <Ionicons
+                      name={
+                        validationStatus === 'valid'
+                          ? 'checkmark-circle'
+                          : 'alert-circle'
+                      }
+                      size={13}
+                      color={statusTint}
+                    />
+                    <Text style={[styles.validationText, { color: statusTint }]}>
+                      {validationMessage}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {/* Buttons */}
+                <View style={styles.btnRow}>
+                  <View style={{ flex: 1 }}>
+                    <VoltageButton
+                      title={isValidating ? 'Testing…' : 'Test'}
+                      onPress={handleTestKey}
+                      variant="ghost"
+                      icon="flask"
+                      iconPosition="left"
+                      disabled={isValidating || !apiKeyInput.trim()}
+                      fullWidth
+                      size="md"
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <VoltageButton
+                      title="Save key"
+                      onPress={handleSaveKey}
+                      icon="checkmark"
+                      iconPosition="left"
+                      disabled={isValidating || !apiKeyInput.trim()}
+                      fullWidth
+                      size="md"
+                    />
+                  </View>
+                </View>
+
+                {customApiKey && (
+                  <Pressable
+                    onPress={handleRemoveKey}
+                    style={({ pressed }) => [
+                      styles.removeBtn,
+                      pressed && { opacity: 0.85 },
+                    ]}
+                  >
+                    <Ionicons name="trash" size={14} color={colors.error} />
+                    <Text style={styles.removeText}>Remove custom key</Text>
+                  </Pressable>
+                )}
+
+                {/* Get key link */}
+                <Pressable
+                  onPress={() =>
+                    WebBrowser.openBrowserAsync('https://aistudio.google.com/')
+                  }
+                  style={({ pressed }) => [
+                    styles.linkBtn,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text style={styles.linkText}>
+                    Get a free API key →{' '}
+                    <Text style={styles.linkAccent}>aistudio.google.com</Text>
+                  </Text>
+                </Pressable>
+              </GlassCard>
+            </View>
+
+            {/* ── Why use your own key + Privacy ─────────────────────── */}
+            <View style={styles.section}>
+              <View style={styles.sectionHead}>
+                <Eyebrow>About</Eyebrow>
+              </View>
+
+              <InfoTile
+                icon="rocket"
+                tint={colors.voltage.core}
+                title="Why use your own key?"
+                bullets={[
+                  'Avoid shared rate limits',
+                  'No quota exhaustion from other users',
+                  'Full control over your AI usage',
+                ]}
+              />
+
+              <InfoTile
+                icon="shield-checkmark"
+                tint={colors.success}
+                title="Your key is local"
+                bullets={[
+                  'Stored only on this device',
+                  'Never sent to any third-party server',
+                  'You can remove it at any time',
+                ]}
+              />
+            </View>
+
+            {/* ── App credits ─────────────────────────────────────── */}
+            <View style={styles.credits}>
+              <Text style={styles.creditsTitle}>MAXIM</Text>
+              <Text style={styles.creditsLine}>
+                Performance Operating System · v1.0
+              </Text>
+              <Text style={styles.creditsLine}>
+                Built for sustainable, compounding capability.
+              </Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
+  );
 }
 
+// ── Info tile (used in About) ────────────────────────────────────────────────
+function InfoTile({
+  icon,
+  tint,
+  title,
+  bullets,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  tint: string;
+  title: string;
+  bullets: string[];
+}) {
+  return (
+    <View style={info.card}>
+      <View style={info.head}>
+        <View
+          style={[
+            info.icon,
+            { backgroundColor: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.08)' },
+          ]}
+        >
+          <Ionicons name={icon} size={16} color={tint} />
+        </View>
+        <Text style={info.title}>{title}</Text>
+      </View>
+      <View style={{ paddingLeft: 44, gap: 6 }}>
+        {bullets.map((b) => (
+          <View key={b} style={info.row}>
+            <View style={[info.dot, { backgroundColor: tint }]} />
+            <Text style={info.text}>{b}</Text>
+          </View>
+        ))}
+      </View>
+      <View pointerEvents="none" style={info.hair} />
+    </View>
+  );
+}
+
+const info = StyleSheet.create({
+  card: {
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.base,
+    paddingHorizontal: spacing.base,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+    marginBottom: spacing.sm,
+    overflow: 'hidden',
+  },
+  head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: spacing.md,
+  },
+  icon: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  title: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.primary,
+    letterSpacing: -0.2,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+  text: {
+    fontSize: 13,
+    color: colors.text.secondary,
+  },
+  hair: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+});
+
+// ── Page styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#111827',
-    },
-    flex: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    header: {
-        paddingTop: 20,
-        paddingBottom: 24,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: '700',
-        color: '#FFFFFF',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#9CA3AF',
-    },
-    section: {
-        backgroundColor: '#1F2937',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 20,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 12,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#FFFFFF',
-    },
-    description: {
-        fontSize: 14,
-        color: '#9CA3AF',
-        lineHeight: 20,
-        marginBottom: 16,
-    },
-    link: {
-        color: '#3B82F6',
-        textDecorationLine: 'underline',
-    },
-    statusContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        backgroundColor: '#111827',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 16,
-    },
-    statusText: {
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#111827',
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#374151',
-        marginBottom: 12,
-    },
-    input: {
-        flex: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 16,
-        color: '#FFFFFF',
-    },
-    eyeButton: {
-        padding: 12,
-    },
-    messageContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
-    },
-    messageText: {
-        fontSize: 14,
-        flex: 1,
-    },
-    buttonRow: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    button: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 14,
-        borderRadius: 12,
-    },
-    testButton: {
-        backgroundColor: '#1F2937',
-        borderWidth: 1,
-        borderColor: '#3B82F6',
-    },
-    testButtonText: {
-        color: '#3B82F6',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    saveButton: {
-        backgroundColor: '#3B82F6',
-    },
-    saveButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    removeButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 14,
-        marginTop: 12,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#EF4444',
-    },
-    removeButtonText: {
-        color: '#EF4444',
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    infoSection: {
-        gap: 12,
-        marginBottom: 40,
-    },
-    infoCard: {
-        flexDirection: 'row',
-        gap: 16,
-        backgroundColor: '#1F2937',
-        borderRadius: 12,
-        padding: 16,
-    },
-    infoContent: {
-        flex: 1,
-    },
-    infoTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#FFFFFF',
-        marginBottom: 4,
-    },
-    infoText: {
-        fontSize: 14,
-        color: '#9CA3AF',
-        lineHeight: 20,
-    },
+  root: {
+    flex: 1,
+    backgroundColor: colors.bg.void,
+  },
+  header: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.base,
+    marginBottom: spacing.xl,
+  },
+  title: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1.2,
+    marginTop: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    marginTop: 8,
+    lineHeight: 21,
+    maxWidth: 320,
+  },
+  section: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  sectionHead: {
+    marginBottom: spacing.md,
+  },
+
+  panelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  keyIconCell: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(224, 231, 255, 0.10)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(224, 231, 255, 0.24)',
+  },
+  panelTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.text.primary,
+    letterSpacing: -0.4,
+  },
+  panelDesc: {
+    fontSize: 12,
+    color: colors.text.tertiary,
+    marginTop: 2,
+  },
+
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.surface.glass,
+    borderWidth: 1,
+    marginBottom: spacing.md,
+  },
+  statusText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bg.sunken,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: typography.size.md,
+    color: colors.text.primary,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
+  validationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  validationText: {
+    fontSize: 12,
+    flex: 1,
+  },
+
+  btnRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.base,
+  },
+  removeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: spacing.md,
+    paddingVertical: 10,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(248, 113, 113, 0.30)',
+    backgroundColor: 'rgba(248, 113, 113, 0.06)',
+  },
+  removeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.error,
+    letterSpacing: 0.4,
+  },
+
+  linkBtn: {
+    marginTop: spacing.md,
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 12,
+    color: colors.text.tertiary,
+    fontWeight: '500',
+  },
+  linkAccent: {
+    color: colors.voltage.core,
+    fontWeight: '700',
+  },
+
+  credits: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  creditsTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: 6,
+  },
+  creditsLine: {
+    fontSize: 11,
+    color: colors.text.muted,
+    marginTop: 4,
+    fontWeight: '500',
+    letterSpacing: 0.6,
+  },
 });

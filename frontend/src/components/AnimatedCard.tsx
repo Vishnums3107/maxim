@@ -1,14 +1,15 @@
 /**
- * Animated Card Component
- * With smooth entrance animation and press feedback
+ * AnimatedCard — entrance fade + slide, optional press feedback.
+ *
+ * API preserved: { children, onPress, delay, style, elevated }.
+ * Visual updated to match Luxe glass aesthetic.
  */
-
 import React, { useRef, useEffect } from 'react';
 import {
     Animated,
+    Pressable,
     StyleSheet,
     ViewStyle,
-    TouchableOpacity,
 } from 'react-native';
 import { colors, borderRadius, spacing, shadows } from '../theme/tokens';
 import { fadeIn, createPressAnimation, timing } from '../theme/animations';
@@ -29,7 +30,7 @@ export function AnimatedCard({
     elevated = false,
 }: AnimatedCardProps) {
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(20)).current;
+    const slideAnim = useRef(new Animated.Value(16)).current;
     const scaleValue = useRef(new Animated.Value(1)).current;
 
     const pressHandlers = onPress ? createPressAnimation(scaleValue) : {};
@@ -46,48 +47,33 @@ export function AnimatedCard({
         ]).start();
     }, []);
 
-    const cardStyle = [
-        styles.card,
-        elevated && shadows.md,
-        style,
-    ];
-
+    const cardStyle = [styles.card, elevated && shadows.md, style];
     const animatedStyle = {
         opacity: fadeAnim,
-        transform: [
-            { translateY: slideAnim },
-            { scale: scaleValue },
-        ],
+        transform: [{ translateY: slideAnim }, { scale: scaleValue }],
     };
 
     if (onPress) {
         return (
             <Animated.View style={animatedStyle}>
-                <TouchableOpacity
-                    style={cardStyle}
-                    onPress={onPress}
-                    activeOpacity={0.9}
-                    {...pressHandlers}
-                >
+                <Pressable onPress={onPress} {...pressHandlers} style={cardStyle}>
                     {children}
-                </TouchableOpacity>
+                </Pressable>
             </Animated.View>
         );
     }
 
-    return (
-        <Animated.View style={[cardStyle, animatedStyle]}>
-            {children}
-        </Animated.View>
-    );
+    return <Animated.View style={[cardStyle, animatedStyle]}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: colors.background.secondary,
-        borderRadius: borderRadius.lg,
-        padding: spacing.base,
+        backgroundColor: colors.bg.raised,
+        borderRadius: borderRadius.xl,
+        padding: spacing.lg,
         marginBottom: spacing.sm,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
     },
 });
 

@@ -1,9 +1,8 @@
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
+import { colors } from '../src/theme/tokens';
 
 export default function Index() {
-  return (
-    <View style={{ flex: 1, backgroundColor: '#0F172A', alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator size="large" color="#3B82F6" />
-    </View>
-  );
+  // Pure void — root _layout decides where to navigate. Avoids a flash of
+  // a generic spinner over our branded loader.
+  return <View style={{ flex: 1, backgroundColor: colors.bg.void }} />;
 }

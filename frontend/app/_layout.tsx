@@ -1,12 +1,82 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { Animated, Easing, Text, View, StyleSheet } from 'react-native';
 import { useUserStore } from '../src/store/userStore';
+import { AuroraBackground } from '../src/components/AuroraBackground';
+import { colors, typography, shadows } from '../src/theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
 
+// ─── Branded loading screen ──────────────────────────────────────────────────
+function MaximLoader({ subtitle }: { subtitle?: string }) {
+  const pulse = useRef(new Animated.Value(0.6)).current;
+  const fade = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1100,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0.6,
+          duration: 1100,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <View style={styles.loader}>
+      <AuroraBackground tint={colors.voltage.soft} intensity={0.55} />
+
+      <Animated.View
+        style={[
+          styles.logoWrap,
+          { opacity: fade, transform: [{ scale: fade.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1] }) }] },
+        ]}
+      >
+        {/* Voltage halo */}
+        <Animated.View
+          style={[
+            styles.halo,
+            {
+              opacity: pulse,
+              transform: [
+                {
+                  scale: pulse.interpolate({ inputRange: [0.6, 1], outputRange: [1, 1.25] }),
+                },
+              ],
+            },
+          ]}
+        />
+        {/* Logo monogram */}
+        <View style={styles.monogram}>
+          <Text style={styles.monogramText}>M</Text>
+        </View>
+
+        <Text style={styles.brand}>MAXIM</Text>
+        <Text style={styles.tag}>{subtitle ?? 'Performance Operating System'}</Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+// ─── Root layout ─────────────────────────────────────────────────────────────
 export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
@@ -29,7 +99,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isReady || isLoading) return;
-
     try {
       const inOnboarding = segments[0] === 'onboarding';
       const inTabs = segments[0] === '(tabs)';
@@ -49,20 +118,19 @@ export default function RootLayout() {
 
   if (error) {
     return (
-      <View style={styles.loading}>
-        <Text style={styles.errorText}>Error: {error}</Text>
+      <>
+        <MaximLoader subtitle={`Error: ${error}`} />
         <StatusBar style="light" />
-      </View>
+      </>
     );
   }
 
   if (!isReady || isLoading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#3B82F6" />
-        <Text style={styles.loadingText}>Loading MAXIM...</Text>
+      <>
+        <MaximLoader />
         <StatusBar style="light" />
-      </View>
+      </>
     );
   }
 
@@ -71,7 +139,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0F172A' },
+          contentStyle: { backgroundColor: colors.bg.void },
           animation: 'fade',
         }}
       >
@@ -85,21 +153,53 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  loading: {
+  loader: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.bg.void,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loadingText: {
-    color: '#9CA3AF',
-    marginTop: 16,
-    fontSize: 16,
+  logoWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 16,
-    textAlign: 'center',
-    padding: 20,
+  halo: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: colors.voltage.glow,
+    top: -64,
+  },
+  monogram: {
+    width: 92,
+    height: 92,
+    borderRadius: 28,
+    backgroundColor: colors.voltage.core,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+    ...shadows.voltage,
+  },
+  monogramText: {
+    fontSize: 52,
+    fontWeight: '800',
+    color: colors.bg.void,
+    letterSpacing: -2,
+    marginTop: -4,
+  },
+  brand: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: 8,
+  },
+  tag: {
+    marginTop: 10,
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    letterSpacing: 2.4,
+    textTransform: 'uppercase',
   },
 });
