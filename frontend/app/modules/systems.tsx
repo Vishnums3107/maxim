@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +16,7 @@ import { generateProtocol, generateWeeklyReview } from '../../src/utils/api';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function SystemsModule() {
@@ -336,32 +336,16 @@ export default function SystemsModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Systems Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#60A5FA" />
-              <Text style={styles.loadingText}>Generating systems protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateSystemsProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#60A5FA" />
-                <Text style={[styles.regenerateText, { color: '#60A5FA' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#60A5FA' }]}
-              onPress={generateSystemsProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Get System Recommendations</Text>
-            </TouchableOpacity>
-          )}
+          <ProtocolPanel
+            label="AI Systems Coach"
+            emptyDescription="Generate a personalised systems protocol to optimise your habits, consistency, and long-term architecture."
+            protocol={protocol}
+            loading={loading}
+            accent="#60A5FA"
+            generateLabel="Get System Recommendations"
+            onGenerate={generateSystemsProtocol}
+            onRegenerate={generateSystemsProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />
@@ -599,52 +583,6 @@ const styles = StyleSheet.create({
     color: '#9494A0',
     marginTop: 2,
     lineHeight: 18,
-  },
-  loadingCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#9494A0',
-    marginTop: 12,
-  },
-  protocolCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 16,
-  },
-  protocolText: {
-    color: '#C4C4CC',
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  regenerateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#1F1F2C',
-    gap: 8,
-  },
-  regenerateText: {
-    fontWeight: '600',
-  },
-  generateButton: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  generateButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
   healthCard: {
     backgroundColor: '#11111C',

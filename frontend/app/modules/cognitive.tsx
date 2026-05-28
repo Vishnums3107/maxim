@@ -5,13 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { generateProtocol } from '../../src/utils/api';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
 
 const COGNITIVE_TOOLS = [
   { id: 'focus', name: 'Focus Block', desc: 'Deep work session', icon: 'timer-outline', route: '/modules/focus' },
@@ -111,32 +111,16 @@ export default function CognitiveModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Learning Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#A78BFA" />
-              <Text style={styles.loadingText}>Generating cognitive protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateCognitiveProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#A78BFA" />
-                <Text style={[styles.regenerateText, { color: '#A78BFA' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#A78BFA' }]}
-              onPress={generateCognitiveProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Generate Learning Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <ProtocolPanel
+            label="AI Learning Coach"
+            emptyDescription="Generate a personalised cognitive protocol focused on focus, learning, and mental clarity."
+            protocol={protocol}
+            loading={loading}
+            accent="#A78BFA"
+            generateLabel="Generate Learning Protocol"
+            onGenerate={generateCognitiveProtocol}
+            onRegenerate={generateCognitiveProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />
@@ -247,51 +231,5 @@ const styles = StyleSheet.create({
   modelText: {
     color: '#C4C4CC',
     fontSize: 13,
-  },
-  loadingCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#9494A0',
-    marginTop: 12,
-  },
-  protocolCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 16,
-  },
-  protocolText: {
-    color: '#C4C4CC',
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  regenerateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#1F1F2C',
-    gap: 8,
-  },
-  regenerateText: {
-    fontWeight: '600',
-  },
-  generateButton: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  generateButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

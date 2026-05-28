@@ -5,13 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { generateProtocol } from '../../src/utils/api';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
 
 const REGULATION_TOOLS = [
   { id: 'breathing', name: 'Breathing Exercises', desc: 'Nervous system regulation', icon: 'fitness-outline', route: '/modules/breathing' },
@@ -123,32 +123,16 @@ export default function RegulationModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Regulation Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#34D399" />
-              <Text style={styles.loadingText}>Generating regulation protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateRegulationProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#34D399" />
-                <Text style={[styles.regenerateText, { color: '#34D399' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#34D399' }]}
-              onPress={generateRegulationProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Get Personalized Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <ProtocolPanel
+            label="AI Regulation Coach"
+            emptyDescription="Generate a personalised regulation protocol for your current anxiety level and nervous system state."
+            protocol={protocol}
+            loading={loading}
+            accent="#34D399"
+            generateLabel="Get Personalised Protocol"
+            onGenerate={generateRegulationProtocol}
+            onRegenerate={generateRegulationProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />
@@ -295,51 +279,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9494A0',
     marginTop: 4,
-  },
-  loadingCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#9494A0',
-    marginTop: 12,
-  },
-  protocolCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 16,
-  },
-  protocolText: {
-    color: '#C4C4CC',
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  regenerateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#1F1F2C',
-    gap: 8,
-  },
-  regenerateText: {
-    fontWeight: '600',
-  },
-  generateButton: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  generateButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

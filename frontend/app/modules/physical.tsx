@@ -5,13 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { generateProtocol } from '../../src/utils/api';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
 
 const WORKOUTS = [
   { id: 'strength', name: 'Strength Training', duration: '30-45 min', icon: 'barbell-outline' },
@@ -118,32 +118,16 @@ export default function PhysicalModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Protocol Generator</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#F87171" />
-              <Text style={styles.loadingText}>Generating personalized protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={() => generatePhysicalProtocol()}
-              >
-                <Ionicons name="refresh" size={16} color="#F87171" />
-                <Text style={styles.regenerateText}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.generateButton}
-              onPress={() => generatePhysicalProtocol()}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Generate Today's Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <ProtocolPanel
+            label="AI Physical Coach"
+            emptyDescription="Generate a personalised physical protocol tuned to your current energy, activity level, and goals."
+            protocol={protocol}
+            loading={loading}
+            accent="#F87171"
+            generateLabel="Generate Today's Protocol"
+            onGenerate={() => generatePhysicalProtocol()}
+            onRegenerate={() => generatePhysicalProtocol()}
+          />
         </View>
 
         {/* Quick Tips */}
@@ -257,54 +241,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9494A0',
     marginTop: 2,
-  },
-  loadingCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#9494A0',
-    marginTop: 12,
-  },
-  protocolCard: {
-    backgroundColor: '#11111C',
-    borderRadius: 12,
-    padding: 16,
-  },
-  protocolText: {
-    color: '#C4C4CC',
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  regenerateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#1F1F2C',
-    gap: 8,
-  },
-  regenerateText: {
-    color: '#F87171',
-    fontWeight: '600',
-  },
-  generateButton: {
-    flexDirection: 'row',
-    backgroundColor: '#F87171',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  generateButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
   tipsCard: {
     backgroundColor: '#11111C',
