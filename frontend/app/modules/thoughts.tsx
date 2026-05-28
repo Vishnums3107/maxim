@@ -20,6 +20,7 @@ const THOUGHT_PROMPTS = [
     "What decision are you avoiding?",
     "What's draining your energy?",
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function ThoughtsScreen() {
     const router = useRouter();
@@ -52,13 +53,7 @@ export default function ThoughtsScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Thought Externalization</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Thought Externalization" />
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -68,7 +63,7 @@ export default function ThoughtsScreen() {
                     {/* Hero */}
                     <View style={styles.heroSection}>
                         <View style={styles.heroIcon}>
-                            <Ionicons name="cloud-outline" size={40} color="#10B981" />
+                            <Ionicons name="cloud-outline" size={40} color="#34D399" />
                         </View>
                         <Text style={styles.heroTitle}>Get It Out of Your Head</Text>
                         <Text style={styles.heroSubtitle}>
@@ -86,14 +81,14 @@ export default function ThoughtsScreen() {
                                 value={thought}
                                 onChangeText={setThought}
                                 placeholder="Write freely... no one will see this but you"
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                                 multiline
                                 numberOfLines={4}
                                 textAlignVertical="top"
                             />
 
                             <TouchableOpacity style={styles.convertButton} onPress={convertToAction}>
-                                <Ionicons name="arrow-forward-circle" size={20} color="#10B981" />
+                                <Ionicons name="arrow-forward-circle" size={20} color="#34D399" />
                                 <Text style={styles.convertText}>Convert to action</Text>
                             </TouchableOpacity>
 
@@ -102,7 +97,7 @@ export default function ThoughtsScreen() {
                                 value={action}
                                 onChangeText={setAction}
                                 placeholder="What's one action you can take?"
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                             />
 
                             <View style={styles.buttonRow}>
@@ -131,7 +126,7 @@ export default function ThoughtsScreen() {
                             style={styles.newEntryButton}
                             onPress={() => setShowEntry(true)}
                         >
-                            <Ionicons name="add-circle" size={24} color="#10B981" />
+                            <Ionicons name="add-circle" size={24} color="#34D399" />
                             <Text style={styles.newEntryText}>Externalize a Thought</Text>
                         </TouchableOpacity>
                     )}
@@ -141,7 +136,7 @@ export default function ThoughtsScreen() {
                         <Text style={styles.sectionTitle}>The Process</Text>
                         <View style={styles.processCard}>
                             <View style={styles.processStep}>
-                                <View style={[styles.stepNumber, { backgroundColor: '#3B82F6' }]}>
+                                <View style={[styles.stepNumber, { backgroundColor: '#60A5FA' }]}>
                                     <Text style={styles.stepNumberText}>1</Text>
                                 </View>
                                 <View style={styles.stepContent}>
@@ -150,7 +145,7 @@ export default function ThoughtsScreen() {
                                 </View>
                             </View>
                             <View style={styles.processStep}>
-                                <View style={[styles.stepNumber, { backgroundColor: '#F59E0B' }]}>
+                                <View style={[styles.stepNumber, { backgroundColor: '#FBBF24' }]}>
                                     <Text style={styles.stepNumberText}>2</Text>
                                 </View>
                                 <View style={styles.stepContent}>
@@ -159,7 +154,7 @@ export default function ThoughtsScreen() {
                                 </View>
                             </View>
                             <View style={styles.processStep}>
-                                <View style={[styles.stepNumber, { backgroundColor: '#10B981' }]}>
+                                <View style={[styles.stepNumber, { backgroundColor: '#34D399' }]}>
                                     <Text style={styles.stepNumberText}>3</Text>
                                 </View>
                                 <View style={styles.stepContent}>
@@ -181,7 +176,7 @@ export default function ThoughtsScreen() {
                                     </Text>
                                     {entry.action && (
                                         <View style={styles.entryActionRow}>
-                                            <Ionicons name="arrow-forward" size={14} color="#10B981" />
+                                            <Ionicons name="arrow-forward" size={14} color="#34D399" />
                                             <Text style={styles.entryAction}>{entry.action}</Text>
                                         </View>
                                     )}
@@ -200,7 +195,7 @@ export default function ThoughtsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -212,7 +207,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -226,7 +221,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#10B98120',
+        backgroundColor: '#34D39920',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
@@ -234,34 +229,34 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 22,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
     },
     newEntryButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
         gap: 12,
         marginBottom: 24,
         borderWidth: 2,
-        borderColor: '#10B98140',
+        borderColor: '#34D39940',
         borderStyle: 'dashed',
     },
     newEntryText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#10B981',
+        color: '#34D399',
     },
     entryCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
         marginBottom: 24,
@@ -269,16 +264,16 @@ const styles = StyleSheet.create({
     promptText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#D1D5DB',
+        color: '#C4C4CC',
         marginBottom: 16,
         fontStyle: 'italic',
     },
     thoughtInput: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 12,
         padding: 16,
         fontSize: 16,
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         minHeight: 120,
         marginBottom: 12,
     },
@@ -290,15 +285,15 @@ const styles = StyleSheet.create({
     },
     convertText: {
         fontSize: 14,
-        color: '#10B981',
+        color: '#34D399',
         fontWeight: '500',
     },
     actionInput: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 12,
         padding: 16,
         fontSize: 16,
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 16,
     },
     buttonRow: {
@@ -307,7 +302,7 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
         flex: 1,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 12,
         padding: 14,
         alignItems: 'center',
@@ -315,12 +310,12 @@ const styles = StyleSheet.create({
     cancelText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     saveButton: {
         flex: 2,
         flexDirection: 'row',
-        backgroundColor: '#10B981',
+        backgroundColor: '#34D399',
         borderRadius: 12,
         padding: 14,
         alignItems: 'center',
@@ -328,7 +323,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     saveButtonDisabled: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
     },
     saveText: {
         fontSize: 16,
@@ -341,11 +336,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     processCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 16,
     },
@@ -373,22 +368,22 @@ const styles = StyleSheet.create({
     stepTitle: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     stepDesc: {
         fontSize: 13,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginTop: 2,
     },
     entryItem: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         marginBottom: 8,
     },
     entryThought: {
         fontSize: 14,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
         marginBottom: 8,
     },
     entryActionRow: {
@@ -398,7 +393,7 @@ const styles = StyleSheet.create({
     },
     entryAction: {
         fontSize: 13,
-        color: '#10B981',
+        color: '#34D399',
         fontWeight: '500',
     },
 });

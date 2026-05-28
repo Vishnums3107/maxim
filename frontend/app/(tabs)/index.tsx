@@ -1,22 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
+  Animated,
+  Easing,
+  Pressable,
   RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { format, subDays } from 'date-fns';
 import { useUserStore } from '../../src/store/userStore';
 import { generateDailyBriefing } from '../../src/utils/api';
 import { ActionItem } from '../../src/components/ActionItem';
-import { format } from 'date-fns';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { GlassCard } from '../../src/components/GlassCard';
+import { ProgressRing } from '../../src/components/ProgressRing';
+import { Sparkline } from '../../src/components/Sparkline';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
+
+const TAB_BAR_OFFSET = 110;
+
+const getTimeOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  return 'evening';
+};
 
 export default function TodayScreen() {
-  const { profile, getTodayEntry, updateDailyEntry, addDailyEntry } = useUserStore();
+  const { profile, dailyEntries, getTodayEntry, updateDailyEntry, addDailyEntry } =
+    useUserStore();
   const [briefing, setBriefing] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,8 +90,7 @@ export default function TodayScreen() {
 
   const toggleAction = async (action: keyof typeof todayActions) => {
     const newValue = !todayActions[action];
-    setTodayActions(prev => ({ ...prev, [action]: newValue }));
-
+    setTodayActions((p) => ({ ...p, [action]: newValue }));
     const dateStr = format(today, 'yyyy-MM-dd');
     const actionKey = `${action}Action` as const;
 
@@ -97,293 +121,577 @@ export default function TodayScreen() {
   const completedCount = Object.values(todayActions).filter(Boolean).length;
   const progressPercent = (completedCount / 5) * 100;
 
+  // ── Sparkline data — last 7 days completion + simple metric trends ─────────
+  const trendData = useMemo(() => {
+    const last7 = Array.from({ length: 7 }).map((_, i) => {
+      const d = format(subDays(today, 6 - i), 'yyyy-MM-dd');
+      const e = dailyEntries.find((x) => x.date === d);
+      let count = 0;
+      if (e?.physicalAction?.completed) count++;
+      if (e?.cognitiveAction?.completed) count++;
+      if (e?.regulationAction?.completed) count++;
+      if (e?.socialAction?.completed) count++;
+      if (e?.systemAction?.completed) count++;
+      return { date: d, count, energy: e?.morningEnergy ?? null, sleep: e?.sleepQuality ?? null };
+    });
+    const completion = last7.map((x) => x.count);
+    const energy = last7.map((x) => (x.energy ?? profile?.energyLevel ?? 5));
+    const sleep = last7.map((x) => (x.sleep ?? profile?.sleepQuality ?? 5));
+    return { completion, energy, sleep };
+  }, [dailyEntries, profile]);
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Good {getTimeOfDay()},</Text>
-            <Text style={styles.date}>{format(today, 'EEEE, MMMM d')}</Text>
-          </View>
-          <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>{profile?.level || 'beginner'}</Text>
-          </View>
-        </View>
+    <View style={styles.root}>
+      <AuroraBackground tint={colors.voltage.soft} intensity={0.55} />
 
-        {/* Progress Ring */}
-        <View style={styles.progressSection}>
-          <View style={styles.progressRing}>
-            <View style={styles.progressInner}>
-              <Text style={styles.progressNumber}>{completedCount}/5</Text>
-              <Text style={styles.progressLabel}>Complete</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: TAB_BAR_OFFSET + spacing.xl }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.voltage.core}
+              progressBackgroundColor={colors.bg.raised}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* ── Header ───────────────────────────────────────────────── */}
+          <View style={styles.header}>
+            <View style={{ flex: 1 }}>
+              <Eyebrow>Good {getTimeOfDay()}</Eyebrow>
+              <Text style={styles.dateBig}>{format(today, 'EEEE')}</Text>
+              <Text style={styles.dateSmall}>{format(today, 'MMMM d, yyyy')}</Text>
+            </View>
+            <View style={styles.levelBadge}>
+              <View style={styles.levelDot} />
+              <Text style={styles.levelText}>{profile?.level ?? 'beginner'}</Text>
             </View>
           </View>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+
+          {/* ── Hero performance card ────────────────────────────────── */}
+          <View style={styles.heroWrap}>
+            <GlassCard immediate padding={spacing.xl} radius={borderRadius['2xl']}>
+              <View style={styles.heroRow}>
+                <View style={styles.ringBlock}>
+                  <ProgressRing
+                    progress={progressPercent}
+                    size={132}
+                    strokeWidth={10}
+                    color={colors.voltage.core}
+                    colorStop={colors.voltage.soft}
+                    showValue={false}
+                  />
+                  <View style={styles.ringInner} pointerEvents="none">
+                    <Text style={styles.ringNum}>
+                      {completedCount}
+                      <Text style={styles.ringDenom}>/5</Text>
+                    </Text>
+                    <Text style={styles.ringLbl}>Today</Text>
+                  </View>
+                </View>
+
+                <View style={styles.heroCopy}>
+                  <Eyebrow color={colors.voltage.bright}>Daily Protocol</Eyebrow>
+                  <Text style={styles.heroTitle}>
+                    {completedCount === 5
+                      ? 'Protocol complete.'
+                      : completedCount === 0
+                        ? 'Begin your day.'
+                        : 'Keep momentum.'}
+                  </Text>
+                  <Text style={styles.heroSub}>
+                    {completedCount === 5
+                      ? 'Every domain attended to. Recover well.'
+                      : `${5 - completedCount} action${5 - completedCount === 1 ? '' : 's'} remaining across your domains.`}
+                  </Text>
+
+                  <View style={styles.statsRow}>
+                    <MetricChip
+                      icon="flash"
+                      tint={colors.modules.social}
+                      value={profile?.energyLevel ?? 5}
+                    />
+                    <MetricChip
+                      icon="moon"
+                      tint={colors.modules.cognitive}
+                      value={profile?.sleepQuality ?? 5}
+                    />
+                    <MetricChip
+                      icon="eye"
+                      tint={colors.modules.systems}
+                      value={profile?.attentionStability ?? 5}
+                    />
+                  </View>
+                </View>
+              </View>
+            </GlassCard>
           </View>
-        </View>
 
-        {/* Daily Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Protocol</Text>
-          
-          <ActionItem
-            title="Physical Action"
-            subtitle="Movement, strength, or recovery"
-            completed={todayActions.physical}
-            onToggle={() => toggleAction('physical')}
-            color="#EF4444"
-          />
-          
-          <ActionItem
-            title="Cognitive Action"
-            subtitle="Focus block or learning session"
-            completed={todayActions.cognitive}
-            onToggle={() => toggleAction('cognitive')}
-            color="#8B5CF6"
-          />
-          
-          <ActionItem
-            title="Regulation Action"
-            subtitle="Breathing or mental control exercise"
-            completed={todayActions.regulation}
-            onToggle={() => toggleAction('regulation')}
-            color="#10B981"
-          />
-          
-          <ActionItem
-            title="Social Action"
-            subtitle="Communication or connection task"
-            completed={todayActions.social}
-            onToggle={() => toggleAction('social')}
-            color="#F59E0B"
-          />
-          
-          <ActionItem
-            title="System Check"
-            subtitle="Habit or routine maintenance"
-            completed={todayActions.system}
-            onToggle={() => toggleAction('system')}
-            color="#3B82F6"
-          />
-        </View>
-
-        {/* AI Briefing */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>AI Briefing</Text>
-            <TouchableOpacity onPress={fetchBriefing} disabled={loading}>
-              <Ionicons 
-                name={loading ? "hourglass-outline" : "refresh-outline"} 
-                size={20} 
-                color="#3B82F6" 
+          {/* ── Vital stat cards with sparklines ──────────────────────── */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Eyebrow>Vitals — last 7 days</Eyebrow>
+            </View>
+            <View style={styles.vitalsRow}>
+              <VitalCard
+                label="Completion"
+                value={`${trendData.completion.reduce((a, b) => a + b, 0)}`}
+                unit=" actions"
+                values={trendData.completion}
+                tint={colors.voltage.core}
+                delay={0}
               />
-            </TouchableOpacity>
-          </View>
-          
-          {loading ? (
-            <View style={styles.briefingLoading}>
-              <ActivityIndicator color="#3B82F6" />
-              <Text style={styles.loadingText}>Generating your personalized briefing...</Text>
+              <VitalCard
+                label="Energy"
+                value={`${(
+                  trendData.energy.reduce((a, b) => a + b, 0) / trendData.energy.length
+                ).toFixed(1)}`}
+                unit="/10"
+                values={trendData.energy}
+                tint={colors.modules.social}
+                delay={60}
+              />
+              <VitalCard
+                label="Sleep"
+                value={`${(
+                  trendData.sleep.reduce((a, b) => a + b, 0) / trendData.sleep.length
+                ).toFixed(1)}`}
+                unit="/10"
+                values={trendData.sleep}
+                tint={colors.modules.cognitive}
+                delay={120}
+              />
             </View>
-          ) : briefing ? (
-            <View style={styles.briefingCard}>
-              <Text style={styles.briefingText}>{briefing}</Text>
+          </View>
+
+          {/* ── Today's Protocol — actions ────────────────────────────── */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Eyebrow>Today&apos;s Protocol</Eyebrow>
+              <Text style={styles.sectionMicro}>{completedCount}/5</Text>
             </View>
-          ) : (
-            <TouchableOpacity style={styles.generateButton} onPress={fetchBriefing}>
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Generate Daily Briefing</Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
-        {/* Quick Stats */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Ionicons name="flash" size={24} color="#F59E0B" />
-            <Text style={styles.statValue}>{profile?.energyLevel || 5}/10</Text>
-            <Text style={styles.statLabel}>Energy</Text>
+            <ActionItem
+              title="Physical"
+              subtitle="Movement, strength or recovery"
+              completed={todayActions.physical}
+              onToggle={() => toggleAction('physical')}
+              color={colors.modules.physical}
+            />
+            <ActionItem
+              title="Cognitive"
+              subtitle="Focus block or learning session"
+              completed={todayActions.cognitive}
+              onToggle={() => toggleAction('cognitive')}
+              color={colors.modules.cognitive}
+            />
+            <ActionItem
+              title="Regulation"
+              subtitle="Breath or mental control work"
+              completed={todayActions.regulation}
+              onToggle={() => toggleAction('regulation')}
+              color={colors.modules.regulation}
+            />
+            <ActionItem
+              title="Social"
+              subtitle="Communication or connection"
+              completed={todayActions.social}
+              onToggle={() => toggleAction('social')}
+              color={colors.modules.social}
+            />
+            <ActionItem
+              title="System Check"
+              subtitle="Habit or routine maintenance"
+              completed={todayActions.system}
+              onToggle={() => toggleAction('system')}
+              color={colors.modules.systems}
+            />
           </View>
-          <View style={styles.statCard}>
-            <Ionicons name="moon" size={24} color="#8B5CF6" />
-            <Text style={styles.statValue}>{profile?.sleepQuality || 5}/10</Text>
-            <Text style={styles.statLabel}>Sleep</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="eye" size={24} color="#3B82F6" />
-            <Text style={styles.statValue}>{profile?.attentionStability || 5}/10</Text>
-            <Text style={styles.statLabel}>Focus</Text>
-          </View>
-        </View>
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </SafeAreaView>
+          {/* ── AI Briefing ───────────────────────────────────────────── */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Eyebrow>Intelligence Briefing</Eyebrow>
+              {briefing ? (
+                <Pressable onPress={fetchBriefing} disabled={loading} hitSlop={8}>
+                  <Text style={styles.regen}>
+                    {loading ? 'thinking…' : 'regenerate'}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+
+            {loading && !briefing ? (
+              <GlassCard immediate padding={spacing.xl}>
+                <View style={styles.briefingLoading}>
+                  <ActivityIndicator color={colors.voltage.core} />
+                  <Text style={styles.loadingText}>
+                    Synthesising today&apos;s briefing…
+                  </Text>
+                </View>
+              </GlassCard>
+            ) : briefing ? (
+              <GlassCard immediate padding={spacing.xl}>
+                <View style={styles.briefHeader}>
+                  <Ionicons name="sparkles" size={14} color={colors.voltage.core} />
+                  <Text style={styles.briefHeaderText}>Personalised for you</Text>
+                </View>
+                <Text style={styles.briefingText}>{briefing}</Text>
+              </GlassCard>
+            ) : (
+              <GlassCard immediate padding={spacing.xl}>
+                <Text style={styles.briefEmpty}>
+                  An AI briefing tailored to your current state, energy and goals — generated on demand.
+                </Text>
+                <View style={{ height: spacing.base }} />
+                <VoltageButton
+                  title="Generate today's briefing"
+                  icon="sparkles"
+                  iconPosition="left"
+                  onPress={fetchBriefing}
+                  loading={loading}
+                  fullWidth
+                />
+              </GlassCard>
+            )}
+          </View>
+
+          <DailyQuote />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const getTimeOfDay = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'morning';
-  if (hour < 17) return 'afternoon';
-  return 'evening';
-};
+// ── Sub-components ─────────────────────────────────────────────────────────
+
+function MetricChip({
+  icon,
+  tint,
+  value,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  tint: string;
+  value: number;
+}) {
+  return (
+    <View style={chipStyles.row}>
+      <View style={[chipStyles.dot, { backgroundColor: tint }]} />
+      <Ionicons name={icon} size={12} color={colors.text.secondary} />
+      <Text style={chipStyles.value}>{value}</Text>
+    </View>
+  );
+}
+
+const chipStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: borderRadius.full,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  value: {
+    color: colors.text.primary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+  },
+});
+
+function VitalCard({
+  label,
+  value,
+  unit,
+  values,
+  tint,
+  delay = 0,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  values: number[];
+  tint: string;
+  delay?: number;
+}) {
+  return (
+    <View style={vitalStyles.card}>
+      <Text style={vitalStyles.label}>{label}</Text>
+      <Text style={vitalStyles.value}>
+        {value}
+        {unit ? <Text style={vitalStyles.unit}>{unit}</Text> : null}
+      </Text>
+      <Sparkline values={values} color={tint} width={92} height={28} strokeWidth={1.6} />
+    </View>
+  );
+}
+
+const vitalStyles = StyleSheet.create({
+  card: {
+    flex: 1,
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.base,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+    overflow: 'hidden',
+  },
+  label: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text.primary,
+    letterSpacing: -0.6,
+  },
+  unit: {
+    fontSize: 12,
+    color: colors.text.muted,
+    fontWeight: '500',
+  },
+});
+
+function DailyQuote() {
+  const fade = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 800,
+      delay: 240,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, []);
+  return (
+    <Animated.View style={[styles.quote, { opacity: fade }]}>
+      <Text style={styles.quoteMark}>“</Text>
+      <Text style={styles.quoteText}>
+        Capability is the residue of repeated, considered effort.
+      </Text>
+      <Text style={styles.quoteAttr}>MAXIM principle no. 7</Text>
+    </Animated.View>
+  );
+}
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#0F172A',
-  },
-  scrollView: {
-    flex: 1,
+    backgroundColor: colors.bg.void,
   },
   header: {
     flexDirection: 'row',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    marginBottom: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.base,
+    marginBottom: spacing.lg,
   },
-  greeting: {
-    fontSize: 16,
-    color: '#9CA3AF',
-  },
-  date: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#F9FAFB',
+  dateBig: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1,
     marginTop: 4,
   },
+  dateSmall: {
+    fontSize: 13,
+    color: colors.text.tertiary,
+    fontWeight: '500',
+    marginTop: 2,
+  },
   levelBadge: {
-    backgroundColor: '#1E3A8A',
-    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.surface.glass,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+  },
+  levelDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.voltage.core,
+    ...shadows.glow(colors.voltage.soft),
   },
   levelText: {
-    color: '#93C5FD',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  progressSection: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  progressRing: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#1F2937',
-    borderWidth: 4,
-    borderColor: '#3B82F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  progressInner: {
-    alignItems: 'center',
-  },
-  progressNumber: {
-    fontSize: 28,
+    fontSize: 11,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: colors.text.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
   },
-  progressLabel: {
-    fontSize: 12,
-    color: '#9CA3AF',
+
+  heroWrap: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: '#374151',
-    borderRadius: 4,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#3B82F6',
-    borderRadius: 4,
-  },
-  section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  sectionHeader: {
+  heroRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.lg,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#F9FAFB',
-    marginBottom: 16,
-  },
-  briefingLoading: {
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#9CA3AF',
-    marginTop: 12,
-    fontSize: 14,
-  },
-  briefingCard: {
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 16,
-  },
-  briefingText: {
-    color: '#D1D5DB',
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  generateButton: {
-    flexDirection: 'row',
-    backgroundColor: '#3B82F6',
-    borderRadius: 12,
-    padding: 16,
+  ringBlock: {
+    width: 132,
+    height: 132,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
   },
-  generateButtonText: {
-    color: '#FFF',
-    fontSize: 16,
+  ringInner: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ringNum: {
+    fontSize: 38,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1.5,
+  },
+  ringDenom: {
+    fontSize: 18,
+    color: colors.text.muted,
     fontWeight: '600',
+  },
+  ringLbl: {
+    fontSize: 10,
+    color: colors.text.muted,
+    fontWeight: '600',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
+  heroCopy: {
+    flex: 1,
+  },
+  heroTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text.primary,
+    letterSpacing: -0.6,
+    marginTop: 6,
+  },
+  heroSub: {
+    fontSize: 13,
+    color: colors.text.tertiary,
+    lineHeight: 19,
+    marginTop: 4,
   },
   statsRow: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 12,
+    gap: 6,
+    marginTop: spacing.md,
+    flexWrap: 'wrap',
   },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 16,
+
+  section: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  sectionMicro: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    letterSpacing: 0.4,
+  },
+
+  vitalsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+
+  briefingLoading: {
+    paddingVertical: spacing.lg,
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  loadingText: {
+    color: colors.text.tertiary,
+    fontSize: 13,
+  },
+  briefHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: spacing.md,
+  },
+  briefHeaderText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.voltage.core,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
+  briefingText: {
+    color: colors.text.secondary,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  briefEmpty: {
+    color: colors.text.tertiary,
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  regen: {
+    color: colors.text.tertiary,
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'lowercase',
+  },
+
+  quote: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.base,
     alignItems: 'center',
   },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#F9FAFB',
-    marginTop: 8,
+  quoteMark: {
+    fontSize: 42,
+    color: colors.voltage.glow,
+    fontWeight: '800',
+    lineHeight: 30,
+    marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 4,
+  quoteText: {
+    color: colors.text.secondary,
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 21,
+    paddingHorizontal: spacing.xl,
+  },
+  quoteAttr: {
+    marginTop: spacing.sm,
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.text.muted,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
   },
 });

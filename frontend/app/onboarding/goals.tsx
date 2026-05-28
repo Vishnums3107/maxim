@@ -1,235 +1,380 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
+  Animated,
+  Pressable,
   ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { StepDots } from '../../src/components/StepDots';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import { Gradient } from '../../src/components/Gradient';
 import { useUserStore } from '../../src/store/userStore';
+import { createPressAnimation } from '../../src/theme/animations';
+import {
+  borderRadius,
+  colors,
+  moduleGradients,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
 
-const GOALS = [
-  { id: 'fitness', label: 'Build Physical Strength', icon: 'fitness-outline', color: '#EF4444' },
-  { id: 'energy', label: 'Increase Daily Energy', icon: 'flash-outline', color: '#F59E0B' },
-  { id: 'focus', label: 'Improve Focus & Attention', icon: 'eye-outline', color: '#8B5CF6' },
-  { id: 'learning', label: 'Learn Faster & Better', icon: 'bulb-outline', color: '#3B82F6' },
-  { id: 'anxiety', label: 'Reduce Anxiety & Stress', icon: 'leaf-outline', color: '#10B981' },
-  { id: 'sleep', label: 'Improve Sleep Quality', icon: 'moon-outline', color: '#6366F1' },
-  { id: 'confidence', label: 'Build Social Confidence', icon: 'people-outline', color: '#EC4899' },
-  { id: 'habits', label: 'Develop Better Habits', icon: 'repeat-outline', color: '#14B8A6' },
+interface Goal {
+  id: string;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  accent: string;
+  gradient: readonly [string, string];
+}
+
+const GOALS: Goal[] = [
+  {
+    id: 'fitness',
+    label: 'Physical Strength',
+    icon: 'flame',
+    accent: colors.modules.physical,
+    gradient: moduleGradients.physical,
+  },
+  {
+    id: 'energy',
+    label: 'Daily Energy',
+    icon: 'flash',
+    accent: colors.modules.social,
+    gradient: moduleGradients.social,
+  },
+  {
+    id: 'focus',
+    label: 'Focus & Attention',
+    icon: 'aperture',
+    accent: colors.modules.cognitive,
+    gradient: moduleGradients.cognitive,
+  },
+  {
+    id: 'learning',
+    label: 'Learn Faster',
+    icon: 'book',
+    accent: colors.modules.systems,
+    gradient: moduleGradients.systems,
+  },
+  {
+    id: 'anxiety',
+    label: 'Reduce Anxiety',
+    icon: 'leaf',
+    accent: colors.modules.regulation,
+    gradient: moduleGradients.regulation,
+  },
+  {
+    id: 'sleep',
+    label: 'Better Sleep',
+    icon: 'moon',
+    accent: '#A78BFA',
+    gradient: ['#A78BFA', '#7C3AED'] as const,
+  },
+  {
+    id: 'confidence',
+    label: 'Social Confidence',
+    icon: 'people',
+    accent: '#F472B6',
+    gradient: ['#F472B6', '#DB2777'] as const,
+  },
+  {
+    id: 'habits',
+    label: 'Better Habits',
+    icon: 'repeat',
+    accent: '#34D399',
+    gradient: ['#34D399', '#059669'] as const,
+  },
 ];
 
 export default function OnboardingGoals() {
   const router = useRouter();
   const { updateProfile } = useUserStore();
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
 
-  const toggleGoal = (goalId: string) => {
-    setSelectedGoals((prev) =>
-      prev.includes(goalId)
-        ? prev.filter((g) => g !== goalId)
-        : [...prev, goalId]
-    );
+  const toggle = (id: string) => {
+    setSelected((p) => (p.includes(id) ? p.filter((g) => g !== id) : [...p, id]));
   };
 
   const handleComplete = async () => {
     await updateProfile({
-      learningGoals: selectedGoals,
+      learningGoals: selected,
       onboardingComplete: true,
     });
-    
     router.replace('/(tabs)');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <View style={styles.progress}>
-            <View style={[styles.progressDot, styles.progressDone]} />
-            <View style={[styles.progressDot, styles.progressDone]} />
-            <View style={[styles.progressDot, styles.progressActive]} />
-          </View>
-          <View style={{ width: 24 }} />
-        </View>
+    <View style={styles.root}>
+      <AuroraBackground
+        tint={colors.modules.cognitive}
+        tintSecondary={colors.modules.social}
+        intensity={0.4}
+      />
 
-        <Text style={styles.title}>Your Goals</Text>
-        <Text style={styles.subtitle}>
-          Select what you want to improve. Choose as many as apply.
-        </Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScreenChrome
+          title="Step 3 of 3"
+          eyebrow="Onboarding"
+          right={<StepDots total={3} current={2} />}
+        />
 
-        {/* Goals Grid */}
-        <View style={styles.goalsContainer}>
-          {GOALS.map((goal) => {
-            const isSelected = selectedGoals.includes(goal.id);
-            return (
-              <TouchableOpacity
-                key={goal.id}
-                style={[
-                  styles.goalCard,
-                  isSelected && { borderColor: goal.color },
-                ]}
-                onPress={() => toggleGoal(goal.id)}
-              >
-                <View
-                  style={[
-                    styles.goalIcon,
-                    { backgroundColor: goal.color + '20' },
-                  ]}
-                >
-                  <Ionicons name={goal.icon as any} size={24} color={goal.color} />
-                </View>
-                <Text style={styles.goalLabel}>{goal.label}</Text>
-                {isSelected && (
-                  <View style={[styles.checkmark, { backgroundColor: goal.color }]}>
-                    <Ionicons name="checkmark" size={14} color="#FFF" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.completeButton,
-            selectedGoals.length === 0 && styles.disabledButton,
-          ]}
-          onPress={handleComplete}
-          disabled={selectedGoals.length === 0}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: spacing['3xl'] }}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="rocket" size={20} color="#FFF" />
-          <Text style={styles.completeButtonText}>Start My Journey</Text>
-        </TouchableOpacity>
-        
-        {selectedGoals.length === 0 && (
-          <Text style={styles.hintText}>Select at least one goal</Text>
-        )}
-      </View>
-    </SafeAreaView>
+          <View style={styles.intro}>
+            <Eyebrow>What matters most</Eyebrow>
+            <Text style={styles.title}>Choose your priorities.</Text>
+            <Text style={styles.lede}>
+              Pick anything that resonates. MAXIM weighs your protocols accordingly.
+              You can change these later.
+            </Text>
+          </View>
+
+          <View style={styles.grid}>
+            {GOALS.map((goal, idx) => (
+              <GoalTile
+                key={goal.id}
+                goal={goal}
+                selected={selected.includes(goal.id)}
+                onPress={() => toggle(goal.id)}
+                delay={idx * 50}
+              />
+            ))}
+          </View>
+
+          <View style={styles.helper}>
+            <Ionicons
+              name="checkmark-circle"
+              size={14}
+              color={selected.length > 0 ? colors.success : colors.text.muted}
+            />
+            <Text
+              style={[
+                styles.helperText,
+                selected.length > 0 && { color: colors.text.secondary },
+              ]}
+            >
+              {selected.length === 0
+                ? 'Select at least one goal'
+                : `${selected.length} goal${selected.length === 1 ? '' : 's'} selected`}
+            </Text>
+          </View>
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <VoltageButton
+            title="Begin"
+            onPress={handleComplete}
+            icon="rocket"
+            iconPosition="left"
+            fullWidth
+            size="lg"
+            disabled={selected.length === 0}
+          />
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0F172A',
+// ── Tile ───────────────────────────────────────────────────────────────────
+function GoalTile({
+  goal,
+  selected,
+  onPress,
+  delay = 0,
+}: {
+  goal: Goal;
+  selected: boolean;
+  onPress: () => void;
+  delay?: number;
+}) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const fade = useRef(new Animated.Value(0)).current;
+  const translate = useRef(new Animated.Value(10)).current;
+  const press = createPressAnimation(scale);
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fade, {
+        toValue: 1,
+        duration: 380,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translate, {
+        toValue: 0,
+        duration: 380,
+        delay,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        gt.tile,
+        {
+          opacity: fade,
+          transform: [{ translateY: translate }, { scale }],
+        },
+      ]}
+    >
+      <Pressable onPress={onPress} {...press} style={gt.touch}>
+        {/* corner halo when selected */}
+        {selected ? (
+          <>
+            <View pointerEvents="none" style={gt.halo}>
+              <Gradient colors={goal.gradient} borderRadius={120} />
+            </View>
+            <View pointerEvents="none" style={gt.haloFade} />
+          </>
+        ) : null}
+
+        <View
+          style={[
+            gt.iconCell,
+            {
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              borderColor: selected
+                ? `${goal.accent}55`
+                : 'rgba(255,255,255,0.08)',
+            },
+          ]}
+        >
+          <Ionicons name={goal.icon} size={20} color={goal.accent} />
+        </View>
+
+        <Text style={gt.label}>{goal.label}</Text>
+
+        {selected ? (
+          <View
+            style={[
+              gt.check,
+              { backgroundColor: goal.accent },
+            ]}
+          >
+            <Ionicons name="checkmark" size={11} color={colors.bg.void} />
+          </View>
+        ) : null}
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+const gt = StyleSheet.create({
+  tile: {
+    width: '48.5%',
   },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
+  touch: {
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.base,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
+    overflow: 'hidden',
+    minHeight: 110,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  halo: {
+    position: 'absolute',
+    bottom: -54,
+    right: -54,
+    width: 130,
+    height: 130,
+    borderRadius: 130,
+    opacity: 0.32,
+  },
+  haloFade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(6,6,11,0.10)',
+  },
+  iconCell: {
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
-    paddingTop: 16,
-    marginBottom: 32,
+    justifyContent: 'center',
+    borderWidth: 1,
+    marginBottom: spacing.sm + 2,
   },
-  progress: {
-    flexDirection: 'row',
-    gap: 8,
+  label: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.primary,
+    letterSpacing: -0.2,
   },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#374151',
+  check: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  progressActive: {
-    backgroundColor: '#3B82F6',
-    width: 24,
+});
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.bg.void,
   },
-  progressDone: {
-    backgroundColor: '#10B981',
+  intro: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#F9FAFB',
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1,
+    marginTop: 6,
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#9CA3AF',
-    marginBottom: 32,
+  lede: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    marginTop: 8,
+    lineHeight: 21,
+    maxWidth: 340,
   },
-  goalsContainer: {
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: spacing.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
   },
-  goalCard: {
-    width: '47%',
-    backgroundColor: '#1F2937',
-    borderRadius: 16,
-    padding: 16,
+  helper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
+    gap: 6,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.sm,
   },
-  goalIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  goalLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F9FAFB',
-    textAlign: 'center',
-  },
-  checkmark: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  helperText: {
+    fontSize: 12,
+    color: colors.text.muted,
+    fontWeight: '500',
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#0F172A',
-  },
-  completeButton: {
-    flexDirection: 'row',
-    backgroundColor: '#10B981',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  disabledButton: {
-    backgroundColor: '#374151',
-  },
-  completeButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFF',
-  },
-  hintText: {
-    fontSize: 13,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 12,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.bg.void,
+    borderTopWidth: 1,
+    borderTopColor: colors.border.hairline,
   },
 });

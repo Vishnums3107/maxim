@@ -1,26 +1,43 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useUserStore } from '../../src/store/userStore';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { GlassCard } from '../../src/components/GlassCard';
 import { MetricSlider } from '../../src/components/MetricSlider';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { StepDots } from '../../src/components/StepDots';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import { useUserStore } from '../../src/store/userStore';
+import {
+  borderRadius,
+  colors,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
 
 export default function OnboardingMetrics() {
   const router = useRouter();
   const { profile, updateProfile } = useUserStore();
-  
+
   const [sleepQuality, setSleepQuality] = useState(profile?.sleepQuality || 5);
   const [energyLevel, setEnergyLevel] = useState(profile?.energyLevel || 5);
-  const [attentionStability, setAttentionStability] = useState(profile?.attentionStability || 5);
-  const [anxietyTendency, setAnxietyTendency] = useState(profile?.anxietyTendency || 5);
-  const [socialConfidence, setSocialConfidence] = useState(profile?.socialConfidence || 5);
+  const [attentionStability, setAttentionStability] = useState(
+    profile?.attentionStability || 5,
+  );
+  const [anxietyTendency, setAnxietyTendency] = useState(
+    profile?.anxietyTendency || 5,
+  );
+  const [socialConfidence, setSocialConfidence] = useState(
+    profile?.socialConfidence || 5,
+  );
 
   const handleNext = async () => {
     await updateProfile({
@@ -30,172 +47,153 @@ export default function OnboardingMetrics() {
       anxietyTendency,
       socialConfidence,
     });
-    
+
     router.push('/onboarding/goals');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <View style={styles.progress}>
-            <View style={[styles.progressDot, styles.progressDone]} />
-            <View style={[styles.progressDot, styles.progressActive]} />
-            <View style={styles.progressDot} />
+    <View style={styles.root}>
+      <AuroraBackground tint={colors.modules.regulation} intensity={0.4} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScreenChrome
+          title="Step 2 of 3"
+          eyebrow="Onboarding"
+          right={<StepDots total={3} current={1} />}
+        />
+
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: spacing['3xl'] }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.intro}>
+            <Eyebrow>Baseline State</Eyebrow>
+            <Text style={styles.title}>Where are you, today?</Text>
+            <Text style={styles.lede}>
+              Honest ratings — these become the reference for everything that follows.
+            </Text>
           </View>
-          <View style={{ width: 24 }} />
+
+          <View style={styles.metricsBlock}>
+            <GlassCard immediate padding={spacing.xl} radius={borderRadius['2xl']}>
+              <MetricSlider
+                label="Sleep Quality"
+                value={sleepQuality}
+                onChange={setSleepQuality}
+                lowLabel="Poor"
+                highLabel="Excellent"
+              />
+              <MetricSlider
+                label="Energy Level"
+                value={energyLevel}
+                onChange={setEnergyLevel}
+                lowLabel="Exhausted"
+                highLabel="Energized"
+              />
+              <MetricSlider
+                label="Attention Stability"
+                value={attentionStability}
+                onChange={setAttentionStability}
+                lowLabel="Scattered"
+                highLabel="Focused"
+              />
+              <MetricSlider
+                label="Anxiety Tendency"
+                value={anxietyTendency}
+                onChange={setAnxietyTendency}
+                lowLabel="Calm"
+                highLabel="Anxious"
+              />
+              <MetricSlider
+                label="Social Confidence"
+                value={socialConfidence}
+                onChange={setSocialConfidence}
+                lowLabel="Reserved"
+                highLabel="Confident"
+              />
+            </GlassCard>
+          </View>
+
+          <View style={styles.infoCard}>
+            <Ionicons
+              name="information-circle"
+              size={16}
+              color={colors.voltage.core}
+            />
+            <Text style={styles.infoText}>
+              These baselines auto-adjust as MAXIM learns your patterns.
+              No judgment, just data.
+            </Text>
+          </View>
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <VoltageButton
+            title="Continue"
+            onPress={handleNext}
+            icon="arrow-forward"
+            iconPosition="right"
+            fullWidth
+            size="lg"
+          />
         </View>
-
-        <Text style={styles.title}>Current State</Text>
-        <Text style={styles.subtitle}>
-          Rate yourself honestly. This establishes your baseline.
-        </Text>
-
-        {/* Metrics */}
-        <View style={styles.metricsContainer}>
-          <MetricSlider
-            label="Sleep Quality"
-            value={sleepQuality}
-            onChange={setSleepQuality}
-            lowLabel="Poor"
-            highLabel="Excellent"
-          />
-
-          <MetricSlider
-            label="Energy Level"
-            value={energyLevel}
-            onChange={setEnergyLevel}
-            lowLabel="Exhausted"
-            highLabel="Energized"
-          />
-
-          <MetricSlider
-            label="Attention Stability"
-            value={attentionStability}
-            onChange={setAttentionStability}
-            lowLabel="Scattered"
-            highLabel="Focused"
-          />
-
-          <MetricSlider
-            label="Anxiety Tendency"
-            value={anxietyTendency}
-            onChange={setAnxietyTendency}
-            lowLabel="Calm"
-            highLabel="Anxious"
-          />
-
-          <MetricSlider
-            label="Social Confidence"
-            value={socialConfidence}
-            onChange={setSocialConfidence}
-            lowLabel="Reserved"
-            highLabel="Confident"
-          />
-        </View>
-
-        <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={20} color="#3B82F6" />
-          <Text style={styles.infoText}>
-            These baselines will adjust automatically as MAXIM learns your patterns. Be honest - there's no judgment here.
-          </Text>
-        </View>
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Continue</Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.bg.void,
   },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 16,
-    marginBottom: 32,
-  },
-  progress: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#374151',
-  },
-  progressActive: {
-    backgroundColor: '#3B82F6',
-    width: 24,
-  },
-  progressDone: {
-    backgroundColor: '#10B981',
+  intro: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#F9FAFB',
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: -1,
+    marginTop: 6,
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#9CA3AF',
-    marginBottom: 32,
+  lede: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    marginTop: 8,
+    lineHeight: 21,
+    maxWidth: 320,
   },
-  metricsContainer: {
-    marginBottom: 24,
+  metricsBlock: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
   },
   infoCard: {
     flexDirection: 'row',
-    backgroundColor: '#1E3A5F',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
+    alignItems: 'center',
+    gap: spacing.sm + 2,
+    marginHorizontal: spacing.lg,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface.glass,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
   },
   infoText: {
     flex: 1,
-    fontSize: 14,
-    color: '#93C5FD',
-    lineHeight: 20,
+    fontSize: 13,
+    color: colors.text.tertiary,
+    lineHeight: 19,
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#0F172A',
-  },
-  nextButton: {
-    flexDirection: 'row',
-    backgroundColor: '#3B82F6',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  nextButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFF',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.bg.void,
+    borderTopWidth: 1,
+    borderTopColor: colors.border.hairline,
   },
 });

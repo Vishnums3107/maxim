@@ -14,6 +14,7 @@ import { useUserStore } from '../../src/store/userStore';
 import { format, subDays } from 'date-fns';
 
 const QUALITY_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent'];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function SleepScreen() {
     const router = useRouter();
@@ -71,13 +72,7 @@ export default function SleepScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Sleep Tracking</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Sleep Tracking" />
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
@@ -103,7 +98,7 @@ export default function SleepScreen() {
                                     style={styles.hourButton}
                                     onPress={() => setHours(String(Math.max(0, parseFloat(hours) - 0.5)))}
                                 >
-                                    <Ionicons name="remove" size={20} color="#F9FAFB" />
+                                    <Ionicons name="remove" size={20} color="#F5F5F7" />
                                 </TouchableOpacity>
                                 <TextInput
                                     style={styles.hoursText}
@@ -115,7 +110,7 @@ export default function SleepScreen() {
                                     style={styles.hourButton}
                                     onPress={() => setHours(String(Math.min(12, parseFloat(hours) + 0.5)))}
                                 >
-                                    <Ionicons name="add" size={20} color="#F9FAFB" />
+                                    <Ionicons name="add" size={20} color="#F5F5F7" />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -182,8 +177,8 @@ export default function SleepScreen() {
                                             {
                                                 height: day.hours ? Math.max(20, (day.hours / 10) * 80) : 20,
                                                 backgroundColor: day.hours
-                                                    ? day.quality && day.quality >= 3 ? '#10B981' : '#F59E0B'
-                                                    : '#374151',
+                                                    ? day.quality && day.quality >= 3 ? '#34D399' : '#FBBF24'
+                                                    : '#1F1F2C',
                                             },
                                         ]}
                                     >
@@ -230,7 +225,7 @@ export default function SleepScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -242,7 +237,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -264,12 +259,12 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 22,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
     },
     section: {
@@ -278,11 +273,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     inputCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
     },
@@ -291,7 +286,7 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 12,
     },
     hoursInput: {
@@ -304,14 +299,14 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         alignItems: 'center',
         justifyContent: 'center',
     },
     hoursText: {
         fontSize: 48,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         textAlign: 'center',
         minWidth: 80,
     },
@@ -324,7 +319,7 @@ const styles = StyleSheet.create({
     },
     qualityButton: {
         flex: 1,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 8,
         paddingVertical: 10,
         alignItems: 'center',
@@ -334,7 +329,7 @@ const styles = StyleSheet.create({
     },
     qualityButtonText: {
         fontSize: 11,
-        color: '#9CA3AF',
+        color: '#9494A0',
         fontWeight: '500',
     },
     qualityButtonTextActive: {
@@ -355,7 +350,7 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     weekCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
     },
@@ -366,16 +361,16 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         paddingBottom: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#374151',
+        borderBottomColor: '#1F1F2C',
     },
     avgLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     avgValue: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     daysRow: {
         flexDirection: 'row',
@@ -401,10 +396,10 @@ const styles = StyleSheet.create({
     },
     dayLabel: {
         fontSize: 11,
-        color: '#6B7280',
+        color: '#5E5E6A',
     },
     tipsCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 16,
     },
@@ -417,6 +412,6 @@ const styles = StyleSheet.create({
     tipText: {
         flex: 1,
         fontSize: 14,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
     },
 });

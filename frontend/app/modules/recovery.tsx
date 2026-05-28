@@ -19,6 +19,7 @@ const POSTURE_EXERCISES = [
     { id: 'hip-flexor', name: 'Hip Flexor Stretch', duration: '60 sec', reps: '2 each side', benefit: 'Lower back relief' },
     { id: 'glute-bridge', name: 'Glute Bridges', duration: '45 sec', reps: '12 reps', benefit: 'Core stability' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 const RECOVERY_PROTOCOLS = [
     {
@@ -26,7 +27,7 @@ const RECOVERY_PROTOCOLS = [
         name: 'Parasympathetic Activation',
         duration: '10 min',
         icon: 'leaf',
-        color: '#10B981',
+        color: '#34D399',
         steps: ['Legs up wall 5 min', 'Slow nasal breathing', 'Body scan relaxation']
     },
     {
@@ -42,7 +43,7 @@ const RECOVERY_PROTOCOLS = [
         name: 'Active Recovery',
         duration: '20 min',
         icon: 'walk',
-        color: '#F59E0B',
+        color: '#FBBF24',
         steps: ['Light walking 10 min', 'Foam rolling 5 min', 'Static stretching 5 min']
     },
 ];
@@ -101,13 +102,7 @@ export default function RecoveryScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Recovery & Posture</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Recovery & Posture" />
 
             <ScrollView style={styles.content}>
                 {/* Fatigue Detection */}
@@ -116,8 +111,8 @@ export default function RecoveryScreen() {
                     <View style={[
                         styles.fatigueCard,
                         {
-                            borderLeftColor: fatigueAnalysis.status === 'high' ? '#EF4444' :
-                                fatigueAnalysis.status === 'moderate' ? '#F59E0B' : '#10B981'
+                            borderLeftColor: fatigueAnalysis.status === 'high' ? '#F87171' :
+                                fatigueAnalysis.status === 'moderate' ? '#FBBF24' : '#34D399'
                         }
                     ]}>
                         <View style={styles.fatigueHeader}>
@@ -129,8 +124,8 @@ export default function RecoveryScreen() {
                                 <Text style={[
                                     styles.fatigueStatus,
                                     {
-                                        color: fatigueAnalysis.status === 'high' ? '#EF4444' :
-                                            fatigueAnalysis.status === 'moderate' ? '#F59E0B' : '#10B981'
+                                        color: fatigueAnalysis.status === 'high' ? '#F87171' :
+                                            fatigueAnalysis.status === 'moderate' ? '#FBBF24' : '#34D399'
                                     }
                                 ]}>
                                     {fatigueAnalysis.status.toUpperCase()} FATIGUE
@@ -145,7 +140,7 @@ export default function RecoveryScreen() {
                         </Text>
                         {fatigueAnalysis.needsDeload && (
                             <View style={styles.deloadBadge}>
-                                <Ionicons name="warning" size={16} color="#EF4444" />
+                                <Ionicons name="warning" size={16} color="#F87171" />
                                 <Text style={styles.deloadText}>DELOAD RECOMMENDED</Text>
                             </View>
                         )}
@@ -187,11 +182,11 @@ export default function RecoveryScreen() {
                             </View>
                             <View style={styles.exerciseMeta}>
                                 <View style={styles.exerciseTag}>
-                                    <Ionicons name="time-outline" size={12} color="#9CA3AF" />
+                                    <Ionicons name="time-outline" size={12} color="#9494A0" />
                                     <Text style={styles.exerciseTagText}>{exercise.duration}</Text>
                                 </View>
                                 <View style={styles.exerciseTag}>
-                                    <Ionicons name="repeat-outline" size={12} color="#9CA3AF" />
+                                    <Ionicons name="repeat-outline" size={12} color="#9494A0" />
                                     <Text style={styles.exerciseTagText}>{exercise.reps}</Text>
                                 </View>
                             </View>
@@ -208,7 +203,7 @@ export default function RecoveryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -220,7 +215,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -232,16 +227,16 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     sectionSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 16,
     },
     fatigueCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         borderLeftWidth: 4,
@@ -259,11 +254,11 @@ const styles = StyleSheet.create({
     fatigueNumber: {
         fontSize: 36,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     fatigueLabel: {
         fontSize: 16,
-        color: '#6B7280',
+        color: '#5E5E6A',
     },
     fatigueInfo: {
         flex: 1,
@@ -275,17 +270,17 @@ const styles = StyleSheet.create({
     },
     fatigueDetail: {
         fontSize: 13,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     fatigueRecommendation: {
         fontSize: 14,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
         lineHeight: 20,
     },
     deloadBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#EF444420',
+        backgroundColor: '#F8717120',
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 8,
@@ -295,11 +290,11 @@ const styles = StyleSheet.create({
     deloadText: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#EF4444',
+        color: '#F87171',
     },
     protocolCard: {
         flexDirection: 'row',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         marginBottom: 8,
@@ -318,21 +313,21 @@ const styles = StyleSheet.create({
     protocolName: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     protocolDuration: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 8,
     },
     protocolSteps: {},
     protocolStep: {
         fontSize: 13,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
         marginBottom: 2,
     },
     exerciseCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 10,
         padding: 14,
         marginBottom: 8,
@@ -346,12 +341,12 @@ const styles = StyleSheet.create({
     exerciseName: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     exerciseBenefit: {
         fontSize: 12,
-        color: '#10B981',
-        backgroundColor: '#10B98120',
+        color: '#34D399',
+        backgroundColor: '#34D39920',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 6,
@@ -367,6 +362,6 @@ const styles = StyleSheet.create({
     },
     exerciseTagText: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
 });

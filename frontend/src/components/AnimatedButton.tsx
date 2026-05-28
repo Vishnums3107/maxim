@@ -1,19 +1,26 @@
 /**
- * Animated Button Component
- * Uses press animation for micro-interaction feedback
+ * AnimatedButton — pill button with press feedback.
+ *
+ * API preserved: { title, onPress, variant, color, icon, disabled, style, textStyle }.
+ * Internally now styled with the new luxury tokens.
  */
-
 import React, { useRef } from 'react';
 import {
-    TouchableOpacity,
     Animated,
+    Pressable,
     StyleSheet,
     Text,
-    ViewStyle,
     TextStyle,
+    ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, borderRadius, spacing, typography } from '../theme/tokens';
+import {
+    colors,
+    borderRadius,
+    spacing,
+    typography,
+    shadows,
+} from '../theme/tokens';
 import { createPressAnimation } from '../theme/animations';
 
 interface AnimatedButtonProps {
@@ -40,45 +47,69 @@ export function AnimatedButton({
     const scaleValue = useRef(new Animated.Value(1)).current;
     const pressHandlers = createPressAnimation(scaleValue);
 
-    const backgroundColor = disabled
-        ? colors.background.tertiary
-        : variant === 'primary'
-            ? color || colors.modules.physical
-            : variant === 'secondary'
-                ? colors.background.tertiary
+    const isPrimary = variant === 'primary';
+    const isSecondary = variant === 'secondary';
+    const isOutline = variant === 'outline';
+
+    const bg = disabled
+        ? 'rgba(255,255,255,0.04)'
+        : isPrimary
+            ? color || colors.voltage.core
+            : isSecondary
+                ? colors.surface.glassStrong
                 : 'transparent';
 
-    const textColor = disabled
+    const fg = disabled
         ? colors.text.muted
-        : variant === 'outline'
-            ? color || colors.text.primary
-            : colors.text.primary;
+        : isPrimary
+            ? colors.bg.void
+            : isOutline
+                ? color || colors.text.primary
+                : colors.text.primary;
 
-    const borderColor = variant === 'outline' ? color || colors.border.medium : 'transparent';
+    const borderColor = isOutline
+        ? color || colors.border.strong
+        : isSecondary
+            ? colors.border.medium
+            : 'transparent';
 
     return (
-        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-            <TouchableOpacity
-                style={[
-                    styles.button,
-                    { backgroundColor, borderColor, borderWidth: variant === 'outline' ? 2 : 0 },
-                    style,
-                ]}
+        <Animated.View
+            style={[
+                {
+                    transform: [{ scale: scaleValue }],
+                },
+                isPrimary && !disabled
+                    ? color
+                        ? shadows.glow(color)
+                        : shadows.voltage
+                    : null,
+                style,
+            ]}
+        >
+            <Pressable
                 onPress={onPress}
                 disabled={disabled}
-                activeOpacity={0.8}
                 {...pressHandlers}
+                style={[
+                    styles.button,
+                    {
+                        backgroundColor: bg,
+                        borderColor,
+                        borderWidth: isOutline || isSecondary ? 1 : 0,
+                    },
+                ]}
             >
                 {icon && (
                     <Ionicons
                         name={icon as any}
-                        size={20}
-                        color={textColor}
+                        size={18}
+                        color={fg}
                         style={{ marginRight: spacing.sm }}
                     />
                 )}
-                <Text style={[styles.text, { color: textColor }, textStyle]}>{title}</Text>
-            </TouchableOpacity>
+                <Text style={[styles.text, { color: fg }, textStyle]}>{title}</Text>
+            </Pressable>
         </Animated.View>
     );
 }
@@ -88,13 +119,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.md,
-        paddingHorizontal: spacing.lg,
-        borderRadius: borderRadius.lg,
+        paddingVertical: spacing.md + 2,
+        paddingHorizontal: spacing.xl,
+        borderRadius: borderRadius.full,
     },
     text: {
-        fontSize: typography.size.lg,
+        fontSize: typography.size.md,
         fontWeight: typography.weight.semibold,
+        letterSpacing: -0.2,
     },
 });
 

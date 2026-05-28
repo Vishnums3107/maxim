@@ -17,6 +17,7 @@ const PROMPTS = {
     wentWell: 'What went well in this interaction?',
     improve: "What could you do differently next time?",
 };
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 export default function ConversationScreen() {
     const router = useRouter();
@@ -51,13 +52,7 @@ export default function ConversationScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>Conversation Reflection</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="Conversation Reflection" />
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
@@ -97,7 +92,7 @@ export default function ConversationScreen() {
                                 value={context}
                                 onChangeText={setContext}
                                 placeholder="e.g., Team meeting, coffee chat with colleague..."
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                                 multiline
                             />
                         </View>
@@ -109,7 +104,7 @@ export default function ConversationScreen() {
                                 value={wentWell}
                                 onChangeText={setWentWell}
                                 placeholder="What positive moments stood out?"
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                                 multiline
                             />
                         </View>
@@ -121,7 +116,7 @@ export default function ConversationScreen() {
                                 value={improve}
                                 onChangeText={setImprove}
                                 placeholder="Anything you'd adjust?"
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                                 multiline
                             />
                         </View>
@@ -192,13 +187,13 @@ export default function ConversationScreen() {
                                 <Text style={styles.reflectionContext}>{reflection.context}</Text>
                                 {reflection.wentWell && (
                                     <View style={styles.reflectionRow}>
-                                        <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+                                        <Ionicons name="checkmark-circle" size={14} color="#34D399" />
                                         <Text style={styles.reflectionDetail}>{reflection.wentWell}</Text>
                                     </View>
                                 )}
                                 {reflection.improve && (
                                     <View style={styles.reflectionRow}>
-                                        <Ionicons name="arrow-up-circle" size={14} color="#F59E0B" />
+                                        <Ionicons name="arrow-up-circle" size={14} color="#FBBF24" />
                                         <Text style={styles.reflectionDetail}>{reflection.improve}</Text>
                                     </View>
                                 )}
@@ -235,7 +230,7 @@ export default function ConversationScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0F172A',
+        backgroundColor: '#06060B',
     },
     header: {
         flexDirection: 'row',
@@ -247,7 +242,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     content: {
         flex: 1,
@@ -269,12 +264,12 @@ const styles = StyleSheet.create({
     heroTitle: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 8,
     },
     heroSubtitle: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         textAlign: 'center',
     },
     statsRow: {
@@ -284,7 +279,7 @@ const styles = StyleSheet.create({
     },
     statCard: {
         flex: 1,
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         alignItems: 'center',
@@ -292,18 +287,18 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
     },
     statLabel: {
         fontSize: 12,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginTop: 4,
     },
     newButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 20,
         gap: 12,
@@ -318,7 +313,7 @@ const styles = StyleSheet.create({
         color: '#EC4899',
     },
     formCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 16,
         padding: 20,
         marginBottom: 24,
@@ -326,7 +321,7 @@ const styles = StyleSheet.create({
     formTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 20,
     },
     inputGroup: {
@@ -334,15 +329,15 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         fontSize: 14,
-        color: '#9CA3AF',
+        color: '#9494A0',
         marginBottom: 8,
     },
     textInput: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 10,
         padding: 14,
         fontSize: 15,
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         minHeight: 60,
     },
     ratingRow: {
@@ -351,7 +346,7 @@ const styles = StyleSheet.create({
     },
     ratingButton: {
         flex: 1,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 8,
         paddingVertical: 12,
         alignItems: 'center',
@@ -362,7 +357,7 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     ratingTextActive: {
         color: '#FFF',
@@ -374,7 +369,7 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
         flex: 1,
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
         borderRadius: 10,
         padding: 14,
         alignItems: 'center',
@@ -382,7 +377,7 @@ const styles = StyleSheet.create({
     cancelText: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     saveButton: {
         flex: 2,
@@ -395,7 +390,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     saveButtonDisabled: {
-        backgroundColor: '#374151',
+        backgroundColor: '#1F1F2C',
     },
     saveText: {
         fontSize: 15,
@@ -408,11 +403,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     reflectionCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
         marginBottom: 8,
@@ -435,7 +430,7 @@ const styles = StyleSheet.create({
     },
     reflectionContext: {
         fontSize: 15,
-        color: '#F9FAFB',
+        color: '#F5F5F7',
         marginBottom: 12,
     },
     reflectionRow: {
@@ -447,10 +442,10 @@ const styles = StyleSheet.create({
     reflectionDetail: {
         flex: 1,
         fontSize: 13,
-        color: '#9CA3AF',
+        color: '#9494A0',
     },
     guidelinesCard: {
-        backgroundColor: '#1F2937',
+        backgroundColor: '#11111C',
         borderRadius: 12,
         padding: 16,
     },
@@ -463,6 +458,6 @@ const styles = StyleSheet.create({
     guidelineText: {
         flex: 1,
         fontSize: 14,
-        color: '#D1D5DB',
+        color: '#C4C4CC',
     },
 });

@@ -1,200 +1,356 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
+  Animated,
+  Easing,
   StyleSheet,
-  TouchableOpacity,
-  Dimensions,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../../src/theme/tokens';
 
-const { width } = Dimensions.get('window');
+const PILLARS: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  desc: string;
+  tint: string;
+}[] = [
+  {
+    icon: 'flame',
+    label: 'Physical',
+    desc: 'Strength, stamina, recovery',
+    tint: colors.modules.physical,
+  },
+  {
+    icon: 'aperture',
+    label: 'Cognitive',
+    desc: 'Focus, learning, clarity',
+    tint: colors.modules.cognitive,
+  },
+  {
+    icon: 'leaf',
+    label: 'Regulation',
+    desc: 'Breath, calm, control',
+    tint: colors.modules.regulation,
+  },
+  {
+    icon: 'people',
+    label: 'Social',
+    desc: 'Communication, confidence',
+    tint: colors.modules.social,
+  },
+  {
+    icon: 'pulse',
+    label: 'Systems',
+    desc: 'Habits, friction, identity',
+    tint: colors.modules.systems,
+  },
+];
 
 export default function OnboardingWelcome() {
   const router = useRouter();
+  const fadeIn = useRef(new Animated.Value(0)).current;
+  const slideUp = useRef(new Animated.Value(20)).current;
+  const haloPulse = useRef(new Animated.Value(0.65)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeIn, {
+        toValue: 1,
+        duration: 720,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideUp, {
+        toValue: 0,
+        duration: 720,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(haloPulse, {
+          toValue: 1,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(haloPulse, {
+          toValue: 0.65,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logoOuter}>
-            <View style={styles.logoInner}>
-              <Ionicons name="analytics" size={48} color="#3B82F6" />
+    <View style={styles.root}>
+      <AuroraBackground tint={colors.voltage.soft} intensity={0.6} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <Animated.View
+          style={[
+            styles.content,
+            { opacity: fadeIn, transform: [{ translateY: slideUp }] },
+          ]}
+        >
+          {/* ── Hero monogram ─────────────────────────────────────── */}
+          <View style={styles.heroBlock}>
+            <Animated.View
+              style={[
+                styles.halo,
+                {
+                  opacity: haloPulse,
+                  transform: [
+                    {
+                      scale: haloPulse.interpolate({
+                        inputRange: [0.65, 1],
+                        outputRange: [1, 1.18],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+            <View style={styles.monogram}>
+              <Text style={styles.monogramText}>M</Text>
             </View>
           </View>
+
+          <Eyebrow>Personal Performance OS</Eyebrow>
+          <Text style={styles.brand}>MAXIM</Text>
+          <Text style={styles.headline}>
+            Train every dimension of capability.
+          </Text>
+          <Text style={styles.lede}>
+            Five domains. Calibrated protocols. AI guidance tuned to your state.
+          </Text>
+
+          {/* ── Pillars ────────────────────────────────────────────── */}
+          <View style={styles.pillars}>
+            {PILLARS.map((p, i) => (
+              <PillarRow key={p.label} pillar={p} index={i} />
+            ))}
+          </View>
+
+          <Text style={styles.privacy}>
+            <Ionicons name="lock-closed" size={11} color={colors.text.muted} />{' '}
+            Your data stays on this device. Always.
+          </Text>
+        </Animated.View>
+
+        {/* ── Footer CTA ─────────────────────────────────────────── */}
+        <View style={styles.footer}>
+          <VoltageButton
+            title="Begin setup"
+            onPress={() => router.push('/onboarding/basics')}
+            icon="arrow-forward"
+            iconPosition="right"
+            fullWidth
+            size="lg"
+          />
         </View>
-
-        {/* Title */}
-        <Text style={styles.title}>MAXIM</Text>
-        <Text style={styles.subtitle}>Personal Performance Operating System</Text>
-
-        {/* Features */}
-        <View style={styles.features}>
-          <FeatureItem
-            icon="fitness-outline"
-            text="Physical Capability"
-            color="#EF4444"
-          />
-          <FeatureItem
-            icon="bulb-outline"
-            text="Cognitive Performance"
-            color="#8B5CF6"
-          />
-          <FeatureItem
-            icon="leaf-outline"
-            text="Mental Regulation"
-            color="#10B981"
-          />
-          <FeatureItem
-            icon="people-outline"
-            text="Social Intelligence"
-            color="#F59E0B"
-          />
-          <FeatureItem
-            icon="settings-outline"
-            text="Systems & Consistency"
-            color="#3B82F6"
-          />
-        </View>
-
-        {/* Description */}
-        <Text style={styles.description}>
-          Build capability through systems, not motivation.
-          Track progress. Adapt intelligently. Compound over time.
-        </Text>
-      </View>
-
-      {/* CTA */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={() => router.push('/onboarding/basics')}
-        >
-          <Text style={styles.startButtonText}>Begin Setup</Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFF" />
-        </TouchableOpacity>
-        
-        <Text style={styles.footerText}>
-          Your data stays on your device. Always.
-        </Text>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
-const FeatureItem = ({
-  icon,
-  text,
-  color,
+function PillarRow({
+  pillar,
+  index,
 }: {
-  icon: string;
-  text: string;
-  color: string;
-}) => (
-  <View style={styles.featureItem}>
-    <View style={[styles.featureIcon, { backgroundColor: color + '20' }]}>
-      <Ionicons name={icon as any} size={18} color={color} />
-    </View>
-    <Text style={styles.featureText}>{text}</Text>
-  </View>
-);
+  pillar: (typeof PILLARS)[number];
+  index: number;
+}) {
+  const fade = useRef(new Animated.Value(0)).current;
+  const translate = useRef(new Animated.Value(10)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fade, {
+        toValue: 1,
+        duration: 380,
+        delay: 320 + index * 70,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translate, {
+        toValue: 0,
+        duration: 380,
+        delay: 320 + index * 70,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        pst.row,
+        {
+          opacity: fade,
+          transform: [{ translateY: translate }],
+        },
+      ]}
+    >
+      <View
+        style={[
+          pst.icon,
+          {
+            backgroundColor: 'rgba(255,255,255,0.04)',
+            borderColor: 'rgba(255,255,255,0.10)',
+          },
+        ]}
+      >
+        <Ionicons name={pillar.icon} size={15} color={pillar.tint} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={pst.label}>{pillar.label}</Text>
+        <Text style={pst.desc}>{pillar.desc}</Text>
+      </View>
+      <View style={[pst.dot, { backgroundColor: pillar.tint }]} />
+    </Animated.View>
+  );
+}
+
+const pst = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: 10,
+  },
+  icon: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  label: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.primary,
+    letterSpacing: -0.2,
+  },
+  desc: {
+    fontSize: 12,
+    color: colors.text.tertiary,
+    marginTop: 1,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+});
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.bg.void,
   },
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
   },
-  logoContainer: {
-    marginBottom: 24,
-  },
-  logoOuter: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#1E3A8A',
+
+  heroBlock: {
+    width: 110,
+    height: 110,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.xl,
   },
-  logoInner: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1F2937',
+  halo: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(165, 180, 252, 0.40)',
+  },
+  monogram: {
+    width: 92,
+    height: 92,
+    borderRadius: 28,
+    backgroundColor: colors.voltage.core,
     alignItems: 'center',
     justifyContent: 'center',
+    ...shadows.voltage,
   },
-  title: {
-    fontSize: 42,
+  monogramText: {
+    fontSize: 52,
     fontWeight: '800',
-    color: '#F9FAFB',
-    letterSpacing: 4,
+    color: colors.bg.void,
+    letterSpacing: -2,
+    marginTop: -4,
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 8,
+
+  brand: {
+    fontSize: 38,
+    fontWeight: '800',
+    color: colors.text.primary,
+    letterSpacing: 8,
+    marginTop: 6,
+  },
+  headline: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text.primary,
+    letterSpacing: -0.6,
     textAlign: 'center',
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.base,
   },
-  features: {
-    marginTop: 40,
+  lede: {
+    fontSize: 14,
+    color: colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 21,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.base,
+    maxWidth: 320,
+  },
+
+  pillars: {
     width: '100%',
+    marginTop: spacing.xl,
+    backgroundColor: colors.bg.raised,
+    borderRadius: borderRadius.xl,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.base,
+    borderWidth: 1,
+    borderColor: colors.border.hairline,
   },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+
+  privacy: {
+    fontSize: 11,
+    color: colors.text.muted,
+    marginTop: spacing.xl,
+    fontWeight: '500',
+    letterSpacing: 0.4,
   },
-  featureIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  featureText: {
-    fontSize: 15,
-    color: '#D1D5DB',
-  },
-  description: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginTop: 32,
-    paddingHorizontal: 20,
-  },
+
   footer: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  startButton: {
-    flexDirection: 'row',
-    backgroundColor: '#3B82F6',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  startButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFF',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 16,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.base,
   },
 });

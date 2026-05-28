@@ -17,6 +17,7 @@ const IDENTITY_PROMPTS = [
     { identity: 'I don\'t...', examples: ['skip workouts', 'make excuses', 'negotiate with my commitments'] },
     { identity: 'When faced with resistance, I...', examples: ['do it anyway', 'start with 2 minutes', 'remember my why'] },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 const SIMPLIFICATION_RULES = [
     { rule: 'Two-Minute Start', desc: 'If overwhelmed, commit to just 2 minutes' },
@@ -85,13 +86,7 @@ export default function FrictionScreen() {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-                </TouchableOpacity>
-                <Text style={styles.title}>System Optimization</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenChrome title="System Optimization" />
 
             <ScrollView style={styles.content}>
                 {/* Auto-Detected Friction */}
@@ -100,7 +95,7 @@ export default function FrictionScreen() {
                         <Text style={styles.sectionTitle}>🔍 Detected Friction</Text>
                         {detectedFriction.map((item, i) => (
                             <View key={i} style={styles.detectedCard}>
-                                <Ionicons name="warning" size={18} color="#F59E0B" />
+                                <Ionicons name="warning" size={18} color="#FBBF24" />
                                 <View style={styles.detectedContent}>
                                     <Text style={styles.detectedHabit}>{item.habit}</Text>
                                     <Text style={styles.detectedIssue}>{item.issue}</Text>
@@ -149,7 +144,7 @@ export default function FrictionScreen() {
                                 value={friction}
                                 onChangeText={setFriction}
                                 placeholder="e.g., Takes too long, not convenient..."
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                             />
                             <Text style={styles.formLabel}>Possible solution?</Text>
                             <TextInput
@@ -157,7 +152,7 @@ export default function FrictionScreen() {
                                 value={solution}
                                 onChangeText={setSolution}
                                 placeholder="How could you reduce this friction?"
-                                placeholderTextColor="#6B7280"
+                                placeholderTextColor="#5E5E6A"
                             />
                             <View style={styles.formButtons}>
                                 <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowAdd(false)}>
@@ -181,7 +176,7 @@ export default function FrictionScreen() {
                             <Text style={styles.frictionText}>{point.friction}</Text>
                             {point.solution && (
                                 <View style={styles.solutionRow}>
-                                    <Ionicons name="bulb" size={14} color="#10B981" />
+                                    <Ionicons name="bulb" size={14} color="#34D399" />
                                     <Text style={styles.solutionText}>{point.solution}</Text>
                                 </View>
                             )}
@@ -218,7 +213,7 @@ export default function FrictionScreen() {
                             value={newIdentity}
                             onChangeText={setNewIdentity}
                             placeholder="I am someone who..."
-                            placeholderTextColor="#6B7280"
+                            placeholderTextColor="#5E5E6A"
                         />
                         <TouchableOpacity style={styles.addIdentityBtn} onPress={handleAddIdentity}>
                             <Ionicons name="add" size={22} color="#FFF" />
@@ -240,49 +235,49 @@ export default function FrictionScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0F172A' },
+    container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
-    title: { fontSize: 18, fontWeight: '600', color: '#F9FAFB' },
+    title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     content: { flex: 1, paddingHorizontal: 20 },
     section: { marginBottom: 28 },
-    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F9FAFB', marginBottom: 8 },
-    sectionSubtitle: { fontSize: 13, color: '#9CA3AF', marginBottom: 12 },
-    detectedCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#F59E0B20', borderRadius: 10, padding: 14, marginBottom: 8, gap: 10 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: '#F5F5F7', marginBottom: 8 },
+    sectionSubtitle: { fontSize: 13, color: '#9494A0', marginBottom: 12 },
+    detectedCard: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#FBBF2420', borderRadius: 10, padding: 14, marginBottom: 8, gap: 10 },
     detectedContent: { flex: 1 },
-    detectedHabit: { fontSize: 14, fontWeight: '600', color: '#F9FAFB' },
-    detectedIssue: { fontSize: 12, color: '#D1D5DB', marginTop: 2 },
-    removalCard: { backgroundColor: '#EF444420', borderRadius: 10, padding: 14, marginBottom: 8 },
-    removalName: { fontSize: 14, fontWeight: '600', color: '#EF4444' },
-    removalReason: { fontSize: 12, color: '#D1D5DB', marginTop: 4 },
-    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1F2937', borderRadius: 10, padding: 14, gap: 10, marginBottom: 12, borderWidth: 2, borderColor: '#6366F140', borderStyle: 'dashed' },
+    detectedHabit: { fontSize: 14, fontWeight: '600', color: '#F5F5F7' },
+    detectedIssue: { fontSize: 12, color: '#C4C4CC', marginTop: 2 },
+    removalCard: { backgroundColor: '#F8717120', borderRadius: 10, padding: 14, marginBottom: 8 },
+    removalName: { fontSize: 14, fontWeight: '600', color: '#F87171' },
+    removalReason: { fontSize: 12, color: '#C4C4CC', marginTop: 4 },
+    addButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#11111C', borderRadius: 10, padding: 14, gap: 10, marginBottom: 12, borderWidth: 2, borderColor: '#6366F140', borderStyle: 'dashed' },
     addButtonText: { fontSize: 14, fontWeight: '600', color: '#6366F1' },
-    addForm: { backgroundColor: '#1F2937', borderRadius: 12, padding: 16, marginBottom: 12 },
-    formLabel: { fontSize: 13, color: '#9CA3AF', marginBottom: 8 },
+    addForm: { backgroundColor: '#11111C', borderRadius: 12, padding: 16, marginBottom: 12 },
+    formLabel: { fontSize: 13, color: '#9494A0', marginBottom: 8 },
     habitPicker: { marginBottom: 12 },
-    habitChip: { backgroundColor: '#374151', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, marginRight: 8 },
+    habitChip: { backgroundColor: '#1F1F2C', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, marginRight: 8 },
     habitChipActive: { backgroundColor: '#6366F1' },
-    habitChipText: { fontSize: 13, color: '#9CA3AF' },
+    habitChipText: { fontSize: 13, color: '#9494A0' },
     habitChipTextActive: { color: '#FFF' },
-    input: { backgroundColor: '#374151', borderRadius: 8, padding: 12, fontSize: 14, color: '#F9FAFB', marginBottom: 12 },
+    input: { backgroundColor: '#1F1F2C', borderRadius: 8, padding: 12, fontSize: 14, color: '#F5F5F7', marginBottom: 12 },
     formButtons: { flexDirection: 'row', gap: 10 },
-    cancelBtn: { flex: 1, backgroundColor: '#374151', borderRadius: 8, padding: 12, alignItems: 'center' },
-    cancelText: { color: '#9CA3AF', fontWeight: '500' },
+    cancelBtn: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 8, padding: 12, alignItems: 'center' },
+    cancelText: { color: '#9494A0', fontWeight: '500' },
     saveBtn: { flex: 2, backgroundColor: '#6366F1', borderRadius: 8, padding: 12, alignItems: 'center' },
     saveText: { color: '#FFF', fontWeight: '600' },
-    frictionCard: { backgroundColor: '#1F2937', borderRadius: 10, padding: 14, marginBottom: 8 },
+    frictionCard: { backgroundColor: '#11111C', borderRadius: 10, padding: 14, marginBottom: 8 },
     frictionHabit: { fontSize: 14, fontWeight: '600', color: '#6366F1', marginBottom: 4 },
-    frictionText: { fontSize: 14, color: '#D1D5DB' },
-    solutionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, backgroundColor: '#10B98110', padding: 10, borderRadius: 8 },
-    solutionText: { flex: 1, fontSize: 13, color: '#10B981' },
-    ruleCard: { backgroundColor: '#1F2937', borderRadius: 10, padding: 14, marginBottom: 8 },
-    ruleName: { fontSize: 14, fontWeight: '600', color: '#F9FAFB' },
-    ruleDesc: { fontSize: 12, color: '#9CA3AF', marginTop: 4 },
-    promptCard: { backgroundColor: '#1F2937', borderRadius: 10, padding: 12, marginBottom: 8 },
-    promptText: { fontSize: 14, fontWeight: '500', color: '#F9FAFB' },
-    promptExamples: { fontSize: 12, color: '#6B7280', marginTop: 4, fontStyle: 'italic' },
+    frictionText: { fontSize: 14, color: '#C4C4CC' },
+    solutionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, backgroundColor: '#34D39910', padding: 10, borderRadius: 8 },
+    solutionText: { flex: 1, fontSize: 13, color: '#34D399' },
+    ruleCard: { backgroundColor: '#11111C', borderRadius: 10, padding: 14, marginBottom: 8 },
+    ruleName: { fontSize: 14, fontWeight: '600', color: '#F5F5F7' },
+    ruleDesc: { fontSize: 12, color: '#9494A0', marginTop: 4 },
+    promptCard: { backgroundColor: '#11111C', borderRadius: 10, padding: 12, marginBottom: 8 },
+    promptText: { fontSize: 14, fontWeight: '500', color: '#F5F5F7' },
+    promptExamples: { fontSize: 12, color: '#5E5E6A', marginTop: 4, fontStyle: 'italic' },
     identityInput: { flexDirection: 'row', gap: 10, marginBottom: 12 },
-    identityField: { flex: 1, backgroundColor: '#374151', borderRadius: 8, padding: 12, fontSize: 14, color: '#F9FAFB' },
+    identityField: { flex: 1, backgroundColor: '#1F1F2C', borderRadius: 8, padding: 12, fontSize: 14, color: '#F5F5F7' },
     addIdentityBtn: { width: 44, backgroundColor: '#6366F1', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
     identityCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#6366F120', borderRadius: 8, padding: 12, marginBottom: 8, gap: 10 },
-    identityText: { flex: 1, fontSize: 14, color: '#D1D5DB' },
+    identityText: { flex: 1, fontSize: 14, color: '#C4C4CC' },
 });

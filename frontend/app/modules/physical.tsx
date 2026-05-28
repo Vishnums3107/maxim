@@ -19,6 +19,9 @@ const WORKOUTS = [
   { id: 'cardio', name: 'Cardio Session', duration: '20-30 min', icon: 'heart-outline' },
   { id: 'recovery', name: 'Active Recovery', duration: '15 min', icon: 'leaf-outline' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function PhysicalModule() {
   const router = useRouter();
@@ -52,23 +55,17 @@ export default function PhysicalModule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Physical Capability</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenChrome title="Physical Capability" />
 
         {/* Hero */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, { backgroundColor: '#EF444420' }]}>
-            <Ionicons name="fitness" size={32} color="#EF4444" />
-          </View>
-          <Text style={styles.heroTitle}>Build Strength & Energy</Text>
-          <Text style={styles.heroSubtitle}>
-            Sustainable physical development through smart training, recovery, and nervous system regulation.
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <ModuleHero
+          icon="fitness"
+          title="Build Strength & Energy"
+          subtitle="Sustainable physical development through smart training, recovery, and nervous system regulation."
+          gradient={moduleGradients.physical}
+          accent={colors.modules.physical}
+        />
         </View>
 
         {/* Quick Tools */}
@@ -79,7 +76,7 @@ export default function PhysicalModule() {
               style={styles.toolCard}
               onPress={() => router.push('/modules/workouts')}
             >
-              <Ionicons name="barbell" size={24} color="#EF4444" />
+              <Ionicons name="barbell" size={24} color="#F87171" />
               <Text style={styles.toolLabel}>Workouts</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -93,7 +90,7 @@ export default function PhysicalModule() {
               style={styles.toolCard}
               onPress={() => router.push('/modules/recovery')}
             >
-              <Ionicons name="leaf" size={24} color="#10B981" />
+              <Ionicons name="leaf" size={24} color="#34D399" />
               <Text style={styles.toolLabel}>Recovery</Text>
             </TouchableOpacity>
           </View>
@@ -108,13 +105,13 @@ export default function PhysicalModule() {
               onPress={() => generatePhysicalProtocol(workout.name)}
             >
               <View style={styles.workoutIcon}>
-                <Ionicons name={workout.icon as any} size={24} color="#EF4444" />
+                <Ionicons name={workout.icon as any} size={24} color="#F87171" />
               </View>
               <View style={styles.workoutContent}>
                 <Text style={styles.workoutName}>{workout.name}</Text>
                 <Text style={styles.workoutDuration}>{workout.duration}</Text>
               </View>
-              <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+              <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
             </TouchableOpacity>
           ))}
         </View>
@@ -124,7 +121,7 @@ export default function PhysicalModule() {
           <Text style={styles.sectionTitle}>AI Protocol Generator</Text>
           {loading ? (
             <View style={styles.loadingCard}>
-              <ActivityIndicator color="#EF4444" />
+              <ActivityIndicator color="#F87171" />
               <Text style={styles.loadingText}>Generating personalized protocol...</Text>
             </View>
           ) : protocol ? (
@@ -134,7 +131,7 @@ export default function PhysicalModule() {
                 style={styles.regenerateButton}
                 onPress={() => generatePhysicalProtocol()}
               >
-                <Ionicons name="refresh" size={16} color="#EF4444" />
+                <Ionicons name="refresh" size={16} color="#F87171" />
                 <Text style={styles.regenerateText}>Generate New</Text>
               </TouchableOpacity>
             </View>
@@ -168,7 +165,7 @@ export default function PhysicalModule() {
 
 const TipItem = ({ text }: { text: string }) => (
   <View style={styles.tipItem}>
-    <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+    <Ionicons name="checkmark-circle" size={18} color="#34D399" />
     <Text style={styles.tipText}>{text}</Text>
   </View>
 );
@@ -176,7 +173,7 @@ const TipItem = ({ text }: { text: string }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#06060B',
   },
   scrollView: {
     flex: 1,
@@ -191,10 +188,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   heroCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 24,
@@ -212,12 +209,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -228,13 +225,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 16,
   },
   workoutCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -243,7 +240,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: '#EF444420',
+    backgroundColor: '#F8717120',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -254,30 +251,30 @@ const styles = StyleSheet.create({
   workoutName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   workoutDuration: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
   },
   loadingCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   protocolCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
   protocolText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -288,16 +285,16 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: '#1F1F2C',
     gap: 8,
   },
   regenerateText: {
-    color: '#EF4444',
+    color: '#F87171',
     fontWeight: '600',
   },
   generateButton: {
     flexDirection: 'row',
-    backgroundColor: '#EF4444',
+    backgroundColor: '#F87171',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -310,7 +307,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tipsCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -322,7 +319,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     flex: 1,
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
   },
   toolsRow: {
@@ -331,7 +328,7 @@ const styles = StyleSheet.create({
   },
   toolCard: {
     flex: 1,
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -340,6 +337,6 @@ const styles = StyleSheet.create({
   toolLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
 });

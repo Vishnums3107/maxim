@@ -15,6 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { generateProtocol, generateWeeklyReview } from '../../src/utils/api';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function SystemsModule() {
   const router = useRouter();
@@ -157,23 +160,17 @@ export default function SystemsModule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Systems & Consistency</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenChrome title="Systems & Consistency" />
 
         {/* Hero */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, { backgroundColor: '#3B82F620' }]}>
-            <Ionicons name="settings" size={32} color="#3B82F6" />
-          </View>
-          <Text style={styles.heroTitle}>Replace Motivation with Systems</Text>
-          <Text style={styles.heroSubtitle}>
-            Build automatic behaviors. Track what matters. Simplify when overwhelmed.
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <ModuleHero
+          icon="settings"
+          title="Replace Motivation with Systems"
+          subtitle="Build automatic behaviors. Track what matters. Simplify when overwhelmed."
+          gradient={moduleGradients.systems}
+          accent={colors.modules.systems}
+        />
         </View>
 
         {/* System Health Score */}
@@ -183,7 +180,7 @@ export default function SystemsModule() {
             <View style={styles.healthScoreContainer}>
               <View style={[
                 styles.healthScoreRing,
-                { borderColor: systemHealth >= 7 ? '#10B981' : systemHealth >= 4 ? '#F59E0B' : '#EF4444' }
+                { borderColor: systemHealth >= 7 ? '#34D399' : systemHealth >= 4 ? '#FBBF24' : '#F87171' }
               ]}>
                 <Text style={styles.healthScoreText}>{systemHealth.toFixed(1)}</Text>
                 <Text style={styles.healthScoreLabel}>/10</Text>
@@ -191,19 +188,19 @@ export default function SystemsModule() {
             </View>
             <View style={styles.healthDetails}>
               <View style={styles.healthRow}>
-                <Ionicons name="repeat" size={16} color="#9CA3AF" />
+                <Ionicons name="repeat" size={16} color="#9494A0" />
                 <Text style={styles.healthRowText}>Habit consistency</Text>
-                <View style={[styles.healthDot, { backgroundColor: habits.length > 0 ? '#10B981' : '#374151' }]} />
+                <View style={[styles.healthDot, { backgroundColor: habits.length > 0 ? '#34D399' : '#1F1F2C' }]} />
               </View>
               <View style={styles.healthRow}>
-                <Ionicons name="checkmark-circle" size={16} color="#9CA3AF" />
+                <Ionicons name="checkmark-circle" size={16} color="#9494A0" />
                 <Text style={styles.healthRowText}>Daily protocols</Text>
-                <View style={[styles.healthDot, { backgroundColor: dailyEntries.length > 0 ? '#10B981' : '#374151' }]} />
+                <View style={[styles.healthDot, { backgroundColor: dailyEntries.length > 0 ? '#34D399' : '#1F1F2C' }]} />
               </View>
               <View style={styles.healthRow}>
-                <Ionicons name="person" size={16} color="#9CA3AF" />
+                <Ionicons name="person" size={16} color="#9494A0" />
                 <Text style={styles.healthRowText}>Profile complete</Text>
-                <View style={[styles.healthDot, { backgroundColor: profile?.learningGoals?.length ? '#10B981' : '#F59E0B' }]} />
+                <View style={[styles.healthDot, { backgroundColor: profile?.learningGoals?.length ? '#34D399' : '#FBBF24' }]} />
               </View>
             </View>
           </View>
@@ -213,7 +210,7 @@ export default function SystemsModule() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Habit Tracker</Text>
             <TouchableOpacity onPress={() => setShowAddHabit(true)}>
-              <Ionicons name="add-circle" size={28} color="#3B82F6" />
+              <Ionicons name="add-circle" size={28} color="#60A5FA" />
             </TouchableOpacity>
           </View>
 
@@ -224,7 +221,7 @@ export default function SystemsModule() {
                 value={newHabitName}
                 onChangeText={setNewHabitName}
                 placeholder="Enter habit name..."
-                placeholderTextColor="#6B7280"
+                placeholderTextColor="#5E5E6A"
                 autoFocus
               />
               <View style={styles.addHabitButtons}>
@@ -279,7 +276,7 @@ export default function SystemsModule() {
             })
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="repeat" size={40} color="#4B5563" />
+              <Ionicons name="repeat" size={40} color="#37373F" />
               <Text style={styles.emptyText}>No habits yet</Text>
               <Text style={styles.emptySubtext}>Add your first habit to start tracking</Text>
             </View>
@@ -290,12 +287,12 @@ export default function SystemsModule() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Weekly Review</Text>
           <TouchableOpacity style={styles.reviewCard} onPress={handleGenerateReview}>
-            <Ionicons name="document-text" size={24} color="#3B82F6" />
+            <Ionicons name="document-text" size={24} color="#60A5FA" />
             <View style={styles.reviewContent}>
               <Text style={styles.reviewTitle}>Generate Weekly Review</Text>
               <Text style={styles.reviewDesc}>AI analysis of your week</Text>
             </View>
-            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+            <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
           </TouchableOpacity>
         </View>
 
@@ -306,12 +303,12 @@ export default function SystemsModule() {
             style={styles.reviewCard}
             onPress={() => router.push('/modules/friction')}
           >
-            <Ionicons name="construct" size={24} color="#F59E0B" />
+            <Ionicons name="construct" size={24} color="#FBBF24" />
             <View style={styles.reviewContent}>
               <Text style={styles.reviewTitle}>Friction Audit</Text>
               <Text style={styles.reviewDesc}>Find and remove friction from your systems</Text>
             </View>
-            <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+            <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
           </TouchableOpacity>
         </View>
 
@@ -342,7 +339,7 @@ export default function SystemsModule() {
           <Text style={styles.sectionTitle}>AI Systems Coach</Text>
           {loading ? (
             <View style={styles.loadingCard}>
-              <ActivityIndicator color="#3B82F6" />
+              <ActivityIndicator color="#60A5FA" />
               <Text style={styles.loadingText}>Generating systems protocol...</Text>
             </View>
           ) : protocol ? (
@@ -352,13 +349,13 @@ export default function SystemsModule() {
                 style={styles.regenerateButton}
                 onPress={generateSystemsProtocol}
               >
-                <Ionicons name="refresh" size={16} color="#3B82F6" />
-                <Text style={[styles.regenerateText, { color: '#3B82F6' }]}>Generate New</Text>
+                <Ionicons name="refresh" size={16} color="#60A5FA" />
+                <Text style={[styles.regenerateText, { color: '#60A5FA' }]}>Generate New</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#3B82F6' }]}
+              style={[styles.generateButton, { backgroundColor: '#60A5FA' }]}
               onPress={generateSystemsProtocol}
             >
               <Ionicons name="sparkles" size={20} color="#FFF" />
@@ -383,7 +380,7 @@ const PrincipleItem = ({
   desc: string;
 }) => (
   <View style={styles.principleItem}>
-    <Ionicons name={icon as any} size={20} color="#3B82F6" />
+    <Ionicons name={icon as any} size={20} color="#60A5FA" />
     <View style={styles.principleContent}>
       <Text style={styles.principleTitle}>{title}</Text>
       <Text style={styles.principleDesc}>{desc}</Text>
@@ -394,7 +391,7 @@ const PrincipleItem = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#06060B',
   },
   scrollView: {
     flex: 1,
@@ -409,10 +406,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   heroCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 24,
@@ -430,13 +427,13 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 8,
     textAlign: 'center',
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -453,19 +450,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   addHabitCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   habitInput: {
-    backgroundColor: '#374151',
+    backgroundColor: '#1F1F2C',
     borderRadius: 8,
     padding: 12,
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     fontSize: 16,
     marginBottom: 12,
   },
@@ -479,11 +476,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   cancelText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     fontWeight: '500',
   },
   addButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#60A5FA',
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 8,
@@ -495,7 +492,7 @@ const styles = StyleSheet.create({
   habitCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -505,14 +502,14 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#4B5563',
+    borderColor: '#37373F',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   habitChecked: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: '#60A5FA',
+    borderColor: '#60A5FA',
   },
   habitContent: {
     flex: 1,
@@ -520,7 +517,7 @@ const styles = StyleSheet.create({
   habitName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 6,
   },
   habitStats: {
@@ -534,15 +531,15 @@ const styles = StyleSheet.create({
   habitStatValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#3B82F6',
+    color: '#60A5FA',
   },
   habitStatLabel: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginLeft: 2,
   },
   emptyState: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
@@ -550,18 +547,18 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#5E5E6A',
     marginTop: 4,
   },
   reviewCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -572,15 +569,15 @@ const styles = StyleSheet.create({
   reviewTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   reviewDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
   },
   principlesCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
@@ -595,31 +592,31 @@ const styles = StyleSheet.create({
   principleTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   principleDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
     lineHeight: 18,
   },
   loadingCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   protocolCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
   protocolText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -630,7 +627,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: '#1F1F2C',
     gap: 8,
   },
   regenerateText: {
@@ -650,7 +647,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   healthCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -670,11 +667,11 @@ const styles = StyleSheet.create({
   healthScoreText: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   healthScoreLabel: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#9494A0',
   },
   healthDetails: {
     flex: 1,
@@ -688,7 +685,7 @@ const styles = StyleSheet.create({
   healthRowText: {
     flex: 1,
     fontSize: 14,
-    color: '#D1D5DB',
+    color: '#C4C4CC',
   },
   healthDot: {
     width: 10,

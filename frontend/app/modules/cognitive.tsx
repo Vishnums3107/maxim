@@ -19,6 +19,9 @@ const COGNITIVE_TOOLS = [
   { id: 'distractions', name: 'Distraction Diagnostics', desc: 'Pattern analysis', icon: 'alert-circle-outline', route: '/modules/distractions' },
   { id: 'insights', name: 'Intelligence Insights', desc: 'Trends & overload detection', icon: 'analytics-outline', route: '/modules/insights' },
 ];
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const MENTAL_MODELS = [
   'First Principles Thinking',
@@ -60,23 +63,17 @@ export default function CognitiveModule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#F9FAFB" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Cognitive & Learning</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenChrome title="Cognitive & Learning" />
 
         {/* Hero */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, { backgroundColor: '#8B5CF620' }]}>
-            <Ionicons name="bulb" size={32} color="#8B5CF6" />
-          </View>
-          <Text style={styles.heroTitle}>Maximize Mental Performance</Text>
-          <Text style={styles.heroSubtitle}>
-            Focus training, learning optimization, and cognitive clarity systems.
-          </Text>
+        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <ModuleHero
+          icon="bulb"
+          title="Maximize Mental Performance"
+          subtitle="Focus training, learning optimization, and cognitive clarity systems."
+          gradient={moduleGradients.cognitive}
+          accent={colors.modules.cognitive}
+        />
         </View>
 
         {/* Tools */}
@@ -89,13 +86,13 @@ export default function CognitiveModule() {
               onPress={() => tool.route ? router.push(tool.route as any) : null}
             >
               <View style={styles.toolIcon}>
-                <Ionicons name={tool.icon as any} size={24} color="#8B5CF6" />
+                <Ionicons name={tool.icon as any} size={24} color="#A78BFA" />
               </View>
               <View style={styles.toolContent}>
                 <Text style={styles.toolName}>{tool.name}</Text>
                 <Text style={styles.toolDesc}>{tool.desc}</Text>
               </View>
-              <Ionicons name="arrow-forward" size={20} color="#6B7280" />
+              <Ionicons name="arrow-forward" size={20} color="#5E5E6A" />
             </TouchableOpacity>
           ))}
         </View>
@@ -117,7 +114,7 @@ export default function CognitiveModule() {
           <Text style={styles.sectionTitle}>AI Learning Coach</Text>
           {loading ? (
             <View style={styles.loadingCard}>
-              <ActivityIndicator color="#8B5CF6" />
+              <ActivityIndicator color="#A78BFA" />
               <Text style={styles.loadingText}>Generating cognitive protocol...</Text>
             </View>
           ) : protocol ? (
@@ -127,13 +124,13 @@ export default function CognitiveModule() {
                 style={styles.regenerateButton}
                 onPress={generateCognitiveProtocol}
               >
-                <Ionicons name="refresh" size={16} color="#8B5CF6" />
-                <Text style={[styles.regenerateText, { color: '#8B5CF6' }]}>Generate New</Text>
+                <Ionicons name="refresh" size={16} color="#A78BFA" />
+                <Text style={[styles.regenerateText, { color: '#A78BFA' }]}>Generate New</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#8B5CF6' }]}
+              style={[styles.generateButton, { backgroundColor: '#A78BFA' }]}
               onPress={generateCognitiveProtocol}
             >
               <Ionicons name="sparkles" size={20} color="#FFF" />
@@ -151,7 +148,7 @@ export default function CognitiveModule() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#06060B',
   },
   scrollView: {
     flex: 1,
@@ -166,10 +163,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   heroCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 24,
@@ -187,12 +184,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9494A0',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -203,13 +200,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
     marginBottom: 16,
   },
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -218,7 +215,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: '#8B5CF620',
+    backgroundColor: '#A78BFA20',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -229,11 +226,11 @@ const styles = StyleSheet.create({
   toolName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#F9FAFB',
+    color: '#F5F5F7',
   },
   toolDesc: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 2,
   },
   modelsGrid: {
@@ -242,32 +239,32 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   modelChip: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 8,
   },
   modelText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 13,
   },
   loadingCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
   },
   loadingText: {
-    color: '#9CA3AF',
+    color: '#9494A0',
     marginTop: 12,
   },
   protocolCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#11111C',
     borderRadius: 12,
     padding: 16,
   },
   protocolText: {
-    color: '#D1D5DB',
+    color: '#C4C4CC',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -278,7 +275,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: '#1F1F2C',
     gap: 8,
   },
   regenerateText: {
