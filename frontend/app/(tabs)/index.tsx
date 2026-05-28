@@ -23,6 +23,7 @@ import { GlassCard } from '../../src/components/GlassCard';
 import { ProgressRing } from '../../src/components/ProgressRing';
 import { Sparkline } from '../../src/components/Sparkline';
 import { VoltageButton } from '../../src/components/VoltageButton';
+import { haptics } from '../../src/utils/haptics';
 import {
   borderRadius,
   colors,
@@ -91,7 +92,18 @@ export default function TodayScreen() {
 
   const toggleAction = async (action: keyof typeof todayActions) => {
     const newValue = !todayActions[action];
+    const newCompletedCount = newValue
+      ? completedCount + 1
+      : completedCount - 1;
+
     setTodayActions((p) => ({ ...p, [action]: newValue }));
+
+    // The 5th action completion gets an extra "you did it" thump
+    if (newValue && newCompletedCount === 5) {
+      // ActionItem already fires haptics.success; queue a heavy follow-up
+      setTimeout(() => haptics.heavy(), 90);
+    }
+
     const dateStr = format(today, 'yyyy-MM-dd');
     const actionKey = `${action}Action` as const;
 
@@ -523,8 +535,35 @@ const vitalStyles = StyleSheet.create({
   },
 });
 
+// 14 hand-curated MAXIM principles — 1 per day cycles every fortnight
+const MAXIM_PRINCIPLES: { text: string; n: number }[] = [
+  { text: 'Build systems, not motivation.', n: 1 },
+  { text: 'Friction is the lever. Lower it for good behaviours; raise it for bad.', n: 2 },
+  { text: 'Recovery is where adaptation happens — protect it.', n: 3 },
+  { text: 'Single-task. The cost of context-switching compounds.', n: 4 },
+  { text: 'Train the breath. It is the fastest input to your nervous system.', n: 5 },
+  { text: 'Know your baseline. Calibrate against yourself, not anyone else.', n: 6 },
+  { text: 'Capability is the residue of repeated, considered effort.', n: 7 },
+  { text: 'Externalise thoughts. Free working memory for what matters.', n: 8 },
+  { text: 'Sleep first. Everything downstream depends on it.', n: 9 },
+  { text: 'Simplicity scales. Complexity collapses.', n: 10 },
+  { text: 'Stress without recovery is depletion. Stress with recovery is growth.', n: 11 },
+  { text: 'Identity precedes habit. Decide who you are; the actions follow.', n: 12 },
+  { text: 'Discomfort is the toll for capability. Pay it deliberately.', n: 13 },
+  { text: 'You are what you repeatedly attend to.', n: 14 },
+];
+
+function getTodayPrinciple() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = (now.getTime() - start.getTime()) / 86400000;
+  const day = Math.floor(diff);
+  return MAXIM_PRINCIPLES[day % MAXIM_PRINCIPLES.length];
+}
+
 function DailyQuote() {
   const fade = useRef(new Animated.Value(0)).current;
+  const principle = getTodayPrinciple();
   useEffect(() => {
     Animated.timing(fade, {
       toValue: 1,
@@ -537,10 +576,8 @@ function DailyQuote() {
   return (
     <Animated.View style={[styles.quote, { opacity: fade }]}>
       <Text style={styles.quoteMark}>“</Text>
-      <Text style={styles.quoteText}>
-        Capability is the residue of repeated, considered effort.
-      </Text>
-      <Text style={styles.quoteAttr}>MAXIM principle no. 7</Text>
+      <Text style={styles.quoteText}>{principle.text}</Text>
+      <Text style={styles.quoteAttr}>MAXIM principle no. {principle.n}</Text>
     </Animated.View>
   );
 }
