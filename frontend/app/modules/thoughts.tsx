@@ -21,6 +21,8 @@ const THOUGHT_PROMPTS = [
     "What's draining your energy?",
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function ThoughtsScreen() {
     const router = useRouter();
@@ -61,14 +63,14 @@ export default function ThoughtsScreen() {
             >
                 <ScrollView style={styles.content}>
                     {/* Hero */}
-                    <View style={styles.heroSection}>
-                        <View style={styles.heroIcon}>
-                            <Ionicons name="cloud-outline" size={40} color="#34D399" />
-                        </View>
-                        <Text style={styles.heroTitle}>Get It Out of Your Head</Text>
-                        <Text style={styles.heroSubtitle}>
-                            Externalize thoughts → Convert to actions → Clear mental RAM
-                        </Text>
+                    <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                        <ModuleHero
+                            icon="cloud-outline"
+                            title="Get it out of your head"
+                            subtitle="Externalise thoughts. Convert to actions. Clear mental RAM."
+                            gradient={moduleGradients.regulation}
+                            accent={colors.modules.regulation}
+                        />
                     </View>
 
                     {/* Entry Form */}

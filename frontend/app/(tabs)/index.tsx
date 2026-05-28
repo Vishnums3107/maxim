@@ -174,27 +174,65 @@ export default function TodayScreen() {
           {/* ── Hero performance card ────────────────────────────────── */}
           <View style={styles.heroWrap}>
             <GlassCard immediate padding={spacing.xl} radius={borderRadius['2xl']}>
+              {/* Subtle celebration glow when complete */}
+              {completedCount === 5 ? (
+                <View pointerEvents="none" style={styles.celebrationGlow} />
+              ) : null}
+
               <View style={styles.heroRow}>
                 <View style={styles.ringBlock}>
+                  {completedCount === 5 ? (
+                    <View style={styles.ringHalo} pointerEvents="none" />
+                  ) : null}
                   <ProgressRing
                     progress={progressPercent}
                     size={132}
                     strokeWidth={10}
-                    color={colors.voltage.core}
-                    colorStop={colors.voltage.soft}
+                    color={
+                      completedCount === 5
+                        ? colors.modules.regulation
+                        : colors.voltage.core
+                    }
+                    colorStop={
+                      completedCount === 5
+                        ? colors.modules.social
+                        : colors.voltage.soft
+                    }
                     showValue={false}
                   />
                   <View style={styles.ringInner} pointerEvents="none">
-                    <Text style={styles.ringNum}>
-                      {completedCount}
-                      <Text style={styles.ringDenom}>/5</Text>
-                    </Text>
-                    <Text style={styles.ringLbl}>Today</Text>
+                    {completedCount === 5 ? (
+                      <>
+                        <Ionicons
+                          name="sparkles"
+                          size={32}
+                          color={colors.modules.regulation}
+                          style={{ marginBottom: 2 }}
+                        />
+                        <Text style={styles.ringDoneText}>Done</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={styles.ringNum}>
+                          {completedCount}
+                          <Text style={styles.ringDenom}>/5</Text>
+                        </Text>
+                        <Text style={styles.ringLbl}>Today</Text>
+                      </>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.heroCopy}>
-                  <Eyebrow color={colors.voltage.bright}>Daily Protocol</Eyebrow>
+                  <Eyebrow
+                    color={
+                      completedCount === 5
+                        ? colors.modules.regulation
+                        : colors.voltage.bright
+                    }
+                  >
+                    {completedCount === 5 ? 'Today, Perfected' : 'Daily Protocol'}
+                  </Eyebrow>
                   <Text style={styles.heroTitle}>
                     {completedCount === 5
                       ? 'Protocol complete.'
@@ -204,7 +242,7 @@ export default function TodayScreen() {
                   </Text>
                   <Text style={styles.heroSub}>
                     {completedCount === 5
-                      ? 'Every domain attended to. Recover well.'
+                      ? 'Every domain attended to. Recover well — capability compounds in the rest.'
                       : `${5 - completedCount} action${5 - completedCount === 1 ? '' : 's'} remaining across your domains.`}
                   </Text>
 
@@ -573,6 +611,33 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.text.muted,
     fontWeight: '600',
+  },
+  ringDoneText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.modules.regulation,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  ringHalo: {
+    position: 'absolute',
+    top: -16,
+    left: -16,
+    right: -16,
+    bottom: -16,
+    borderRadius: 96,
+    backgroundColor: colors.modules.regulationGlow,
+    opacity: 0.55,
+  },
+  celebrationGlow: {
+    position: 'absolute',
+    top: -40,
+    left: -40,
+    right: -40,
+    bottom: -40,
+    borderRadius: 80,
+    backgroundColor: colors.modules.regulationGlow,
+    opacity: 0.18,
   },
   ringLbl: {
     fontSize: 10,

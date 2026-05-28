@@ -43,6 +43,8 @@ const CALM_ROUTINES = [
     },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function StabilityScreen() {
     const router = useRouter();
@@ -113,6 +115,15 @@ export default function StabilityScreen() {
             <ScreenChrome title="Stability & Calm" />
 
             <ScrollView style={styles.content}>
+                <View style={{ marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="leaf"
+                        title="Build inner calm"
+                        subtitle="Train regulation skills. Lower reactivity. Build a steadier baseline."
+                        gradient={moduleGradients.regulation}
+                        accent={colors.modules.regulation}
+                    />
+                </View>
                 {/* Stability Score */}
                 <View style={styles.scoreCard}>
                     <View style={styles.scoreRing}>

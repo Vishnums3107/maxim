@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { format, subDays, eachDayOfInterval, differenceInDays } from 'date-fns';
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function InsightsScreen() {
     const router = useRouter();
@@ -197,6 +199,15 @@ export default function InsightsScreen() {
             <ScreenChrome title="Intelligence Insights" />
 
             <ScrollView style={styles.content}>
+                <View style={{ marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="analytics"
+                        title="The signal in your data"
+                        subtitle="Detect overload, stagnation and trends. Adapt before patterns become problems."
+                        gradient={moduleGradients.systems}
+                        accent={colors.modules.systems}
+                    />
+                </View>
                 {/* Overload Detection */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>⚡ Overload Detection</Text>

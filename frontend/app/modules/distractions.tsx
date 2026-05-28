@@ -21,6 +21,8 @@ const DISTRACTION_TYPES = [
     { id: 'fatigue', label: 'Fatigue', icon: 'battery-dead' },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function DistractionScreen() {
     const router = useRouter();
@@ -72,6 +74,15 @@ export default function DistractionScreen() {
             <ScreenChrome title="Distraction Diagnostics" />
 
             <ScrollView style={styles.content}>
+                <View style={{ marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="alert-circle"
+                        title="Diagnose what pulls you"
+                        subtitle="Identify patterns. Reduce friction. Win back attention."
+                        gradient={moduleGradients.cognitive}
+                        accent={colors.modules.cognitive}
+                    />
+                </View>
                 {/* Stats */}
                 <View style={styles.statsRow}>
                     <View style={styles.statCard}>

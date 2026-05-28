@@ -18,6 +18,8 @@ const IDENTITY_PROMPTS = [
     { identity: 'When faced with resistance, I...', examples: ['do it anyway', 'start with 2 minutes', 'remember my why'] },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const SIMPLIFICATION_RULES = [
     { rule: 'Two-Minute Start', desc: 'If overwhelmed, commit to just 2 minutes' },
@@ -89,6 +91,15 @@ export default function FrictionScreen() {
             <ScreenChrome title="System Optimization" />
 
             <ScrollView style={styles.content}>
+                <View style={{ marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="construct"
+                        title="Find the friction"
+                        subtitle="Make good behaviours easier. Bad behaviours harder. Engineer your environment."
+                        gradient={moduleGradients.systems}
+                        accent={colors.modules.systems}
+                    />
+                </View>
                 {/* Auto-Detected Friction */}
                 {detectedFriction.length > 0 && (
                     <View style={styles.section}>

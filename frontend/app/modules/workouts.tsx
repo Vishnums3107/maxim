@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
+    Animated,
+    Pressable,
     ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { Gradient } from '../../src/components/Gradient';
+import {
+    borderRadius,
+    colors,
+    moduleGradients,
+    spacing,
+    typography,
+} from '../../src/theme/tokens';
+import { createPressAnimation } from '../../src/theme/animations';
+import { haptics } from '../../src/utils/haptics';
 
 type WorkoutLocation = 'home' | 'gym';
-import { ScreenChrome } from '../../src/components/ScreenChrome';
 type WorkoutCategory = 'strength' | 'mobility' | 'cardio' | 'recovery';
 
 interface Workout {
@@ -27,7 +40,6 @@ interface Workout {
 }
 
 const WORKOUTS: Workout[] = [
-    // Strength
     {
         id: 's1',
         name: 'Foundation Strength',
@@ -58,7 +70,6 @@ const WORKOUTS: Workout[] = [
         level: 'intermediate',
         exercises: ['Bench 4x8', 'Rows 4x8', 'OHP 3x10', 'Curls 3x12', 'Tricep Ext 3x12'],
     },
-    // Mobility
     {
         id: 'm1',
         name: 'Morning Mobility',
@@ -67,7 +78,12 @@ const WORKOUTS: Workout[] = [
         category: 'mobility',
         location: ['home', 'gym'],
         level: 'beginner',
-        exercises: ['Cat-Cow 10x', 'Hip Circles 10x', 'Shoulder Rolls 10x', 'World\'s Greatest Stretch 5x'],
+        exercises: [
+            'Cat-Cow 10x',
+            'Hip Circles 10x',
+            'Shoulder Rolls 10x',
+            "World's Greatest Stretch 5x",
+        ],
     },
     {
         id: 'm2',
@@ -77,9 +93,13 @@ const WORKOUTS: Workout[] = [
         category: 'mobility',
         location: ['home'],
         level: 'beginner',
-        exercises: ['Hip Flexor Stretch 60s', 'Chest Opener 60s', 'Neck Rolls 30s', 'Thoracic Extensions'],
+        exercises: [
+            'Hip Flexor Stretch 60s',
+            'Chest Opener 60s',
+            'Neck Rolls 30s',
+            'Thoracic Extensions',
+        ],
     },
-    // Cardio
     {
         id: 'c1',
         name: 'Zone 2 Walk',
@@ -100,7 +120,6 @@ const WORKOUTS: Workout[] = [
         level: 'intermediate',
         exercises: ['Warm up 3min', '20s sprint / 40s rest x8', 'Cool down 2min'],
     },
-    // Recovery
     {
         id: 'r1',
         name: 'Active Recovery',
@@ -123,11 +142,38 @@ const WORKOUTS: Workout[] = [
     },
 ];
 
-const CATEGORY_CONFIG: Record<WorkoutCategory, { label: string; color: string; icon: string }> = {
-    strength: { label: 'Strength', color: '#F87171', icon: 'barbell' },
-    mobility: { label: 'Mobility', color: '#A78BFA', icon: 'body' },
-    cardio: { label: 'Cardio', color: '#FBBF24', icon: 'heart' },
-    recovery: { label: 'Recovery', color: '#34D399', icon: 'leaf' },
+interface CategoryConfig {
+    label: string;
+    accent: string;
+    gradient: readonly [string, string];
+    icon: keyof typeof Ionicons.glyphMap;
+}
+
+const CATEGORY_CONFIG: Record<WorkoutCategory, CategoryConfig> = {
+    strength: {
+        label: 'Strength',
+        accent: colors.modules.physical,
+        gradient: moduleGradients.physical,
+        icon: 'barbell',
+    },
+    mobility: {
+        label: 'Mobility',
+        accent: colors.modules.cognitive,
+        gradient: moduleGradients.cognitive,
+        icon: 'body',
+    },
+    cardio: {
+        label: 'Cardio',
+        accent: colors.modules.social,
+        gradient: moduleGradients.social,
+        icon: 'heart',
+    },
+    recovery: {
+        label: 'Recovery',
+        accent: colors.modules.regulation,
+        gradient: moduleGradients.regulation,
+        icon: 'leaf',
+    },
 };
 
 export default function WorkoutsScreen() {
@@ -139,275 +185,534 @@ export default function WorkoutsScreen() {
     const filteredWorkouts = WORKOUTS.filter((w) => {
         const matchesLocation = w.location.includes(location);
         const matchesCategory = !selectedCategory || w.category === selectedCategory;
-        const matchesLevel = !profile?.level ||
+        const matchesLevel =
+            !profile?.level ||
             w.level === profile.level ||
-            (profile.level === 'advanced') ||
+            profile.level === 'advanced' ||
             (profile.level === 'intermediate' && w.level !== 'advanced');
         return matchesLocation && matchesCategory && matchesLevel;
     });
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <ScreenChrome title="Workouts" />
+            <ScreenChrome title="Workouts" eyebrow="Physical" />
 
-            <ScrollView style={styles.content}>
-                {/* Location Toggle */}
-                <View style={styles.toggleContainer}>
-                    <TouchableOpacity
-                        style={[styles.toggleButton, location === 'home' && styles.toggleActive]}
-                        onPress={() => setLocation('home')}
-                    >
-                        <Ionicons name="home" size={18} color={location === 'home' ? '#FFF' : '#9494A0'} />
-                        <Text style={[styles.toggleText, location === 'home' && styles.toggleTextActive]}>
-                            Home
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.toggleButton, location === 'gym' && styles.toggleActive]}
-                        onPress={() => setLocation('gym')}
-                    >
-                        <Ionicons name="fitness" size={18} color={location === 'gym' ? '#FFF' : '#9494A0'} />
-                        <Text style={[styles.toggleText, location === 'gym' && styles.toggleTextActive]}>
-                            Gym
-                        </Text>
-                    </TouchableOpacity>
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.heroWrap}>
+                    <ModuleHero
+                        icon="barbell"
+                        title="Train with intent"
+                        subtitle="Curated protocols for strength, mobility, cardio and recovery."
+                        gradient={moduleGradients.physical}
+                        accent={colors.modules.physical}
+                    />
                 </View>
 
-                {/* Category Filters */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.categoryScroll}
-                    contentContainerStyle={styles.categoryContent}
-                >
-                    <TouchableOpacity
-                        style={[styles.categoryChip, !selectedCategory && styles.categoryChipActive]}
-                        onPress={() => setSelectedCategory(null)}
-                    >
-                        <Text style={[styles.categoryChipText, !selectedCategory && styles.categoryChipTextActive]}>
-                            All
-                        </Text>
-                    </TouchableOpacity>
-                    {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
-                        <TouchableOpacity
-                            key={key}
-                            style={[
-                                styles.categoryChip,
-                                selectedCategory === key && { backgroundColor: config.color },
-                            ]}
-                            onPress={() => setSelectedCategory(key as WorkoutCategory)}
-                        >
-                            <Ionicons
-                                name={config.icon as any}
-                                size={14}
-                                color={selectedCategory === key ? '#FFF' : config.color}
-                            />
-                            <Text
-                                style={[
-                                    styles.categoryChipText,
-                                    selectedCategory === key && styles.categoryChipTextActive,
-                                ]}
-                            >
-                                {config.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-
-                {/* Workouts List */}
-                <View style={styles.workoutsGrid}>
-                    {filteredWorkouts.map((workout) => {
-                        const config = CATEGORY_CONFIG[workout.category];
-                        return (
-                            <View key={workout.id} style={styles.workoutCard}>
-                                <View style={styles.workoutHeader}>
-                                    <View style={[styles.categoryBadge, { backgroundColor: config.color + '20' }]}>
-                                        <Ionicons name={config.icon as any} size={16} color={config.color} />
-                                    </View>
-                                    <Text style={styles.durationBadge}>{workout.duration} min</Text>
-                                </View>
-                                <Text style={styles.workoutName}>{workout.name}</Text>
-                                <Text style={styles.workoutDesc}>{workout.description}</Text>
-                                <View style={styles.exerciseList}>
-                                    {workout.exercises.slice(0, 3).map((exercise, i) => (
-                                        <View key={i} style={styles.exerciseItem}>
-                                            <View style={styles.exerciseDot} />
-                                            <Text style={styles.exerciseText} numberOfLines={1}>{exercise}</Text>
-                                        </View>
-                                    ))}
-                                    {workout.exercises.length > 3 && (
-                                        <Text style={styles.moreExercises}>
-                                            +{workout.exercises.length - 3} more
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                        );
-                    })}
-                </View>
-
-                {filteredWorkouts.length === 0 && (
-                    <View style={styles.emptyState}>
-                        <Ionicons name="barbell-outline" size={48} color="#37373F" />
-                        <Text style={styles.emptyText}>No workouts match your filters</Text>
+                {/* Location segmented control */}
+                <View style={styles.section}>
+                    <Eyebrow style={{ marginBottom: spacing.md }}>Where</Eyebrow>
+                    <View style={styles.segmented}>
+                        <SegmentButton
+                            icon="home"
+                            label="Home"
+                            active={location === 'home'}
+                            onPress={() => {
+                                haptics.select();
+                                setLocation('home');
+                            }}
+                        />
+                        <SegmentButton
+                            icon="fitness"
+                            label="Gym"
+                            active={location === 'gym'}
+                            onPress={() => {
+                                haptics.select();
+                                setLocation('gym');
+                            }}
+                        />
                     </View>
-                )}
+                </View>
 
-                <View style={{ height: 40 }} />
+                {/* Category chips */}
+                <View style={[styles.section, { paddingHorizontal: 0 }]}>
+                    <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.md }}>
+                        <Eyebrow>Category</Eyebrow>
+                    </View>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.chipsRow}
+                    >
+                        <CategoryChip
+                            label="All"
+                            active={!selectedCategory}
+                            onPress={() => {
+                                haptics.select();
+                                setSelectedCategory(null);
+                            }}
+                        />
+                        {(Object.keys(CATEGORY_CONFIG) as WorkoutCategory[]).map((key) => {
+                            const cfg = CATEGORY_CONFIG[key];
+                            return (
+                                <CategoryChip
+                                    key={key}
+                                    icon={cfg.icon}
+                                    label={cfg.label}
+                                    accent={cfg.accent}
+                                    active={selectedCategory === key}
+                                    onPress={() => {
+                                        haptics.select();
+                                        setSelectedCategory(key);
+                                    }}
+                                />
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                {/* Workouts list */}
+                <View style={styles.section}>
+                    <View style={styles.listHead}>
+                        <Eyebrow>
+                            {selectedCategory
+                                ? CATEGORY_CONFIG[selectedCategory].label
+                                : 'All Workouts'}
+                        </Eyebrow>
+                        <Text style={styles.countText}>
+                            {filteredWorkouts.length} found
+                        </Text>
+                    </View>
+
+                    {filteredWorkouts.map((workout, idx) => (
+                        <WorkoutCard
+                            key={workout.id}
+                            workout={workout}
+                            config={CATEGORY_CONFIG[workout.category]}
+                            delay={idx * 50}
+                        />
+                    ))}
+
+                    {filteredWorkouts.length === 0 && (
+                        <View style={styles.emptyState}>
+                            <View style={styles.emptyIcon}>
+                                <Ionicons
+                                    name="barbell-outline"
+                                    size={20}
+                                    color={colors.text.tertiary}
+                                />
+                            </View>
+                            <Text style={styles.emptyTitle}>No workouts match</Text>
+                            <Text style={styles.emptyText}>
+                                Try a different location or category.
+                            </Text>
+                        </View>
+                    )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#06060B',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
-    },
-    content: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#11111C',
-        borderRadius: 12,
-        padding: 4,
-        marginBottom: 16,
-    },
-    toggleButton: {
+// ── Segment button (Home/Gym) ──────────────────────────────────────────────
+function SegmentButton({
+    icon,
+    label,
+    active,
+    onPress,
+}: {
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    active: boolean;
+    onPress: () => void;
+}) {
+    return (
+        <Pressable
+            onPress={onPress}
+            style={({ pressed }) => [
+                seg.btn,
+                active && seg.btnActive,
+                pressed && { opacity: 0.85 },
+            ]}
+        >
+            <Ionicons
+                name={icon}
+                size={15}
+                color={active ? colors.bg.void : colors.text.tertiary}
+            />
+            <Text style={[seg.text, active && seg.textActive]}>{label}</Text>
+        </Pressable>
+    );
+}
+
+const seg = StyleSheet.create({
+    btn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
-        gap: 8,
-        borderRadius: 10,
-    },
-    toggleActive: {
-        backgroundColor: '#F87171',
-    },
-    toggleText: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#9494A0',
-    },
-    toggleTextActive: {
-        color: '#FFF',
-    },
-    categoryScroll: {
-        marginBottom: 20,
-    },
-    categoryContent: {
-        gap: 8,
-    },
-    categoryChip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#11111C',
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
         gap: 6,
+        paddingVertical: 11,
+        borderRadius: borderRadius.sm,
     },
-    categoryChipActive: {
-        backgroundColor: '#60A5FA',
+    btnActive: {
+        backgroundColor: colors.voltage.core,
     },
-    categoryChipText: {
+    text: {
         fontSize: 13,
-        fontWeight: '500',
-        color: '#9494A0',
+        fontWeight: '600',
+        color: colors.text.tertiary,
     },
-    categoryChipTextActive: {
-        color: '#FFF',
+    textActive: {
+        color: colors.bg.void,
+        fontWeight: '700',
     },
-    workoutsGrid: {
-        gap: 12,
-    },
-    workoutCard: {
-        backgroundColor: '#11111C',
-        borderRadius: 16,
-        padding: 16,
-    },
-    workoutHeader: {
+});
+
+// ── Category chip ──────────────────────────────────────────────────────────
+function CategoryChip({
+    icon,
+    label,
+    accent,
+    active,
+    onPress,
+}: {
+    icon?: keyof typeof Ionicons.glyphMap;
+    label: string;
+    accent?: string;
+    active: boolean;
+    onPress: () => void;
+}) {
+    return (
+        <Pressable
+            onPress={onPress}
+            style={({ pressed }) => [
+                chip.btn,
+                active && {
+                    backgroundColor: accent ? `${accent}1F` : 'rgba(224, 231, 255, 0.14)',
+                    borderColor: accent ?? colors.voltage.core,
+                },
+                pressed && { opacity: 0.85 },
+            ]}
+        >
+            {icon ? (
+                <Ionicons
+                    name={icon}
+                    size={12}
+                    color={active ? accent ?? colors.voltage.core : colors.text.tertiary}
+                />
+            ) : null}
+            <Text
+                style={[
+                    chip.text,
+                    active && {
+                        color: accent ?? colors.voltage.core,
+                        fontWeight: '700',
+                    },
+                ]}
+            >
+                {label}
+            </Text>
+        </Pressable>
+    );
+}
+
+const chip = StyleSheet.create({
+    btn: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        gap: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.bg.raised,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
     },
-    categoryBadge: {
+    text: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: colors.text.tertiary,
+        letterSpacing: 0.2,
+    },
+});
+
+// ── Workout card ───────────────────────────────────────────────────────────
+function WorkoutCard({
+    workout,
+    config,
+    delay = 0,
+}: {
+    workout: Workout;
+    config: CategoryConfig;
+    delay?: number;
+}) {
+    const fade = React.useRef(new Animated.Value(0)).current;
+    const slide = React.useRef(new Animated.Value(10)).current;
+    const scale = React.useRef(new Animated.Value(1)).current;
+    const press = createPressAnimation(scale);
+
+    React.useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fade, {
+                toValue: 1,
+                duration: 380,
+                delay,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slide, {
+                toValue: 0,
+                duration: 380,
+                delay,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, []);
+
+    return (
+        <Animated.View
+            style={[
+                wc.wrap,
+                { opacity: fade, transform: [{ translateY: slide }, { scale }] },
+            ]}
+        >
+            <Pressable
+                onPress={() => haptics.tap()}
+                {...press}
+                style={wc.card}
+            >
+                {/* Corner halo */}
+                <View pointerEvents="none" style={wc.halo}>
+                    <Gradient colors={config.gradient} borderRadius={130} />
+                </View>
+                <View pointerEvents="none" style={wc.haloFade} />
+
+                <View style={wc.head}>
+                    <View
+                        style={[
+                            wc.iconCell,
+                            {
+                                backgroundColor: 'rgba(255,255,255,0.04)',
+                                borderColor: `${config.accent}55`,
+                            },
+                        ]}
+                    >
+                        <Ionicons name={config.icon} size={16} color={config.accent} />
+                    </View>
+                    <View style={wc.duration}>
+                        <Ionicons
+                            name="time-outline"
+                            size={11}
+                            color={colors.text.tertiary}
+                        />
+                        <Text style={wc.durationText}>{workout.duration} min</Text>
+                    </View>
+                </View>
+
+                <Text style={wc.name}>{workout.name}</Text>
+                <Text style={wc.desc}>{workout.description}</Text>
+
+                <View style={wc.exercises}>
+                    {workout.exercises.slice(0, 3).map((exercise, i) => (
+                        <View key={i} style={wc.exerciseRow}>
+                            <View style={[wc.exerciseDot, { backgroundColor: config.accent }]} />
+                            <Text style={wc.exerciseText} numberOfLines={1}>
+                                {exercise}
+                            </Text>
+                        </View>
+                    ))}
+                    {workout.exercises.length > 3 ? (
+                        <Text style={wc.moreText}>
+                            + {workout.exercises.length - 3} more
+                        </Text>
+                    ) : null}
+                </View>
+
+                <View pointerEvents="none" style={wc.hair} />
+            </Pressable>
+        </Animated.View>
+    );
+}
+
+const wc = StyleSheet.create({
+    wrap: {
+        marginBottom: spacing.sm,
+    },
+    card: {
+        backgroundColor: colors.bg.raised,
+        borderRadius: borderRadius.xl,
+        paddingVertical: spacing.base,
+        paddingHorizontal: spacing.base,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        overflow: 'hidden',
+    },
+    halo: {
+        position: 'absolute',
+        top: -54,
+        right: -54,
+        width: 130,
+        height: 130,
+        borderRadius: 130,
+        opacity: 0.18,
+    },
+    haloFade: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(6,6,11,0.06)',
+    },
+    head: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: spacing.sm + 2,
+    },
+    iconCell: {
         width: 32,
         height: 32,
-        borderRadius: 10,
+        borderRadius: 9,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
     },
-    durationBadge: {
-        fontSize: 12,
-        color: '#9494A0',
-        backgroundColor: '#1F1F2C',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    workoutName: {
-        fontSize: 17,
-        fontWeight: '600',
-        color: '#F5F5F7',
-        marginBottom: 4,
-    },
-    workoutDesc: {
-        fontSize: 13,
-        color: '#9494A0',
-        marginBottom: 12,
-    },
-    exerciseList: {
-        borderTopWidth: 1,
-        borderTopColor: '#1F1F2C',
-        paddingTop: 12,
-    },
-    exerciseItem: {
+    duration: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6,
+        gap: 4,
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+    },
+    durationText: {
+        fontSize: 11,
+        color: colors.text.secondary,
+        fontWeight: '600',
+        fontVariant: ['tabular-nums'] as any,
+    },
+    name: {
+        fontSize: typography.size.lg,
+        fontWeight: typography.weight.bold,
+        color: colors.text.primary,
+        letterSpacing: -0.4,
+    },
+    desc: {
+        fontSize: 12,
+        color: colors.text.tertiary,
+        marginTop: 3,
+        lineHeight: 17,
+    },
+    exercises: {
+        marginTop: spacing.md,
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.border.hairline,
+    },
+    exerciseRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
+        paddingVertical: 3,
     },
     exerciseDot: {
         width: 4,
         height: 4,
         borderRadius: 2,
-        backgroundColor: '#5E5E6A',
     },
     exerciseText: {
         flex: 1,
-        fontSize: 13,
-        color: '#C4C4CC',
+        fontSize: 12.5,
+        color: colors.text.secondary,
+        fontWeight: '500',
     },
-    moreExercises: {
-        fontSize: 12,
-        color: '#5E5E6A',
-        fontStyle: 'italic',
+    moreText: {
         marginTop: 4,
+        marginLeft: 12,
+        fontSize: 11,
+        color: colors.text.muted,
+        fontWeight: '500',
+    },
+    hair: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+    },
+});
+
+// ── Page styles ────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: colors.bg.void,
+    },
+    content: {
+        flex: 1,
+    },
+    heroWrap: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+    section: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+    segmented: {
+        flexDirection: 'row',
+        gap: 4,
+        backgroundColor: colors.bg.raised,
+        padding: 3,
+        borderRadius: borderRadius.md,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+    },
+    chipsRow: {
+        flexDirection: 'row',
+        gap: 6,
+        paddingHorizontal: spacing.lg,
+    },
+    listHead: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: spacing.md,
+    },
+    countText: {
+        fontSize: 11,
+        color: colors.text.tertiary,
+        fontWeight: '600',
+        letterSpacing: 0.4,
     },
     emptyState: {
         alignItems: 'center',
-        paddingVertical: 60,
+        paddingVertical: spacing['2xl'],
+    },
+    emptyIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: colors.surface.glass,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        marginBottom: spacing.md,
+    },
+    emptyTitle: {
+        fontSize: typography.size.lg,
+        fontWeight: typography.weight.semibold,
+        color: colors.text.primary,
+        letterSpacing: -0.3,
     },
     emptyText: {
-        fontSize: 14,
-        color: '#5E5E6A',
-        marginTop: 12,
+        fontSize: 13,
+        color: colors.text.tertiary,
+        marginTop: 4,
     },
 });

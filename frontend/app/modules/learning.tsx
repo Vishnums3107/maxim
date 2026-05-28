@@ -19,6 +19,8 @@ const FEYNMAN_STEPS = [
     { step: 4, title: 'Review & simplify', desc: 'Go back to source, fill gaps, simplify further' },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const SYNTHESIS_PROMPTS = [
     'What was the most important thing I learned this week?',
@@ -77,6 +79,16 @@ export default function LearningScreen() {
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <ScreenChrome title="Learning Tools" />
+
+            <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                <ModuleHero
+                    icon="bulb"
+                    title="Learn faster, retain more"
+                    subtitle="Decompose, schedule, retrieve. Compounding skill over time."
+                    gradient={moduleGradients.cognitive}
+                    accent={colors.modules.cognitive}
+                />
+            </View>
 
             {/* Tabs */}
             <View style={styles.tabs}>

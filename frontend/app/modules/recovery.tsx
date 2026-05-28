@@ -20,6 +20,8 @@ const POSTURE_EXERCISES = [
     { id: 'glute-bridge', name: 'Glute Bridges', duration: '45 sec', reps: '12 reps', benefit: 'Core stability' },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const RECOVERY_PROTOCOLS = [
     {
@@ -105,6 +107,15 @@ export default function RecoveryScreen() {
             <ScreenChrome title="Recovery & Posture" />
 
             <ScrollView style={styles.content}>
+                <View style={{ marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="leaf"
+                        title="Listen to your body's signals"
+                        subtitle="Track fatigue, reset posture, and restore. Recovery is where adaptation happens."
+                        gradient={moduleGradients.regulation}
+                        accent={colors.modules.regulation}
+                    />
+                </View>
                 {/* Fatigue Detection */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Fatigue Detection</Text>

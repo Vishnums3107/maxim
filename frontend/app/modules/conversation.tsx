@@ -18,6 +18,8 @@ const PROMPTS = {
     improve: "What could you do differently next time?",
 };
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors } from '../../src/theme/tokens';
 
 export default function ConversationScreen() {
     const router = useRouter();
@@ -56,14 +58,14 @@ export default function ConversationScreen() {
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
-                <View style={styles.heroSection}>
-                    <View style={styles.heroIcon}>
-                        <Ionicons name="chatbubbles" size={40} color="#EC4899" />
-                    </View>
-                    <Text style={styles.heroTitle}>Learn From Every Interaction</Text>
-                    <Text style={styles.heroSubtitle}>
-                        Reflect without judgment. Extract lessons. Improve over time.
-                    </Text>
+                <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="chatbubbles"
+                        title="Learn from every interaction"
+                        subtitle="Reflect without judgment. Extract lessons. Improve over time."
+                        gradient={['#F472B6', '#DB2777'] as const}
+                        accent="#F472B6"
+                    />
                 </View>
 
                 {/* Stats */}

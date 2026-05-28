@@ -11,6 +11,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../src/store/userStore';
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors } from '../../src/theme/tokens';
 
 interface ExposureItem {
     id: string;
@@ -71,14 +73,14 @@ export default function ExposureScreen() {
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
-                <View style={styles.heroSection}>
-                    <View style={styles.heroIcon}>
-                        <Ionicons name="trending-up" size={40} color="#EC4899" />
-                    </View>
-                    <Text style={styles.heroTitle}>Gradual Confidence Building</Text>
-                    <Text style={styles.heroSubtitle}>
-                        Exposure therapy for social situations. Start easy, gradually level up.
-                    </Text>
+                <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="trending-up"
+                        title="Gradual confidence building"
+                        subtitle="Exposure therapy for social situations. Start easy, gradually level up."
+                        gradient={['#F472B6', '#DB2777'] as const}
+                        accent="#F472B6"
+                    />
                 </View>
 
                 {/* Progress */}

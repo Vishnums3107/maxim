@@ -19,6 +19,8 @@ const SPEAKING_DRILLS = [
     { id: 'volume', name: 'Projection', desc: 'Practice speaking to fill the room', icon: 'volume-high-outline', duration: '2 min' },
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const RESPONSE_DELAYS = [
     { level: 1, delay: '1 second', desc: 'Brief acknowledgment pause' },
@@ -59,6 +61,16 @@ export default function SocialSkillsScreen() {
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <ScreenChrome title="Social Skills" />
+
+            <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                <ModuleHero
+                    icon="people"
+                    title="Communication as a craft"
+                    subtitle="Practise active listening, asking better questions, and being present."
+                    gradient={moduleGradients.social}
+                    accent={colors.modules.social}
+                />
+            </View>
 
             {/* Confidence Trend */}
             <View style={styles.trendCard}>

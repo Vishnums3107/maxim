@@ -15,6 +15,8 @@ import { format, subDays } from 'date-fns';
 
 const QUALITY_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent'];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { colors } from '../../src/theme/tokens';
 
 export default function SleepScreen() {
     const router = useRouter();
@@ -76,14 +78,14 @@ export default function SleepScreen() {
 
             <ScrollView style={styles.content}>
                 {/* Hero */}
-                <View style={styles.heroSection}>
-                    <View style={styles.heroIcon}>
-                        <Ionicons name="moon" size={40} color="#6366F1" />
-                    </View>
-                    <Text style={styles.heroTitle}>Sleep is Recovery</Text>
-                    <Text style={styles.heroSubtitle}>
-                        Quality sleep enhances all other performance systems
-                    </Text>
+                <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                    <ModuleHero
+                        icon="moon"
+                        title="Sleep is recovery"
+                        subtitle="Quality sleep enhances every other performance system."
+                        gradient={['#A78BFA', '#6366F1'] as const}
+                        accent="#A78BFA"
+                    />
                 </View>
 
                 {/* Log Today */}
