@@ -15,6 +15,7 @@ export { ScreenChrome } from './ScreenChrome';
 export { ModuleHero } from './ModuleHero';
 export { ProtocolPanel } from './ProtocolPanel';
 export { StepDots } from './StepDots';
+export { AnimatedNumber } from './AnimatedNumber';
 
 // Existing (APIs preserved)
 export { AnimatedButton } from './AnimatedButton';

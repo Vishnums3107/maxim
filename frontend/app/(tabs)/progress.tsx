@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { eachDayOfInterval, format, subDays } from 'date-fns';
 import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { AnimatedNumber } from '../../src/components/AnimatedNumber';
 import { Eyebrow } from '../../src/components/Eyebrow';
 import { GlassCard } from '../../src/components/GlassCard';
 import { Sparkline } from '../../src/components/Sparkline';
@@ -140,7 +141,11 @@ export default function ProgressScreen() {
                 <View>
                   <Eyebrow color={colors.text.tertiary}>Last 7 Days</Eyebrow>
                   <View style={styles.weekTitleRow}>
-                    <Text style={styles.weekPercent}>{weeklyCompletion}</Text>
+                    <AnimatedNumber
+                      value={weeklyCompletion}
+                      duration={900}
+                      style={styles.weekPercent}
+                    />
                     <Text style={styles.weekPercentSign}>%</Text>
                   </View>
                   <Text style={styles.weekCaption}>weekly completion</Text>
@@ -153,7 +158,7 @@ export default function ProgressScreen() {
                       size={12}
                       color={colors.modules.physical}
                     />
-                    <Text style={styles.streakNum}>{streak}</Text>
+                    <AnimatedNumber value={streak} duration={700} style={styles.streakNum} />
                     <Text style={styles.streakUnit}>day{streak === 1 ? '' : 's'}</Text>
                   </View>
                   <Text style={styles.streakLabel}>active streak</Text>
@@ -338,7 +343,7 @@ function StatTile({
       >
         <Ionicons name={icon} size={16} color={tint} />
       </View>
-      <Text style={st.value}>{value}</Text>
+      <AnimatedNumber value={value} duration={900} style={st.value} />
       <Text style={st.label}>{label}</Text>
       <View pointerEvents="none" style={st.hair} />
     </View>

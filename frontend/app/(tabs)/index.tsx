@@ -16,6 +16,7 @@ import { format, subDays } from 'date-fns';
 import { useUserStore } from '../../src/store/userStore';
 import { generateDailyBriefing } from '../../src/utils/api';
 import { ActionItem } from '../../src/components/ActionItem';
+import { AnimatedNumber } from '../../src/components/AnimatedNumber';
 import { AuroraBackground } from '../../src/components/AuroraBackground';
 import { Eyebrow } from '../../src/components/Eyebrow';
 import { GlassCard } from '../../src/components/GlassCard';
@@ -276,7 +277,8 @@ export default function TodayScreen() {
             <View style={styles.vitalsRow}>
               <VitalCard
                 label="Completion"
-                value={`${trendData.completion.reduce((a, b) => a + b, 0)}`}
+                value={trendData.completion.reduce((a, b) => a + b, 0)}
+                precision={0}
                 unit=" actions"
                 values={trendData.completion}
                 tint={colors.voltage.core}
@@ -284,9 +286,10 @@ export default function TodayScreen() {
               />
               <VitalCard
                 label="Energy"
-                value={`${(
+                value={
                   trendData.energy.reduce((a, b) => a + b, 0) / trendData.energy.length
-                ).toFixed(1)}`}
+                }
+                precision={1}
                 unit="/10"
                 values={trendData.energy}
                 tint={colors.modules.social}
@@ -294,9 +297,10 @@ export default function TodayScreen() {
               />
               <VitalCard
                 label="Sleep"
-                value={`${(
+                value={
                   trendData.sleep.reduce((a, b) => a + b, 0) / trendData.sleep.length
-                ).toFixed(1)}`}
+                }
+                precision={1}
                 unit="/10"
                 values={trendData.sleep}
                 tint={colors.modules.cognitive}
@@ -451,13 +455,15 @@ const chipStyles = StyleSheet.create({
 function VitalCard({
   label,
   value,
+  precision = 0,
   unit,
   values,
   tint,
   delay = 0,
 }: {
   label: string;
-  value: string;
+  value: number;
+  precision?: number;
   unit?: string;
   values: number[];
   tint: string;
@@ -466,10 +472,16 @@ function VitalCard({
   return (
     <View style={vitalStyles.card}>
       <Text style={vitalStyles.label}>{label}</Text>
-      <Text style={vitalStyles.value}>
-        {value}
+      <View style={vitalStyles.valueRow}>
+        <AnimatedNumber
+          value={value}
+          precision={precision}
+          duration={900}
+          delay={delay}
+          style={vitalStyles.value}
+        />
         {unit ? <Text style={vitalStyles.unit}>{unit}</Text> : null}
-      </Text>
+      </View>
       <Sparkline values={values} color={tint} width={92} height={28} strokeWidth={1.6} />
     </View>
   );
@@ -493,6 +505,10 @@ const vitalStyles = StyleSheet.create({
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     marginBottom: 6,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
   value: {
     fontSize: 22,

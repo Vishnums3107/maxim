@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { AnimatedNumber } from '../../src/components/AnimatedNumber';
 import { Eyebrow } from '../../src/components/Eyebrow';
 import { GlassCard } from '../../src/components/GlassCard';
 import { Gradient } from '../../src/components/Gradient';
@@ -380,10 +381,10 @@ function MetricCell({
       >
         <Ionicons name={icon} size={14} color={tint} />
       </View>
-      <Text style={mc.value}>
-        {value}
+      <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+        <AnimatedNumber value={value} duration={800} style={mc.value} />
         <Text style={mc.suffix}>{suffix ?? '/10'}</Text>
-      </Text>
+      </View>
       <Text style={mc.label}>{label}</Text>
       <View pointerEvents="none" style={mc.hair} />
     </View>

@@ -19,6 +19,7 @@ import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
 import { ProtocolPanel } from '../../src/components/ProtocolPanel';
 import { Eyebrow } from '../../src/components/Eyebrow';
+import { ProgressRing } from '../../src/components/ProgressRing';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function SystemsModule() {
@@ -180,10 +181,15 @@ export default function SystemsModule() {
           <Text style={styles.sectionTitle}>System Health</Text>
           <View style={styles.healthCard}>
             <View style={styles.healthScoreContainer}>
-              <View style={[
-                styles.healthScoreRing,
-                { borderColor: systemHealth >= 7 ? '#34D399' : systemHealth >= 4 ? '#FBBF24' : '#F87171' }
-              ]}>
+              <ProgressRing
+                progress={(systemHealth / 10) * 100}
+                size={88}
+                strokeWidth={7}
+                color={systemHealth >= 7 ? '#34D399' : systemHealth >= 4 ? '#FBBF24' : '#F87171'}
+                colorStop={systemHealth >= 7 ? '#059669' : systemHealth >= 4 ? '#D97706' : '#DC2626'}
+                showValue={false}
+              />
+              <View style={styles.healthScoreLabelWrap} pointerEvents="none">
                 <Text style={styles.healthScoreText}>{systemHealth.toFixed(1)}</Text>
                 <Text style={styles.healthScoreLabel}>/10</Text>
               </View>
@@ -642,6 +648,15 @@ const styles = StyleSheet.create({
   },
   healthScoreContainer: {
     marginRight: 20,
+    width: 88,
+    height: 88,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  healthScoreLabelWrap: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   healthScoreRing: {
     width: 72,
@@ -652,13 +667,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   healthScoreText: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '800',
     color: '#F5F5F7',
+    letterSpacing: -1,
   },
   healthScoreLabel: {
-    fontSize: 12,
-    color: '#9494A0',
+    fontSize: 10,
+    color: '#5E5E6A',
+    fontWeight: '600',
+    marginTop: -2,
   },
   healthDetails: {
     flex: 1,

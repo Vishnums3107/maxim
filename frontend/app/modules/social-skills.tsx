@@ -20,6 +20,7 @@ const SPEAKING_DRILLS = [
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProgressRing } from '../../src/components/ProgressRing';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const RESPONSE_DELAYS = [
@@ -74,8 +75,19 @@ export default function SocialSkillsScreen() {
 
             {/* Confidence Trend */}
             <View style={styles.trendCard}>
-                <View style={styles.trendRing}>
-                    <Text style={styles.trendValue}>{confidenceTrend.current}</Text>
+                <View style={styles.trendRingWrap}>
+                    <ProgressRing
+                        progress={(parseFloat(confidenceTrend.current) / 10) * 100}
+                        size={76}
+                        strokeWidth={6}
+                        color="#F472B6"
+                        colorStop="#DB2777"
+                        showValue={false}
+                    />
+                    <View style={styles.trendRingLabel} pointerEvents="none">
+                        <Text style={styles.trendValueNew}>{confidenceTrend.current}</Text>
+                        <Text style={styles.trendOf}>/10</Text>
+                    </View>
                 </View>
                 <View style={styles.trendInfo}>
                     <Text style={styles.trendLabel}>Confidence Level</Text>
@@ -194,9 +206,11 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#06060B' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
     title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
-    trendCard: { flexDirection: 'row', backgroundColor: '#11111C', marginHorizontal: 20, borderRadius: 14, padding: 16, marginBottom: 16, alignItems: 'center' },
-    trendRing: { width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#EC4899', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
-    trendValue: { fontSize: 22, fontWeight: '700', color: '#EC4899' },
+    trendCard: { flexDirection: 'row', backgroundColor: '#11111C', marginHorizontal: 20, borderRadius: 14, padding: 16, marginBottom: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+    trendRingWrap: { width: 76, height: 76, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+    trendRingLabel: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
+    trendValueNew: { fontSize: 24, fontWeight: '800', color: '#F5F5F7', letterSpacing: -1 },
+    trendOf: { fontSize: 9, color: '#5E5E6A', fontWeight: '600', marginTop: -2 },
     trendInfo: { flex: 1 },
     trendLabel: { fontSize: 15, fontWeight: '600', color: '#F5F5F7' },
     trendDelta: { fontSize: 13, color: '#34D399', marginTop: 2 },

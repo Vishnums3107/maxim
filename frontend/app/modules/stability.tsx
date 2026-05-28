@@ -44,6 +44,7 @@ const CALM_ROUTINES = [
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProgressRing } from '../../src/components/ProgressRing';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function StabilityScreen() {
@@ -126,20 +127,64 @@ export default function StabilityScreen() {
                 </View>
                 {/* Stability Score */}
                 <View style={styles.scoreCard}>
-                    <View style={styles.scoreRing}>
-                        <Text style={styles.scoreValue}>{stability.score}</Text>
+                    <View style={styles.scoreRingWrap}>
+                        <ProgressRing
+                            progress={(stability.score / 10) * 100}
+                            size={88}
+                            strokeWidth={7}
+                            color={
+                                stability.trend === 'stable'
+                                    ? colors.modules.regulation
+                                    : stability.trend === 'fluctuating'
+                                        ? '#FBBF24'
+                                        : '#F87171'
+                            }
+                            colorStop={
+                                stability.trend === 'stable'
+                                    ? colors.modules.regulationDeep
+                                    : stability.trend === 'fluctuating'
+                                        ? '#D97706'
+                                        : '#DC2626'
+                            }
+                            showValue={false}
+                        />
+                        <View style={styles.scoreRingLabel} pointerEvents="none">
+                            <Text style={styles.scoreValueNew}>{stability.score}</Text>
+                            <Text style={styles.scoreOf}>/10</Text>
+                        </View>
                     </View>
                     <View style={styles.scoreInfo}>
                         <Text style={styles.scoreLabel}>Stability Score</Text>
-                        <Text style={[
-                            styles.scoreTrend,
+                        <View style={[
+                            styles.scoreTrendPill,
                             {
-                                color: stability.trend === 'stable' ? '#34D399' :
-                                    stability.trend === 'fluctuating' ? '#FBBF24' : '#F87171'
+                                backgroundColor:
+                                    stability.trend === 'stable' ? 'rgba(52, 211, 153, 0.10)' :
+                                    stability.trend === 'fluctuating' ? 'rgba(251, 191, 36, 0.10)' :
+                                    'rgba(248, 113, 113, 0.10)',
+                                borderColor:
+                                    stability.trend === 'stable' ? 'rgba(52, 211, 153, 0.32)' :
+                                    stability.trend === 'fluctuating' ? 'rgba(251, 191, 36, 0.32)' :
+                                    'rgba(248, 113, 113, 0.32)',
                             }
                         ]}>
-                            {stability.trend.toUpperCase()}
-                        </Text>
+                            <View style={[
+                                styles.scoreTrendDot,
+                                {
+                                    backgroundColor: stability.trend === 'stable' ? '#34D399' :
+                                        stability.trend === 'fluctuating' ? '#FBBF24' : '#F87171'
+                                }
+                            ]} />
+                            <Text style={[
+                                styles.scoreTrendText,
+                                {
+                                    color: stability.trend === 'stable' ? '#34D399' :
+                                        stability.trend === 'fluctuating' ? '#FBBF24' : '#F87171'
+                                }
+                            ]}>
+                                {stability.trend.toUpperCase()}
+                            </Text>
+                        </View>
                         <Text style={styles.scoreMeta}>
                             {stability.breathingCount} sessions · {stability.avgSleep}h avg sleep
                         </Text>
@@ -238,13 +283,20 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 },
     title: { fontSize: 18, fontWeight: '600', color: '#F5F5F7' },
     content: { flex: 1, paddingHorizontal: 20 },
-    scoreCard: { flexDirection: 'row', backgroundColor: '#11111C', borderRadius: 16, padding: 20, marginBottom: 16, alignItems: 'center' },
+    scoreCard: { flexDirection: 'row', backgroundColor: '#11111C', borderRadius: 16, padding: 20, marginBottom: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
     scoreRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#34D399', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+    scoreRingWrap: { width: 88, height: 88, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+    scoreRingLabel: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
     scoreValue: { fontSize: 28, fontWeight: '700', color: '#34D399' },
-    scoreInfo: { flex: 1 },
-    scoreLabel: { fontSize: 16, fontWeight: '600', color: '#F5F5F7' },
+    scoreValueNew: { fontSize: 28, fontWeight: '800', color: '#F5F5F7', letterSpacing: -1 },
+    scoreOf: { fontSize: 10, color: '#5E5E6A', fontWeight: '600', marginTop: -2 },
+    scoreInfo: { flex: 1, gap: 6 },
+    scoreLabel: { fontSize: 13, fontWeight: '600', color: '#9494A0', letterSpacing: 0.4, textTransform: 'uppercase' },
     scoreTrend: { fontSize: 13, fontWeight: '700', marginTop: 4 },
-    scoreMeta: { fontSize: 12, color: '#9494A0', marginTop: 4 },
+    scoreTrendPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, alignSelf: 'flex-start' },
+    scoreTrendDot: { width: 6, height: 6, borderRadius: 3 },
+    scoreTrendText: { fontSize: 11, fontWeight: '700', letterSpacing: 1.4 },
+    scoreMeta: { fontSize: 12, color: '#5E5E6A' },
     warningCard: { flexDirection: 'row', backgroundColor: '#F8717120', borderRadius: 12, padding: 14, marginBottom: 20, gap: 12 },
     warningContent: { flex: 1 },
     warningTitle: { fontSize: 14, fontWeight: '600', color: '#F87171' },
