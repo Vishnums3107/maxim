@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, borderRadius, spacing, typography, shadows } from '../theme/tokens';
 import { createPressAnimation } from '../theme/animations';
+import { haptics } from '../utils/haptics';
 
 interface ModuleCardProps {
     title: string;
@@ -48,7 +49,13 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
 
     return (
         <Animated.View style={{ transform: [{ scale }], marginBottom: spacing.md }}>
-            <Pressable onPress={onPress} {...pressHandlers}>
+            <Pressable
+                onPress={() => {
+                    haptics.tap();
+                    onPress();
+                }}
+                {...pressHandlers}
+            >
                 <View
                     style={[
                         styles.card,

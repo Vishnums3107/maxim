@@ -21,6 +21,8 @@ const COGNITIVE_TOOLS = [
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
+import { Eyebrow } from '../../src/components/Eyebrow';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 const MENTAL_MODELS = [
@@ -111,32 +113,17 @@ export default function CognitiveModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Learning Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#A78BFA" />
-              <Text style={styles.loadingText}>Generating cognitive protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateCognitiveProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#A78BFA" />
-                <Text style={[styles.regenerateText, { color: '#A78BFA' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#A78BFA' }]}
-              onPress={generateCognitiveProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Generate Learning Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <Eyebrow style={{ marginBottom: 12 }}>AI Learning Coach</Eyebrow>
+          <ProtocolPanel
+            label="Cognitive Coach"
+            generateLabel="Generate learning protocol"
+            emptyDescription="Generate a learning and focus protocol calibrated to your attention level and goals."
+            protocol={protocol}
+            loading={loading}
+            accent={colors.modules.cognitive}
+            onGenerate={generateCognitiveProtocol}
+            onRegenerate={generateCognitiveProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />

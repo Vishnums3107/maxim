@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, borderRadius, spacing, typography } from '../theme/tokens';
 import { createPressAnimation } from '../theme/animations';
+import { haptics } from '../utils/haptics';
 
 interface ActionItemProps {
     title: string;
@@ -56,7 +57,15 @@ export const ActionItem: React.FC<ActionItemProps> = ({
 
     return (
         <Animated.View style={{ transform: [{ scale }], marginBottom: spacing.sm }}>
-            <Pressable onPress={onToggle} {...pressHandlers}>
+            <Pressable
+                onPress={() => {
+                    // semantic: success on complete, light tap on uncomplete
+                    if (completed) haptics.tap();
+                    else haptics.success();
+                    onToggle();
+                }}
+                {...pressHandlers}
+            >
                 <View
                     style={[
                         styles.row,

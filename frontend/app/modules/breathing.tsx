@@ -1,20 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
     Animated,
     Easing,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
+import Svg, {
+    Circle,
+    Defs,
+    LinearGradient as SvgLinearGradient,
+    RadialGradient,
+    Stop,
+} from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+
 import { useUserStore } from '../../src/store/userStore';
+import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import { createPressAnimation } from '../../src/theme/animations';
+import {
+    borderRadius,
+    colors,
+    moduleGradients,
+    shadows,
+    spacing,
+    typography,
+} from '../../src/theme/tokens';
+import { haptics } from '../../src/utils/haptics';
 
 type BreathingType = 'box' | 'physiological-sigh' | '4-7-8' | 'coherent';
-import { ScreenChrome } from '../../src/components/ScreenChrome';
 
 interface BreathingPattern {
     id: BreathingType;
@@ -71,6 +93,9 @@ const BREATHING_PATTERNS: BreathingPattern[] = [
     },
 ];
 
+const ACCENT = colors.modules.regulation;
+const ACCENT_DEEP = colors.modules.regulationDeep;
+
 export default function BreathingScreen() {
     const router = useRouter();
     const { addBreathingSession } = useUserStore();
@@ -82,7 +107,8 @@ export default function BreathingScreen() {
     const [countdown, setCountdown] = useState(0);
     const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
 
-    const scaleAnim = useRef(new Animated.Value(1)).current;
+    const scaleAnim = useRef(new Animated.Value(0.85)).current;
+    const glowAnim = useRef(new Animated.Value(0.4)).current;
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const startSession = (pattern: BreathingPattern) => {
@@ -92,9 +118,7 @@ export default function BreathingScreen() {
         setCurrentCycle(0);
         setCountdown(pattern.phases[0].duration);
         setSessionStartTime(Date.now());
-
-        // Trigger haptic
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        haptics.press();
     };
 
     const stopSession = async () => {
@@ -114,7 +138,8 @@ export default function BreathingScreen() {
         setCurrentCycle(0);
         setCountdown(0);
         setSessionStartTime(null);
-        scaleAnim.setValue(1);
+        scaleAnim.setValue(0.85);
+        glowAnim.setValue(0.4);
 
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -125,43 +150,47 @@ export default function BreathingScreen() {
         if (!isActive || !selectedPattern) return;
 
         const phase = selectedPattern.phases[currentPhase];
-
-        // Animate circle based on action
         const isInhale = phase.action.toLowerCase().includes('inhale');
         const isExhale = phase.action.toLowerCase().includes('exhale');
 
-        Animated.timing(scaleAnim, {
-            toValue: isInhale ? 1.5 : isExhale ? 0.8 : 1,
-            duration: phase.duration * 1000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-        }).start();
+        // Animate the breath orb (scale + glow)
+        Animated.parallel([
+            Animated.timing(scaleAnim, {
+                toValue: isInhale ? 1.18 : isExhale ? 0.78 : 1,
+                duration: phase.duration * 1000,
+                easing: Easing.inOut(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(glowAnim, {
+                toValue: isInhale ? 1 : isExhale ? 0.3 : 0.65,
+                duration: phase.duration * 1000,
+                easing: Easing.inOut(Easing.cubic),
+                useNativeDriver: false,
+            }),
+        ]).start();
 
         intervalRef.current = setInterval(() => {
             setCountdown((prev) => {
                 if (prev <= 1) {
-                    // Move to next phase
                     const nextPhase = currentPhase + 1;
 
                     if (nextPhase >= selectedPattern.phases.length) {
-                        // Cycle complete
                         const nextCycle = currentCycle + 1;
 
                         if (nextCycle >= selectedPattern.totalCycles) {
-                            // Session complete
-                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            haptics.success();
                             stopSession();
                             return 0;
                         }
 
                         setCurrentCycle(nextCycle);
                         setCurrentPhase(0);
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        haptics.tap();
                         return selectedPattern.phases[0].duration;
                     }
 
                     setCurrentPhase(nextPhase);
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    haptics.tap();
                     return selectedPattern.phases[nextPhase].duration;
                 }
                 return prev - 1;
@@ -175,273 +204,637 @@ export default function BreathingScreen() {
         };
     }, [isActive, currentPhase, selectedPattern]);
 
+    // ────────────────────────────────────────────────────────────────────────
+    // ACTIVE SESSION
+    // ────────────────────────────────────────────────────────────────────────
     if (isActive && selectedPattern) {
         const phase = selectedPattern.phases[currentPhase];
+        const totalCycles = selectedPattern.totalCycles;
 
         return (
-            <SafeAreaView style={styles.container} edges={['top']}>
-                <View style={styles.activeHeader}>
-                    <TouchableOpacity onPress={stopSession}>
-                        <Ionicons name="close" size={28} color="#F5F5F7" />
-                    </TouchableOpacity>
-                    <Text style={styles.patternName}>{selectedPattern.name}</Text>
-                    <View style={{ width: 28 }} />
-                </View>
+            <View style={styles.activeRoot}>
+                <AuroraBackground
+                    tint={ACCENT}
+                    tintSecondary={colors.voltage.soft}
+                    intensity={0.55}
+                />
 
-                <View style={styles.activeContent}>
-                    <Text style={styles.cycleText}>
-                        Cycle {currentCycle + 1} of {selectedPattern.totalCycles}
-                    </Text>
+                <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+                    <View style={styles.activeHeader}>
+                        <Pressable
+                            onPress={() => {
+                                haptics.tap();
+                                stopSession();
+                            }}
+                            hitSlop={10}
+                            style={({ pressed }) => [
+                                styles.closeBtn,
+                                pressed && { opacity: 0.7 },
+                            ]}
+                        >
+                            <Ionicons name="close" size={18} color={colors.text.primary} />
+                        </Pressable>
 
-                    <Animated.View
-                        style={[
-                            styles.breathingCircle,
-                            { transform: [{ scale: scaleAnim }] },
-                        ]}
-                    >
-                        <Text style={styles.countdownText}>{countdown}</Text>
-                    </Animated.View>
+                        <View style={styles.activeHeaderCenter}>
+                            <Eyebrow color={ACCENT}>Session</Eyebrow>
+                            <Text style={styles.patternName} numberOfLines={1}>
+                                {selectedPattern.name}
+                            </Text>
+                        </View>
 
-                    <Text style={styles.actionText}>{phase.action}</Text>
-
-                    <View style={styles.phaseIndicators}>
-                        {selectedPattern.phases.map((_, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.phaseIndicator,
-                                    index === currentPhase && styles.phaseIndicatorActive,
-                                    index < currentPhase && styles.phaseIndicatorComplete,
-                                ]}
-                            />
-                        ))}
+                        <View style={styles.cyclePill}>
+                            <Text style={styles.cyclePillText}>
+                                {currentCycle + 1}
+                                <Text style={styles.cyclePillTextDim}>/{totalCycles}</Text>
+                            </Text>
+                        </View>
                     </View>
-                </View>
 
-                <TouchableOpacity style={styles.stopButton} onPress={stopSession}>
-                    <Text style={styles.stopButtonText}>End Session</Text>
-                </TouchableOpacity>
-            </SafeAreaView>
+                    <View style={styles.activeBody}>
+                        <BreathOrb
+                            scale={scaleAnim}
+                            glow={glowAnim}
+                            countdown={countdown}
+                            accent={ACCENT}
+                            accentDeep={ACCENT_DEEP}
+                        />
+
+                        <View style={styles.actionWrap}>
+                            <Text style={styles.actionText}>{phase.action}</Text>
+                            <Text style={styles.actionCaption}>
+                                {phase.action.toLowerCase().includes('inhale')
+                                    ? 'Through the nose'
+                                    : phase.action.toLowerCase().includes('exhale')
+                                        ? 'Through the mouth'
+                                        : 'Hold steady'}
+                            </Text>
+                        </View>
+
+                        <View style={styles.phaseDots}>
+                            {selectedPattern.phases.map((p, i) => (
+                                <View
+                                    key={i}
+                                    style={[
+                                        styles.phaseDot,
+                                        i === currentPhase && [
+                                            styles.phaseDotActive,
+                                            { backgroundColor: ACCENT },
+                                        ],
+                                        i < currentPhase && styles.phaseDotDone,
+                                    ]}
+                                />
+                            ))}
+                        </View>
+
+                        {/* Cycle progress strip */}
+                        <View style={styles.cycleStrip}>
+                            {Array.from({ length: totalCycles }).map((_, i) => {
+                                const filled = i < currentCycle || (i === currentCycle && currentPhase > 0);
+                                return (
+                                    <View
+                                        key={i}
+                                        style={[
+                                            styles.cycleSeg,
+                                            filled && { backgroundColor: ACCENT },
+                                            i === currentCycle && {
+                                                backgroundColor: ACCENT,
+                                                opacity: 0.6,
+                                            },
+                                        ]}
+                                    />
+                                );
+                            })}
+                        </View>
+                    </View>
+
+                    <View style={styles.activeFooter}>
+                        <VoltageButton
+                            title="End Session"
+                            onPress={() => {
+                                haptics.tap();
+                                stopSession();
+                            }}
+                            variant="ghost"
+                            fullWidth
+                        />
+                    </View>
+                </SafeAreaView>
+            </View>
         );
     }
 
+    // ────────────────────────────────────────────────────────────────────────
+    // PATTERN PICKER
+    // ────────────────────────────────────────────────────────────────────────
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <ScreenChrome title="Breathing Exercises" />
+        <View style={styles.root}>
+            <AuroraBackground tint={ACCENT} intensity={0.4} />
 
-            <View style={styles.heroSection}>
-                <View style={styles.heroIcon}>
-                    <Ionicons name="fitness" size={40} color="#34D399" />
-                </View>
-                <Text style={styles.heroTitle}>Regulate Your Nervous System</Text>
-                <Text style={styles.heroSubtitle}>
-                    Choose a breathing pattern to calm your mind and body
-                </Text>
-            </View>
+            <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+                <ScreenChrome title="Breathing" eyebrow="Regulation" />
 
-            <View style={styles.patternsContainer}>
-                {BREATHING_PATTERNS.map((pattern) => (
-                    <TouchableOpacity
-                        key={pattern.id}
-                        style={styles.patternCard}
-                        onPress={() => startSession(pattern)}
-                    >
-                        <View style={styles.patternHeader}>
-                            <Text style={styles.patternTitle}>{pattern.name}</Text>
-                            <View style={styles.patternDuration}>
-                                <Text style={styles.durationText}>
-                                    ~{Math.round(
-                                        pattern.phases.reduce((acc, p) => acc + p.duration, 0) *
-                                        pattern.totalCycles / 60
-                                    )} min
-                                </Text>
-                            </View>
-                        </View>
-                        <Text style={styles.patternDesc}>{pattern.desc}</Text>
-                        <View style={styles.patternPhases}>
-                            {pattern.phases.map((phase, index) => (
-                                <View key={index} style={styles.phaseChip}>
-                                    <Text style={styles.phaseChipText}>
-                                        {phase.action} ({phase.duration}s)
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        </SafeAreaView>
+                <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.heroWrap}>
+                        <ModuleHero
+                            icon="leaf"
+                            title="Regulate the nervous system"
+                            subtitle="Choose a protocol. Breath is the fastest lever you have."
+                            gradient={moduleGradients.regulation}
+                            accent={ACCENT}
+                        />
+                    </View>
+
+                    <View style={styles.section}>
+                        <Eyebrow style={{ marginBottom: spacing.md }}>Protocols</Eyebrow>
+
+                        {BREATHING_PATTERNS.map((pattern, idx) => (
+                            <PatternCard
+                                key={pattern.id}
+                                pattern={pattern}
+                                onPress={() => startSession(pattern)}
+                                delay={idx * 60}
+                            />
+                        ))}
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        </View>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#06060B',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+// ────────────────────────────────────────────────────────────────────────────
+// BREATH ORB — concentric SVG circles with gradient + animated halo
+// ────────────────────────────────────────────────────────────────────────────
+function BreathOrb({
+    scale,
+    glow,
+    countdown,
+    accent,
+    accentDeep,
+}: {
+    scale: Animated.Value;
+    glow: Animated.Value;
+    countdown: number;
+    accent: string;
+    accentDeep: string;
+}) {
+    const fillId = useId();
+    const ringId = useId();
+
+    return (
+        <View style={orb.wrap}>
+            {/* Outer expanding halo (glow) */}
+            <Animated.View
+                pointerEvents="none"
+                style={[
+                    orb.haloOuter,
+                    {
+                        opacity: glow.interpolate({
+                            inputRange: [0.3, 1],
+                            outputRange: [0.18, 0.55],
+                        }),
+                        transform: [
+                            {
+                                scale: scale.interpolate({
+                                    inputRange: [0.78, 1.18],
+                                    outputRange: [0.96, 1.18],
+                                }),
+                            },
+                        ],
+                        backgroundColor: accent,
+                    },
+                ]}
+            />
+
+            {/* Inner halo */}
+            <Animated.View
+                pointerEvents="none"
+                style={[
+                    orb.haloInner,
+                    {
+                        opacity: glow.interpolate({
+                            inputRange: [0.3, 1],
+                            outputRange: [0.25, 0.7],
+                        }),
+                        transform: [{ scale }],
+                        backgroundColor: accent,
+                    },
+                ]}
+            />
+
+            {/* Core orb (animated scale) */}
+            <Animated.View style={[orb.core, { transform: [{ scale }] }]}>
+                <Svg width={220} height={220}>
+                    <Defs>
+                        <RadialGradient
+                            id={fillId}
+                            cx="50%"
+                            cy="42%"
+                            rx="65%"
+                            ry="65%"
+                        >
+                            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
+                            <Stop offset="40%" stopColor={accent} stopOpacity="0.8" />
+                            <Stop offset="100%" stopColor={accentDeep} stopOpacity="1" />
+                        </RadialGradient>
+                        <SvgLinearGradient id={ringId} x1="0" y1="0" x2="1" y2="1">
+                            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
+                            <Stop offset="100%" stopColor={accent} stopOpacity="0.15" />
+                        </SvgLinearGradient>
+                    </Defs>
+                    <Circle cx={110} cy={110} r={104} fill={`url(#${fillId})`} />
+                    <Circle
+                        cx={110}
+                        cy={110}
+                        r={104}
+                        stroke={`url(#${ringId})`}
+                        strokeWidth={1.5}
+                        fill="none"
+                    />
+                </Svg>
+
+                <View style={orb.label}>
+                    <Text style={orb.countdownNum}>{countdown}</Text>
+                </View>
+            </Animated.View>
+        </View>
+    );
+}
+
+const orb = StyleSheet.create({
+    wrap: {
+        width: 280,
+        height: 280,
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
+        justifyContent: 'center',
+    },
+    haloOuter: {
+        position: 'absolute',
+        width: 280,
+        height: 280,
+        borderRadius: 140,
+    },
+    haloInner: {
+        position: 'absolute',
+        width: 240,
+        height: 240,
+        borderRadius: 120,
+    },
+    core: {
+        width: 220,
+        height: 220,
+        borderRadius: 110,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    label: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    countdownNum: {
+        fontSize: 76,
+        fontWeight: '300',
+        color: '#FFFFFF',
+        letterSpacing: -3,
+        fontVariant: ['tabular-nums'] as any,
+    },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// PATTERN CARD — pickable card with gradient duration pill and phase chips
+// ────────────────────────────────────────────────────────────────────────────
+function PatternCard({
+    pattern,
+    onPress,
+    delay = 0,
+}: {
+    pattern: BreathingPattern;
+    onPress: () => void;
+    delay?: number;
+}) {
+    const scale = useRef(new Animated.Value(1)).current;
+    const fade = useRef(new Animated.Value(0)).current;
+    const slide = useRef(new Animated.Value(10)).current;
+    const press = createPressAnimation(scale);
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fade, {
+                toValue: 1,
+                duration: 380,
+                delay,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slide, {
+                toValue: 0,
+                duration: 380,
+                delay,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, []);
+
+    const totalSeconds = pattern.phases.reduce((acc, p) => acc + p.duration, 0) * pattern.totalCycles;
+    const minutes = Math.max(1, Math.round(totalSeconds / 60));
+
+    return (
+        <Animated.View
+            style={[
+                pc.wrap,
+                {
+                    opacity: fade,
+                    transform: [{ translateY: slide }, { scale }],
+                },
+            ]}
+        >
+            <Pressable onPress={onPress} {...press} style={pc.card}>
+                <View style={pc.head}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={pc.title}>{pattern.name}</Text>
+                        <Text style={pc.desc}>{pattern.desc}</Text>
+                    </View>
+
+                    <View style={pc.duration}>
+                        <Ionicons name="time-outline" size={11} color={ACCENT} />
+                        <Text style={pc.durationText}>~{minutes} min</Text>
+                    </View>
+                </View>
+
+                <View style={pc.chips}>
+                    {pattern.phases.map((phase, i) => (
+                        <View key={i} style={pc.chip}>
+                            <Text style={pc.chipAction}>{phase.action}</Text>
+                            <Text style={pc.chipDur}>{phase.duration}s</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={pc.foot}>
+                    <Text style={pc.cycles}>
+                        {pattern.totalCycles} cycle{pattern.totalCycles === 1 ? '' : 's'}
+                    </Text>
+                    <View style={[pc.cta, { backgroundColor: ACCENT }]}>
+                        <Ionicons name="play" size={11} color={colors.bg.void} />
+                        <Text style={pc.ctaText}>Start</Text>
+                    </View>
+                </View>
+
+                <View pointerEvents="none" style={pc.hair} />
+            </Pressable>
+        </Animated.View>
+    );
+}
+
+const pc = StyleSheet.create({
+    wrap: {
+        marginBottom: spacing.sm,
+    },
+    card: {
+        backgroundColor: colors.bg.raised,
+        borderRadius: borderRadius.xl,
+        paddingVertical: spacing.base,
+        paddingHorizontal: spacing.base,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        overflow: 'hidden',
+    },
+    head: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: spacing.sm,
     },
     title: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
+        fontSize: typography.size.lg,
+        fontWeight: typography.weight.bold,
+        color: colors.text.primary,
+        letterSpacing: -0.4,
     },
-    heroSection: {
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 24,
+    desc: {
+        fontSize: 12,
+        color: colors.text.tertiary,
+        marginTop: 3,
+        lineHeight: 17,
     },
-    heroIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#34D39920',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-    },
-    heroTitle: {
-        fontSize: 22,
-        fontWeight: '700',
-        color: '#F5F5F7',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    heroSubtitle: {
-        fontSize: 14,
-        color: '#9494A0',
-        textAlign: 'center',
-    },
-    patternsContainer: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    patternCard: {
-        backgroundColor: '#11111C',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: '#1F1F2C',
-    },
-    patternHeader: {
+    duration: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
-    },
-    patternTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
-    },
-    patternDuration: {
-        backgroundColor: '#34D39920',
-        paddingHorizontal: 10,
+        gap: 4,
         paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 8,
+        borderRadius: borderRadius.full,
+        backgroundColor: 'rgba(52, 211, 153, 0.10)',
+        borderWidth: 1,
+        borderColor: 'rgba(52, 211, 153, 0.28)',
     },
     durationText: {
-        fontSize: 12,
-        color: '#34D399',
-        fontWeight: '500',
+        fontSize: 11,
+        color: ACCENT,
+        fontWeight: '700',
+        letterSpacing: 0.3,
     },
-    patternDesc: {
-        fontSize: 14,
-        color: '#9494A0',
-        marginBottom: 12,
-    },
-    patternPhases: {
+    chips: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 6,
+        gap: 4,
+        marginTop: spacing.md,
     },
-    phaseChip: {
-        backgroundColor: '#1F1F2C',
-        paddingHorizontal: 10,
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        backgroundColor: colors.surface.glass,
+        borderRadius: borderRadius.sm,
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        gap: 5,
+    },
+    chipAction: {
+        fontSize: 11,
+        color: colors.text.secondary,
+        fontWeight: '600',
+    },
+    chipDur: {
+        fontSize: 10,
+        color: colors.text.muted,
+        fontWeight: '700',
+        fontVariant: ['tabular-nums'] as any,
+    },
+    foot: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: spacing.md,
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.border.hairline,
+    },
+    cycles: {
+        fontSize: 10,
+        color: colors.text.muted,
+        fontWeight: '700',
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+    },
+    cta: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
         paddingVertical: 6,
-        borderRadius: 8,
+        paddingHorizontal: 12,
+        borderRadius: borderRadius.full,
     },
-    phaseChipText: {
-        fontSize: 12,
-        color: '#C4C4CC',
+    ctaText: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: colors.bg.void,
+        letterSpacing: 0.6,
     },
-    // Active session styles
+    hair: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+    },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// PAGE STYLES
+// ────────────────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: colors.bg.void,
+    },
+    heroWrap: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+    section: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+
+    // Active state
+    activeRoot: {
+        flex: 1,
+        backgroundColor: colors.bg.void,
+    },
     activeHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
+        justifyContent: 'space-between',
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.sm,
+        paddingBottom: spacing.base,
+        gap: spacing.md,
+    },
+    closeBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    activeHeaderCenter: {
+        flex: 1,
+        alignItems: 'center',
     },
     patternName: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
+        fontSize: typography.size.lg,
+        fontWeight: typography.weight.semibold,
+        color: colors.text.primary,
+        letterSpacing: -0.3,
+        marginTop: 2,
     },
-    activeContent: {
+    cyclePill: {
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+    },
+    cyclePillText: {
+        color: colors.text.primary,
+        fontSize: 13,
+        fontWeight: '700',
+        fontVariant: ['tabular-nums'] as any,
+    },
+    cyclePillTextDim: {
+        color: colors.text.muted,
+        fontWeight: '600',
+    },
+    activeBody: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingHorizontal: spacing.lg,
     },
-    cycleText: {
-        fontSize: 14,
-        color: '#9494A0',
-        marginBottom: 40,
-    },
-    breathingCircle: {
-        width: 180,
-        height: 180,
-        borderRadius: 90,
-        backgroundColor: '#34D399',
+    actionWrap: {
+        marginTop: spacing.xl,
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 40,
-    },
-    countdownText: {
-        fontSize: 56,
-        fontWeight: '700',
-        color: '#FFF',
     },
     actionText: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: '#F5F5F7',
-        marginBottom: 40,
+        fontSize: 32,
+        fontWeight: '800',
+        color: colors.text.primary,
+        letterSpacing: -1,
     },
-    phaseIndicators: {
+    actionCaption: {
+        fontSize: 12,
+        color: colors.text.tertiary,
+        marginTop: 6,
+        fontWeight: '500',
+        letterSpacing: 0.6,
+    },
+    phaseDots: {
         flexDirection: 'row',
         gap: 8,
+        marginTop: spacing.xl,
     },
-    phaseIndicator: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: '#1F1F2C',
+    phaseDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255,255,255,0.10)',
     },
-    phaseIndicatorActive: {
-        backgroundColor: '#34D399',
-        transform: [{ scale: 1.2 }],
+    phaseDotActive: {
+        width: 24,
+        ...shadows.glow(ACCENT),
     },
-    phaseIndicatorComplete: {
-        backgroundColor: '#34D39980',
+    phaseDotDone: {
+        backgroundColor: 'rgba(52, 211, 153, 0.45)',
     },
-    stopButton: {
-        marginHorizontal: 20,
-        marginBottom: 40,
-        backgroundColor: '#1F1F2C',
-        borderRadius: 12,
-        padding: 18,
-        alignItems: 'center',
+    cycleStrip: {
+        flexDirection: 'row',
+        gap: 4,
+        marginTop: spacing.lg,
+        width: '70%',
+        maxWidth: 280,
     },
-    stopButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#F5F5F7',
+    cycleSeg: {
+        flex: 1,
+        height: 3,
+        borderRadius: 2,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+    },
+    activeFooter: {
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.lg,
     },
 });

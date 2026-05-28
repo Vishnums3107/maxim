@@ -1,43 +1,68 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    TextInput,
     Animated,
     Easing,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
+import Svg, {
+    Circle,
+    Defs,
+    LinearGradient as SvgLinearGradient,
+    Stop,
+} from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import { useUserStore } from '../../src/store/userStore';
 
-const DURATION_PRESETS = [15, 25, 45, 60, 90];
+import { useUserStore } from '../../src/store/userStore';
 import { ScreenChrome } from '../../src/components/ScreenChrome';
+import { ModuleHero } from '../../src/components/ModuleHero';
+import { AuroraBackground } from '../../src/components/AuroraBackground';
+import { Eyebrow } from '../../src/components/Eyebrow';
+import { GlassCard } from '../../src/components/GlassCard';
+import { VoltageButton } from '../../src/components/VoltageButton';
+import {
+    borderRadius,
+    colors,
+    moduleGradients,
+    shadows,
+    spacing,
+    typography,
+} from '../../src/theme/tokens';
+import { haptics } from '../../src/utils/haptics';
+
+const ACCENT = colors.modules.cognitive;
+const ACCENT_DEEP = colors.modules.cognitiveDeep;
+const DURATION_PRESETS = [15, 25, 45, 60, 90];
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
 export default function FocusScreen() {
     const router = useRouter();
-    const { profile, addFocusBlock, updateFocusBlock } = useUserStore();
+    const { addFocusBlock, updateFocusBlock } = useUserStore();
 
     const [duration, setDuration] = useState(25);
-    const [customDuration, setCustomDuration] = useState('');
+    const [taskTitle, setTaskTitle] = useState('');
     const [isActive, setIsActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [distractions, setDistractions] = useState(0);
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const [taskTitle, setTaskTitle] = useState('');
 
-    const progressAnim = useRef(new Animated.Value(0)).current;
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
 
     const startSession = async () => {
         const totalSeconds = duration * 60;
@@ -52,22 +77,17 @@ export default function FocusScreen() {
         await addFocusBlock({
             id,
             title: taskTitle || 'Focus Session',
-            duration: duration,
+            duration,
             startedAt: new Date().toISOString(),
             distractions: 0,
         });
 
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        haptics.press();
     };
 
-    const pauseSession = () => {
-        setIsPaused(true);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    };
-
-    const resumeSession = () => {
-        setIsPaused(false);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const togglePause = () => {
+        setIsPaused((p) => !p);
+        haptics.tap();
     };
 
     const endSession = async (completed: boolean = false) => {
@@ -82,31 +102,22 @@ export default function FocusScreen() {
         setIsPaused(false);
         setTimeRemaining(0);
         setSessionId(null);
-        progressAnim.setValue(0);
 
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
-
-        if (completed) {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (completed) haptics.success();
+        else haptics.tap();
     };
 
     const recordDistraction = () => {
-        setDistractions((prev) => prev + 1);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        setDistractions((p) => p + 1);
+        haptics.warn();
     };
 
     useEffect(() => {
         if (!isActive || isPaused) {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
+            if (intervalRef.current) clearInterval(intervalRef.current);
             return;
         }
-
-        const totalSeconds = duration * 60;
 
         intervalRef.current = setInterval(() => {
             setTimeRemaining((prev) => {
@@ -114,419 +125,715 @@ export default function FocusScreen() {
                     endSession(true);
                     return 0;
                 }
-
-                // Update progress animation
-                const progress = 1 - (prev - 1) / totalSeconds;
-                Animated.timing(progressAnim, {
-                    toValue: progress,
-                    duration: 1000,
-                    easing: Easing.linear,
-                    useNativeDriver: false,
-                }).start();
-
                 return prev - 1;
             });
         }, 1000);
 
         return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
+            if (intervalRef.current) clearInterval(intervalRef.current);
         };
     }, [isActive, isPaused]);
 
+    // ────────────────────────────────────────────────────────────────────────
+    // ACTIVE SESSION
+    // ────────────────────────────────────────────────────────────────────────
     if (isActive) {
         const totalSeconds = duration * 60;
-        const progress = 1 - timeRemaining / totalSeconds;
+        const progress = totalSeconds > 0 ? 1 - timeRemaining / totalSeconds : 0;
 
         return (
-            <SafeAreaView style={styles.container} edges={['top']}>
-                <View style={styles.activeHeader}>
-                    <TouchableOpacity onPress={() => endSession(false)}>
-                        <Ionicons name="close" size={28} color="#F5F5F7" />
-                    </TouchableOpacity>
-                    <Text style={styles.activeTitle}>{taskTitle || 'Focus Session'}</Text>
-                    <View style={{ width: 28 }} />
-                </View>
+            <View style={styles.activeRoot}>
+                <AuroraBackground
+                    tint={ACCENT}
+                    tintSecondary={colors.voltage.soft}
+                    intensity={0.5}
+                />
 
-                <View style={styles.activeContent}>
-                    <View style={styles.timerContainer}>
-                        <View style={styles.timerRing}>
-                            <Animated.View
-                                style={[
-                                    styles.timerProgress,
-                                    {
-                                        transform: [
-                                            {
-                                                rotate: progressAnim.interpolate({
-                                                    inputRange: [0, 1],
-                                                    outputRange: ['0deg', '360deg'],
-                                                }),
-                                            },
-                                        ],
-                                    },
-                                ]}
+                <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+                    <View style={styles.activeHeader}>
+                        <Pressable
+                            onPress={() => endSession(false)}
+                            hitSlop={10}
+                            style={({ pressed }) => [
+                                styles.closeBtn,
+                                pressed && { opacity: 0.7 },
+                            ]}
+                        >
+                            <Ionicons name="close" size={18} color={colors.text.primary} />
+                        </Pressable>
+
+                        <View style={styles.activeHeaderCenter}>
+                            <Eyebrow color={ACCENT}>
+                                {isPaused ? 'Paused' : 'Focusing'}
+                            </Eyebrow>
+                            <Text style={styles.activeTitle} numberOfLines={1}>
+                                {taskTitle || 'Focus Session'}
+                            </Text>
+                        </View>
+
+                        <View
+                            style={[
+                                styles.distractionPill,
+                                distractions === 0 && { opacity: 0.55 },
+                            ]}
+                        >
+                            <Ionicons
+                                name="alert-circle"
+                                size={11}
+                                color={colors.modules.physical}
                             />
-                            <View style={styles.timerInner}>
-                                <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
-                                <Text style={styles.timerLabel}>
-                                    {isPaused ? 'Paused' : 'Remaining'}
-                                </Text>
-                            </View>
+                            <Text style={styles.distractionPillText}>
+                                {distractions}
+                            </Text>
                         </View>
                     </View>
 
-                    <View style={styles.controlsRow}>
-                        {isPaused ? (
-                            <TouchableOpacity style={styles.controlButton} onPress={resumeSession}>
-                                <Ionicons name="play" size={32} color="#A78BFA" />
-                                <Text style={styles.controlLabel}>Resume</Text>
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity style={styles.controlButton} onPress={pauseSession}>
-                                <Ionicons name="pause" size={32} color="#FBBF24" />
-                                <Text style={styles.controlLabel}>Pause</Text>
-                            </TouchableOpacity>
-                        )}
+                    <View style={styles.activeBody}>
+                        <FocusTimerRing
+                            progress={progress}
+                            timeText={formatTime(timeRemaining)}
+                            paused={isPaused}
+                            accent={ACCENT}
+                            accentDeep={ACCENT_DEEP}
+                        />
 
-                        <TouchableOpacity style={styles.controlButton} onPress={recordDistraction}>
-                            <View style={styles.distractionBadge}>
-                                <Ionicons name="alert-circle" size={32} color="#F87171" />
-                                {distractions > 0 && (
-                                    <View style={styles.distractionCount}>
-                                        <Text style={styles.distractionCountText}>{distractions}</Text>
-                                    </View>
-                                )}
-                            </View>
-                            <Text style={styles.controlLabel}>Distraction</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.tipsCard}>
-                        <Text style={styles.tipsTitle}>Stay Focused</Text>
-                        <Text style={styles.tipsText}>
-                            • Close unnecessary tabs{'\n'}
-                            • Phone on silent, face down{'\n'}
-                            • One task at a time
+                        <Text style={styles.subCaption}>
+                            {isPaused ? 'Tap resume when ready' : `Single-task • ${duration} min block`}
                         </Text>
-                    </View>
-                </View>
 
-                <TouchableOpacity
-                    style={styles.endButton}
-                    onPress={() => endSession(false)}
-                >
-                    <Text style={styles.endButtonText}>End Session Early</Text>
-                </TouchableOpacity>
-            </SafeAreaView>
+                        <View style={styles.controlsRow}>
+                            <ControlButton
+                                icon={isPaused ? 'play' : 'pause'}
+                                label={isPaused ? 'Resume' : 'Pause'}
+                                tint={isPaused ? colors.modules.regulation : colors.modules.social}
+                                onPress={togglePause}
+                            />
+                            <ControlButton
+                                icon="alert-circle"
+                                label="Distraction"
+                                tint={colors.modules.physical}
+                                onPress={recordDistraction}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.activeFooter}>
+                        <VoltageButton
+                            title="End session early"
+                            onPress={() => endSession(false)}
+                            variant="ghost"
+                            fullWidth
+                        />
+                    </View>
+                </SafeAreaView>
+            </View>
         );
     }
 
+    // ────────────────────────────────────────────────────────────────────────
+    // SETUP / PICKER
+    // ────────────────────────────────────────────────────────────────────────
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <ScreenChrome title="Focus Block" />
+        <View style={styles.root}>
+            <AuroraBackground tint={ACCENT} intensity={0.4} />
 
-            <View style={styles.content}>
-                <View style={styles.heroSection}>
-                    <View style={styles.heroIcon}>
-                        <Ionicons name="timer" size={40} color="#A78BFA" />
-                    </View>
-                    <Text style={styles.heroTitle}>Deep Work Session</Text>
-                    <Text style={styles.heroSubtitle}>
-                        Eliminate distractions. Single-task.{'\n'}Build focus capacity.
-                    </Text>
-                </View>
+            <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={{ flex: 1 }}
+                >
+                    <ScreenChrome title="Focus Block" eyebrow="Cognitive" />
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>What are you working on?</Text>
-                    <TextInput
-                        style={styles.taskInput}
-                        value={taskTitle}
-                        onChangeText={setTaskTitle}
-                        placeholder="e.g., Writing report, Learning React..."
-                        placeholderTextColor="#5E5E6A"
-                    />
-                </View>
+                    <ScrollView
+                        style={{ flex: 1 }}
+                        contentContainerStyle={{ paddingBottom: spacing['2xl'] }}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        <View style={styles.heroWrap}>
+                            <ModuleHero
+                                icon="aperture"
+                                title="Deep work, undivided"
+                                subtitle="Eliminate distractions. Single-task. Build attention capacity over weeks."
+                                gradient={moduleGradients.cognitive}
+                                accent={ACCENT}
+                            />
+                        </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>Duration (minutes)</Text>
-                    <View style={styles.durationRow}>
-                        {DURATION_PRESETS.map((preset) => (
-                            <TouchableOpacity
-                                key={preset}
-                                style={[
-                                    styles.durationButton,
-                                    duration === preset && styles.durationButtonActive,
-                                ]}
-                                onPress={() => setDuration(preset)}
-                            >
-                                <Text
-                                    style={[
-                                        styles.durationText,
-                                        duration === preset && styles.durationTextActive,
-                                    ]}
-                                >
-                                    {preset}
+                        <View style={styles.section}>
+                            <Eyebrow style={{ marginBottom: spacing.md }}>
+                                What are you working on?
+                            </Eyebrow>
+                            <View style={styles.inputWrap}>
+                                <Ionicons
+                                    name="document-text-outline"
+                                    size={16}
+                                    color={colors.text.muted}
+                                    style={{ marginRight: 10 }}
+                                />
+                                <TextInput
+                                    style={styles.taskInput}
+                                    value={taskTitle}
+                                    onChangeText={setTaskTitle}
+                                    placeholder="e.g. Design review, study session…"
+                                    placeholderTextColor={colors.text.muted}
+                                    returnKeyType="done"
+                                />
+                                {taskTitle ? (
+                                    <Pressable
+                                        onPress={() => {
+                                            haptics.tap();
+                                            setTaskTitle('');
+                                        }}
+                                        hitSlop={6}
+                                    >
+                                        <Ionicons
+                                            name="close-circle"
+                                            size={16}
+                                            color={colors.text.muted}
+                                        />
+                                    </Pressable>
+                                ) : null}
+                            </View>
+                        </View>
+
+                        <View style={styles.section}>
+                            <View style={styles.sectionHead}>
+                                <Eyebrow>Duration</Eyebrow>
+                                <Text style={styles.minutesPreview}>
+                                    {duration}
+                                    <Text style={styles.minutesPreviewUnit}> min</Text>
                                 </Text>
-                            </TouchableOpacity>
-                        ))}
+                            </View>
+                            <View style={styles.durationRow}>
+                                {DURATION_PRESETS.map((preset) => {
+                                    const active = duration === preset;
+                                    return (
+                                        <Pressable
+                                            key={preset}
+                                            onPress={() => {
+                                                haptics.select();
+                                                setDuration(preset);
+                                            }}
+                                            style={({ pressed }) => [
+                                                styles.durationPill,
+                                                active && styles.durationPillActive,
+                                                pressed && { opacity: 0.85 },
+                                            ]}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.durationNum,
+                                                    active && styles.durationNumActive,
+                                                ]}
+                                            >
+                                                {preset}
+                                            </Text>
+                                            <Text
+                                                style={[
+                                                    styles.durationUnit,
+                                                    active && styles.durationUnitActive,
+                                                ]}
+                                            >
+                                                min
+                                            </Text>
+                                        </Pressable>
+                                    );
+                                })}
+                            </View>
+                        </View>
+
+                        <View style={styles.section}>
+                            <GlassCard immediate padding={spacing.base + 2}>
+                                <View style={styles.tipsHead}>
+                                    <Ionicons
+                                        name="bulb"
+                                        size={14}
+                                        color={ACCENT}
+                                    />
+                                    <Text style={[styles.tipsHeadText, { color: ACCENT }]}>
+                                        While you work
+                                    </Text>
+                                </View>
+                                <Tip text="Phone face-down or in another room" />
+                                <Tip text="Tap the distraction button when you notice an urge" />
+                                <Tip text="Single tab. Single tool. Single task." />
+                            </GlassCard>
+                        </View>
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        <VoltageButton
+                            title={`Start ${duration}-minute block`}
+                            onPress={startSession}
+                            icon="play"
+                            iconPosition="left"
+                            variant="accent"
+                            accent={[ACCENT, ACCENT_DEEP] as const}
+                            fullWidth
+                            size="lg"
+                        />
                     </View>
-                </View>
-
-                <View style={styles.infoCard}>
-                    <Ionicons name="information-circle" size={20} color="#A78BFA" />
-                    <Text style={styles.infoText}>
-                        Track distractions during your session to understand your focus patterns.
-                    </Text>
-                </View>
-            </View>
-
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.startButton} onPress={startSession}>
-                    <Ionicons name="play" size={24} color="#FFF" />
-                    <Text style={styles.startButtonText}>Start {duration} Min Session</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </View>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#06060B',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
-    },
-    content: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    heroSection: {
-        alignItems: 'center',
-        paddingVertical: 24,
-    },
-    heroIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#A78BFA20',
+// ────────────────────────────────────────────────────────────────────────────
+// FOCUS TIMER RING — proper SVG circle progress
+// ────────────────────────────────────────────────────────────────────────────
+function FocusTimerRing({
+    progress,
+    timeText,
+    paused,
+    accent,
+    accentDeep,
+}: {
+    progress: number; // 0–1
+    timeText: string;
+    paused: boolean;
+    accent: string;
+    accentDeep: string;
+}) {
+    const size = 280;
+    const strokeWidth = 10;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const animated = useRef(new Animated.Value(0)).current;
+    const breathScale = useRef(new Animated.Value(1)).current;
+    const gradId = useId();
+
+    useEffect(() => {
+        Animated.timing(animated, {
+            toValue: Math.max(0, Math.min(1, progress)),
+            duration: 700,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: false,
+        }).start();
+    }, [progress]);
+
+    // Subtle breathing on the inner copy when not paused
+    useEffect(() => {
+        if (paused) {
+            breathScale.setValue(1);
+            return;
+        }
+        const loop = Animated.loop(
+            Animated.sequence([
+                Animated.timing(breathScale, {
+                    toValue: 1.015,
+                    duration: 2400,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(breathScale, {
+                    toValue: 1,
+                    duration: 2400,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+        loop.start();
+        return () => loop.stop();
+    }, [paused]);
+
+    const strokeDashoffset = animated.interpolate({
+        inputRange: [0, 1],
+        outputRange: [circumference, 0],
+    });
+
+    return (
+        <View style={tr.wrap}>
+            {/* outer halo */}
+            <View
+                pointerEvents="none"
+                style={[
+                    tr.halo,
+                    {
+                        backgroundColor: accent,
+                        opacity: paused ? 0.15 : 0.32,
+                    },
+                ]}
+            />
+
+            <Svg width={size} height={size}>
+                <Defs>
+                    <SvgLinearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+                        <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
+                        <Stop offset="55%" stopColor={accent} stopOpacity="1" />
+                        <Stop offset="100%" stopColor={accentDeep} stopOpacity="0.85" />
+                    </SvgLinearGradient>
+                </Defs>
+
+                {/* track */}
+                <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth={strokeWidth}
+                    fill="transparent"
+                />
+                {/* progress */}
+                <AnimatedCircle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke={`url(#${gradId})`}
+                    strokeWidth={strokeWidth}
+                    fill="transparent"
+                    strokeDasharray={`${circumference} ${circumference}`}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    rotation="-90"
+                    origin={`${size / 2}, ${size / 2}`}
+                />
+            </Svg>
+
+            <Animated.View
+                pointerEvents="none"
+                style={[tr.label, { transform: [{ scale: breathScale }] }]}
+            >
+                <Text style={tr.timer}>{timeText}</Text>
+                <Text style={tr.timerCaption}>
+                    {paused ? 'Paused' : 'remaining'}
+                </Text>
+            </Animated.View>
+        </View>
+    );
+}
+
+const tr = StyleSheet.create({
+    wrap: {
+        width: 280,
+        height: 280,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
     },
-    heroTitle: {
-        fontSize: 22,
+    halo: {
+        position: 'absolute',
+        width: 320,
+        height: 320,
+        borderRadius: 160,
+    },
+    label: {
+        position: 'absolute',
+        alignItems: 'center',
+    },
+    timer: {
+        fontSize: 64,
+        fontWeight: '300',
+        color: colors.text.primary,
+        letterSpacing: -2,
+        fontVariant: ['tabular-nums'] as any,
+    },
+    timerCaption: {
+        marginTop: 4,
+        fontSize: 11,
         fontWeight: '700',
-        color: '#F5F5F7',
-        marginBottom: 8,
+        color: colors.text.tertiary,
+        letterSpacing: 2,
+        textTransform: 'uppercase',
     },
-    heroSubtitle: {
-        fontSize: 14,
-        color: '#9494A0',
-        textAlign: 'center',
-        lineHeight: 20,
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// CONTROL BUTTON — large pill with icon + label, tinted
+// ────────────────────────────────────────────────────────────────────────────
+function ControlButton({
+    icon,
+    label,
+    tint,
+    onPress,
+}: {
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    tint: string;
+    onPress: () => void;
+}) {
+    const scale = useRef(new Animated.Value(1)).current;
+    return (
+        <Animated.View style={{ transform: [{ scale }] }}>
+            <Pressable
+                onPress={onPress}
+                onPressIn={() =>
+                    Animated.spring(scale, {
+                        toValue: 0.94,
+                        useNativeDriver: true,
+                        friction: 7,
+                    }).start()
+                }
+                onPressOut={() =>
+                    Animated.spring(scale, {
+                        toValue: 1,
+                        useNativeDriver: true,
+                        friction: 5,
+                    }).start()
+                }
+                style={cb.btn}
+            >
+                <View
+                    style={[
+                        cb.iconCell,
+                        {
+                            backgroundColor: 'rgba(255,255,255,0.04)',
+                            borderColor: `${tint}55`,
+                        },
+                    ]}
+                >
+                    <Ionicons name={icon} size={22} color={tint} />
+                </View>
+                <Text style={cb.label}>{label}</Text>
+            </Pressable>
+        </Animated.View>
+    );
+}
+
+const cb = StyleSheet.create({
+    btn: {
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 18,
     },
-    section: {
-        marginBottom: 24,
-    },
-    sectionLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#F5F5F7',
-        marginBottom: 12,
-    },
-    taskInput: {
-        backgroundColor: '#11111C',
-        borderRadius: 12,
-        padding: 16,
-        fontSize: 16,
-        color: '#F5F5F7',
+    iconCell: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
         borderWidth: 1,
-        borderColor: '#1F1F2C',
     },
-    durationRow: {
+    label: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: colors.text.secondary,
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+    },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// PAGE STYLES
+// ────────────────────────────────────────────────────────────────────────────
+function Tip({ text }: { text: string }) {
+    return (
+        <View style={tipStyles.row}>
+            <View style={[tipStyles.dot, { backgroundColor: ACCENT }]} />
+            <Text style={tipStyles.text}>{text}</Text>
+        </View>
+    );
+}
+
+const tipStyles = StyleSheet.create({
+    row: {
         flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 4,
         gap: 8,
     },
-    durationButton: {
+    dot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+    },
+    text: {
         flex: 1,
-        backgroundColor: '#11111C',
-        borderRadius: 10,
-        padding: 14,
+        fontSize: 13,
+        color: colors.text.secondary,
+        lineHeight: 19,
+    },
+});
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: colors.bg.void,
+    },
+    heroWrap: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+    section: {
+        paddingHorizontal: spacing.lg,
+        marginBottom: spacing.xl,
+    },
+    sectionHead: {
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: spacing.md,
+    },
+    minutesPreview: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: colors.text.primary,
+        letterSpacing: -0.6,
+        fontVariant: ['tabular-nums'] as any,
+    },
+    minutesPreviewUnit: {
+        fontSize: 11,
+        color: colors.text.muted,
+        fontWeight: '700',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+    },
+
+    inputWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.bg.raised,
+        borderRadius: borderRadius.md,
+        paddingHorizontal: spacing.base,
+        paddingVertical: 4,
         borderWidth: 1,
-        borderColor: '#1F1F2C',
+        borderColor: colors.border.hairline,
     },
-    durationButtonActive: {
-        backgroundColor: '#A78BFA',
-        borderColor: '#A78BFA',
-    },
-    durationText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#9494A0',
-    },
-    durationTextActive: {
-        color: '#FFF',
-    },
-    infoCard: {
-        flexDirection: 'row',
-        backgroundColor: '#11111C',
-        borderRadius: 12,
-        padding: 16,
-        gap: 12,
-        alignItems: 'flex-start',
-    },
-    infoText: {
+    taskInput: {
         flex: 1,
-        fontSize: 14,
-        color: '#9494A0',
-        lineHeight: 20,
+        paddingVertical: 14,
+        fontSize: typography.size.md,
+        color: colors.text.primary,
     },
-    footer: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-    },
-    startButton: {
+
+    durationRow: {
         flexDirection: 'row',
-        backgroundColor: '#A78BFA',
-        borderRadius: 12,
-        padding: 18,
+        gap: 6,
+    },
+    durationPill: {
+        flex: 1,
+        paddingVertical: spacing.md,
+        borderRadius: borderRadius.md,
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 10,
+        backgroundColor: colors.bg.raised,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
     },
-    startButtonText: {
+    durationPillActive: {
+        backgroundColor: 'rgba(167, 139, 250, 0.16)',
+        borderColor: 'rgba(167, 139, 250, 0.55)',
+        ...shadows.glow(ACCENT),
+    },
+    durationNum: {
         fontSize: 18,
-        fontWeight: '600',
-        color: '#FFF',
+        fontWeight: '800',
+        color: colors.text.primary,
+        letterSpacing: -0.6,
+        fontVariant: ['tabular-nums'] as any,
     },
-    // Active session styles
+    durationNumActive: {
+        color: ACCENT,
+    },
+    durationUnit: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: colors.text.muted,
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+        marginTop: 2,
+    },
+    durationUnitActive: {
+        color: ACCENT,
+    },
+
+    tipsHead: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: spacing.sm,
+    },
+    tipsHeadText: {
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1.4,
+        textTransform: 'uppercase',
+    },
+
+    footer: {
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.lg,
+        paddingTop: spacing.md,
+        backgroundColor: colors.bg.void,
+        borderTopWidth: 1,
+        borderTopColor: colors.border.hairline,
+    },
+
+    // Active state
+    activeRoot: {
+        flex: 1,
+        backgroundColor: colors.bg.void,
+    },
     activeHeader: {
         flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.sm,
+        paddingBottom: spacing.base,
+        gap: spacing.md,
     },
-    activeTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#F5F5F7',
-    },
-    activeContent: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-    timerContainer: {
-        marginTop: 20,
-        marginBottom: 40,
-    },
-    timerRing: {
-        width: 220,
-        height: 220,
-        borderRadius: 110,
-        borderWidth: 6,
-        borderColor: '#1F1F2C',
+    closeBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    timerProgress: {
-        position: 'absolute',
-        width: 220,
-        height: 220,
-        borderRadius: 110,
-        borderWidth: 6,
-        borderColor: '#A78BFA',
-        borderLeftColor: 'transparent',
-        borderBottomColor: 'transparent',
-    },
-    timerInner: {
+    activeHeaderCenter: {
+        flex: 1,
         alignItems: 'center',
     },
-    timerText: {
-        fontSize: 48,
-        fontWeight: '700',
-        color: '#F5F5F7',
+    activeTitle: {
+        fontSize: typography.size.lg,
+        fontWeight: typography.weight.semibold,
+        color: colors.text.primary,
+        letterSpacing: -0.3,
+        marginTop: 2,
     },
-    timerLabel: {
-        fontSize: 14,
-        color: '#9494A0',
-        marginTop: 4,
+    distractionPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.hairline,
+        minWidth: 44,
+        justifyContent: 'center',
+    },
+    distractionPillText: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: colors.text.primary,
+        fontVariant: ['tabular-nums'] as any,
+    },
+
+    activeBody: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: spacing.lg,
+    },
+    subCaption: {
+        marginTop: spacing.xl,
+        fontSize: 13,
+        color: colors.text.tertiary,
+        fontWeight: '500',
     },
     controlsRow: {
         flexDirection: 'row',
-        gap: 40,
-        marginBottom: 32,
+        gap: 32,
+        marginTop: spacing.xl,
     },
-    controlButton: {
-        alignItems: 'center',
-        padding: 16,
-    },
-    controlLabel: {
-        fontSize: 14,
-        color: '#9494A0',
-        marginTop: 8,
-    },
-    distractionBadge: {
-        position: 'relative',
-    },
-    distractionCount: {
-        position: 'absolute',
-        top: -6,
-        right: -10,
-        backgroundColor: '#F87171',
-        borderRadius: 10,
-        minWidth: 20,
-        height: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    distractionCountText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#FFF',
-    },
-    tipsCard: {
-        backgroundColor: '#11111C',
-        borderRadius: 12,
-        padding: 16,
-        width: '100%',
-    },
-    tipsTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#F5F5F7',
-        marginBottom: 8,
-    },
-    tipsText: {
-        fontSize: 14,
-        color: '#9494A0',
-        lineHeight: 22,
-    },
-    endButton: {
-        marginHorizontal: 20,
-        marginBottom: 20,
-        backgroundColor: '#1F1F2C',
-        borderRadius: 12,
-        padding: 16,
-        alignItems: 'center',
-    },
-    endButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#9494A0',
+
+    activeFooter: {
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.lg,
     },
 });

@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, borderRadius, spacing, typography, shadows } from '../theme/tokens';
 import { createPressAnimation } from '../theme/animations';
 import { Gradient } from './Gradient';
+import { haptics } from '../utils/haptics';
 
 type Variant = 'voltage' | 'light' | 'ghost' | 'accent';
 
@@ -109,7 +110,10 @@ export function VoltageButton({
     return (
         <Animated.View style={[animated, style]}>
             <Pressable
-                onPress={onPress}
+                onPress={() => {
+                    if (!disabled && !loading) haptics.press();
+                    onPress();
+                }}
                 disabled={disabled || loading}
                 {...pressHandlers}
                 style={containerStyle}

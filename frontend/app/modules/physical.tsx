@@ -21,6 +21,8 @@ const WORKOUTS = [
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
+import { Eyebrow } from '../../src/components/Eyebrow';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function PhysicalModule() {
@@ -118,32 +120,17 @@ export default function PhysicalModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Protocol Generator</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#F87171" />
-              <Text style={styles.loadingText}>Generating personalized protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={() => generatePhysicalProtocol()}
-              >
-                <Ionicons name="refresh" size={16} color="#F87171" />
-                <Text style={styles.regenerateText}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.generateButton}
-              onPress={() => generatePhysicalProtocol()}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Generate Today's Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <Eyebrow style={{ marginBottom: 12 }}>AI Protocol</Eyebrow>
+          <ProtocolPanel
+            label="Physical Coach"
+            generateLabel="Generate today's protocol"
+            emptyDescription="Generate a training and recovery protocol tuned to your current energy and activity level."
+            protocol={protocol}
+            loading={loading}
+            accent={colors.modules.physical}
+            onGenerate={() => generatePhysicalProtocol()}
+            onRegenerate={() => generatePhysicalProtocol()}
+          />
         </View>
 
         {/* Quick Tips */}

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Animated, Platform, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { colors, borderRadius, shadows, spacing } from '../../src/theme/tokens';
+import { haptics } from '../../src/utils/haptics';
 
 // ─── Floating glass tab bar background ───────────────────────────────────────
 function FloatingTabBarBackground() {
@@ -74,6 +75,11 @@ function TabIcon({
 export default function TabLayout() {
   return (
     <Tabs
+      screenListeners={{
+        tabPress: () => {
+          haptics.select();
+        },
+      }}
       screenOptions={{
         headerShown: false,
         tabBarBackground: () => <FloatingTabBarBackground />,

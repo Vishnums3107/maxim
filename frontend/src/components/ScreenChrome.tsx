@@ -21,6 +21,7 @@ import {
     spacing,
     typography,
 } from '../theme/tokens';
+import { haptics } from '../utils/haptics';
 
 interface ScreenChromeProps {
     title: string;
@@ -40,7 +41,11 @@ export function ScreenChrome({
     style,
 }: ScreenChromeProps) {
     const router = useRouter();
-    const handleBack = onBack ?? (() => router.back());
+    const handleBack = () => {
+        haptics.tap();
+        if (onBack) onBack();
+        else router.back();
+    };
 
     return (
         <View style={[styles.row, style]}>

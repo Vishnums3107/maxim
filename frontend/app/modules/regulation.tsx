@@ -21,6 +21,8 @@ const REGULATION_TOOLS = [
 ];
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
+import { Eyebrow } from '../../src/components/Eyebrow';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function RegulationModule() {
@@ -123,32 +125,17 @@ export default function RegulationModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Regulation Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#34D399" />
-              <Text style={styles.loadingText}>Generating regulation protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateRegulationProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#34D399" />
-                <Text style={[styles.regenerateText, { color: '#34D399' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#34D399' }]}
-              onPress={generateRegulationProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Get Personalized Protocol</Text>
-            </TouchableOpacity>
-          )}
+          <Eyebrow style={{ marginBottom: 12 }}>AI Regulation Coach</Eyebrow>
+          <ProtocolPanel
+            label="Regulation Coach"
+            generateLabel="Get personalised protocol"
+            emptyDescription="Generate a regulation protocol matched to your current anxiety, energy, and stress signals."
+            protocol={protocol}
+            loading={loading}
+            accent={colors.modules.regulation}
+            onGenerate={generateRegulationProtocol}
+            onRegenerate={generateRegulationProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />

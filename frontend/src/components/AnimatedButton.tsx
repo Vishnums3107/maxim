@@ -22,6 +22,7 @@ import {
     shadows,
 } from '../theme/tokens';
 import { createPressAnimation } from '../theme/animations';
+import { haptics } from '../utils/haptics';
 
 interface AnimatedButtonProps {
     title: string;
@@ -88,7 +89,10 @@ export function AnimatedButton({
             ]}
         >
             <Pressable
-                onPress={onPress}
+                onPress={() => {
+                    if (!disabled) haptics.press();
+                    onPress();
+                }}
                 disabled={disabled}
                 {...pressHandlers}
                 style={[

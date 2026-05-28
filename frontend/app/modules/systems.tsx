@@ -17,6 +17,8 @@ import { generateProtocol, generateWeeklyReview } from '../../src/utils/api';
 import { format, subDays, eachDayOfInterval } from 'date-fns';
 import { ScreenChrome } from '../../src/components/ScreenChrome';
 import { ModuleHero } from '../../src/components/ModuleHero';
+import { ProtocolPanel } from '../../src/components/ProtocolPanel';
+import { Eyebrow } from '../../src/components/Eyebrow';
 import { colors, moduleGradients } from '../../src/theme/tokens';
 
 export default function SystemsModule() {
@@ -336,32 +338,17 @@ export default function SystemsModule() {
 
         {/* AI Protocol */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Systems Coach</Text>
-          {loading ? (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator color="#60A5FA" />
-              <Text style={styles.loadingText}>Generating systems protocol...</Text>
-            </View>
-          ) : protocol ? (
-            <View style={styles.protocolCard}>
-              <Text style={styles.protocolText}>{protocol}</Text>
-              <TouchableOpacity
-                style={styles.regenerateButton}
-                onPress={generateSystemsProtocol}
-              >
-                <Ionicons name="refresh" size={16} color="#60A5FA" />
-                <Text style={[styles.regenerateText, { color: '#60A5FA' }]}>Generate New</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.generateButton, { backgroundColor: '#60A5FA' }]}
-              onPress={generateSystemsProtocol}
-            >
-              <Ionicons name="sparkles" size={20} color="#FFF" />
-              <Text style={styles.generateButtonText}>Get System Recommendations</Text>
-            </TouchableOpacity>
-          )}
+          <Eyebrow style={{ marginBottom: 12 }}>AI Systems Coach</Eyebrow>
+          <ProtocolPanel
+            label="Systems Coach"
+            generateLabel="Get system recommendations"
+            emptyDescription="Generate system-level recommendations based on your habits, friction points, and recent patterns."
+            protocol={protocol}
+            loading={loading}
+            accent={colors.modules.systems}
+            onGenerate={generateSystemsProtocol}
+            onRegenerate={generateSystemsProtocol}
+          />
         </View>
 
         <View style={{ height: 40 }} />
